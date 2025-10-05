@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return subscriber; // unsubscribe on unmount
-  }, []);
+  }, [authInstance, initializing]);
 
   const signUp = async (email: string, password: string) => {
     await createUserWithEmailAndPassword(authInstance, email, password);

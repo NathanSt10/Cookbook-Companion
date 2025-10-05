@@ -24,11 +24,15 @@ export default function Index() {
       </View>
     );
   }
-  
+
   // nothing to render because router.replace will navigate away
   return null;
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

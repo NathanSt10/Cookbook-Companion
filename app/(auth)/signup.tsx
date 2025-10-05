@@ -33,6 +33,7 @@ export default function SignUp() {
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor={"#000000ff"}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -41,6 +42,7 @@ export default function SignUp() {
         <TextInput
           style={styles.input}
           placeholder="Password (6+ chars)"
+          placeholderTextColor={"#000000ff"}
           value={password}
           onChangeText={setPassword}
           autoCapitalize="none"
@@ -55,6 +57,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
   input: {
+    color: "black",
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 8,

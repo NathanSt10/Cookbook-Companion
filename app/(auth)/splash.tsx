@@ -1,7 +1,7 @@
 import { SplashScreen } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 
-export function SplashScreenController() {
+export default function SplashScreenController() {
   const { initializing } = useAuth();
 
   if (!initializing) {
