@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from "../context/AuthContext";
@@ -17,6 +18,7 @@ export default function Login() {
       setError(e.message || "Failed to sign in");
     }
   };
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -41,10 +43,7 @@ export default function Login() {
       <View style={{ height: 12 }} />
       <Button
         title="Create account"
-        onPress={() => {
-          // navigate via file system path
-          // expo-router will map this screen automatically when user navigates
-        }}
+        onPress={() => router.push("/(auth)/signup")}
       />
     </View>
   );

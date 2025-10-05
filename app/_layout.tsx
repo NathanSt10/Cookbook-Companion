@@ -1,36 +1,34 @@
 import { Stack } from "expo-router";
-import React from "react";
+
+import { SplashScreenController } from "./(auth)/splash";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
-function AppStack() {
-  return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
-  );
-}
-
-function AuthStack() {
-  return (
-    <Stack>
-      <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
-    </Stack>
-  );
-}
-
-function RootContent() {
-  const { user, initializing } = useAuth();
-
-  if (initializing) return null; // or a loading indicator
-
-  return user ? <AppStack /> : <AuthStack />;
-}
-
-export default function RootLayout() {
+export default function Root() {
+  // Set up the auth context and render your layout inside of it.
   return (
     <AuthProvider>
-      <RootContent />
+      <SplashScreenController />
+      <RootNavigator />
     </AuthProvider>
+  );
+}
+
+// Create a new component that can access the SessionProvider context later.
+
+function RootNavigator() {
+  const { user } = useAuth();
+
+  return (
+    <Stack>
+      <Stack.Protected guard={!!user}>
+        {/* your main app */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />{" "}
+      </Stack.Protected>
+
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+      </Stack.Protected>
+    </Stack>
   );
 }

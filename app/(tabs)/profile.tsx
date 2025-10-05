@@ -1,12 +1,12 @@
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Button, Text, View } from "react-native";
+
 import { useAuth } from "../context/AuthContext";
 
-export default function Tab() {
+export default function Index() {
   const { user, signOut } = useAuth();
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontSize: 18, marginBottom: 8 }}>Profile</Text>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       {user ? (
         <>
           <Text>{user.email}</Text>
@@ -20,10 +20,3 @@ export default function Tab() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
