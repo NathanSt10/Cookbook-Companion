@@ -13,7 +13,7 @@ export default function Index() {
       // navigate to the default tab screen (cookbook)
       router.replace("/(tabs)/cookbook");
     } else {
-      router.replace("/(auth)/login");
+      router.replace("/(auth)/signin");
     }
   }, [user, initializing, router]);
 
