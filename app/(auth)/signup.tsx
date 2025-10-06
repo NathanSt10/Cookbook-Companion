@@ -35,12 +35,8 @@ export default function SignUp() {
         first_name: firstName,
         last_name: lastName,
         email: user.email,
-        username: password,
       });
-
-      console.log("User added to Firestore!");
     } catch (e: any) {
-      console.error("Firestore error:", e);
       setError(e.message || "Failed to sign up");
     }
   };
