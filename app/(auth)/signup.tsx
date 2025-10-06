@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "expo-router";
 
 export default function SignUp() {
   const { signUp } = useAuth();
@@ -100,7 +101,7 @@ export default function SignUp() {
       {/* OR Divider */}
       <Text style={styles.orHeader}>---or---</Text>
 
-      {/* <Link style={styles.link} href="/login">Already have an account?</Link> */}
+      <Link style={styles.link} href="/signin">Already have an account?</Link>
 
       {/* Terms */}
       <Text style={styles.terms}>
@@ -193,39 +194,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-// export default function SignUp() {
-//   const { signUp } = useAuth();
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [error, setError] = useState<string | null>(null);
-
-//   const handleSignUp = async () => {
-//     try {
-//       setError(null);
-//       await signUp(email.trim(), password);
-//       // auth state change will switch the UI to the protected stack
-//     } catch (e: any) {
-//       setError(e.message || "Failed to sign up");
-//     }
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <KeyboardAvoidingView behavior="padding">
-//         <Text style={styles.title}>Create account</Text>
-//         {!!error && <Text style={styles.error}>{error}</Text>}
-//         <TextInput
-//           style={styles.input}
-//           placeholder="Password (6+ chars)"
-//           placeholderTextColor={"#000000ff"}
-//           value={password}
-//           onChangeText={setPassword}
-//           autoCapitalize="none"
-//           secureTextEntry
-//         />
-//         <Button title="Create" onPress={handleSignUp} />
-//       </KeyboardAvoidingView>
-//     </View>
-//   );
-// }
