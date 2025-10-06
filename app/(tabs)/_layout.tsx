@@ -1,17 +1,23 @@
-import Entypo from "@expo/vector-icons/Entypo";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Tabs.Screen
         name="cookbook"
         options={{
           title: "Cookbook",
-          tabBarIcon: ({ color }) => (
-            <Entypo size={28} name="open-book" color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "book" : "book-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -19,8 +25,12 @@ export default function TabLayout() {
         name="calendar"
         options={{
           title: "Calendar",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="calendar" color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "calendar" : "calendar-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -28,8 +38,12 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <Ionicons size={28} name="person" color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "person" : "person-outline"}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
