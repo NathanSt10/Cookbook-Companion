@@ -11,7 +11,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 type AuthContextType = {
   user: FirebaseAuthTypes.User | null;
   initializing: boolean;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<FirebaseAuthTypes.UserCredential>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -32,8 +32,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return subscriber; // unsubscribe on unmount
   }, [authInstance, initializing]);
 
-  const signUp = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(authInstance, email, password);
+  const signUp = async (email: string, password: string): Promise<FirebaseAuthTypes.UserCredential> => {
+    return await createUserWithEmailAndPassword(authInstance, email, password);
   };
 
   const signIn = async (email: string, password: string) => {

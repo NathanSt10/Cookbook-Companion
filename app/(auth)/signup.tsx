@@ -1,143 +1,109 @@
-import { Link, router } from "expo-router";
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc } from "@react-native-firebase/firestore";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { db } from "../../firebaseConfig";
 import { useAuth } from "../context/AuthContext";
-import firestore from '@react-native-firebase/firestore';
 
 export default function SignUp() {
   const { signUp } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const createUser = async (email: string, password: string, firstName: string, lastName: string) => {
+  const handleSignUp = async () => {
     try {
-      await signUp(email, password);
-      firestore()
-        .collection('Users')
-        .add({
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
-          username: password
-        })
-        .then(() => {
-          console.log('User added!');
-        });
+      setError(null);
+      const userCredential = await signUp(email.trim(), password);
+      const user = userCredential.user;
 
-      return { success: true}
-    } 
-    catch (error) {
-      console.error("Error creating user: ", error);
-      return { success: false};
-    }
-  };
+      await setDoc(doc(collection(db, "Users"), user.uid), {
+        first_name: firstName,
+        last_name: lastName,
+        email: user.email,
+        username: password,
+      });
 
-  const handleAuth = async () => {
-
-    if (!email && !password && !firstName && !lastName) {
-      Alert.alert("Please fill out all fields")
-      return;
+      console.log("User added!");
+    } catch (e: any) {
+      setError(e.message || "Failed to sign up");
     }
-    else if (!email) {
-      Alert.alert('Please enter valid email!');
-      return;
-    }
-    else if (!password) {
-      Alert.alert('Please enter pasword!');
-      return;
-    }
-    else if (!firstName) {
-      Alert.alert('Please enter first name');
-      return;
-    }
-    else if (!lastName) {
-      Alert.alert('Please enter lastname');
-      return;
-    }
-
-    const result = await createUser(email, password, firstName, lastName);
-  
-    if (result.success) {
-      router.replace('/');
-    } 
-    else {
-      Alert.alert('Failed to create account');
-    }
-  }
-
-  const clearFields = () => {
-    setEmail('');
-    setPassword('');
-    setFirstName('');
-    setLastName('');
   };
 
   return (
     <View style={styles.container}>
-        {/* Title */}
-        <Text style={styles.title}>Sign up</Text>
+      {/* Title */}
+      <Text style={styles.title}>Sign up</Text>
+      {!!error && <Text>{error}</Text>}
+      {/* Create account section */}
+      <Text style={styles.createHeader}>Create an account</Text>
+      <Text style={styles.enterEmailHeader}>
+        Enter an email and password to sign up for this app
+      </Text>
 
-        {/* Create account section */}
-        <Text style={styles.createHeader}>Create an account</Text>
-        <Text style={styles.enterEmailHeader}>Enter an email and password to sign up for this app</Text>
+      {/* First name input */}
+      <TextInput
+        style={styles.input}
+        placeholder="First name"
+        placeholderTextColor={"black"}
+        value={firstName}
+        onChangeText={setFirstName}
+      />
 
-        {/* First name input */}
-        <TextInput
-            style={styles.input}
-            placeholder="First name"
-            placeholderTextColor={"black"}
-            value={firstName}
-            onChangeText={setFirstName}
-        />
+      {/* Lase name input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Last name"
+        placeholderTextColor={"black"}
+        value={lastName}
+        onChangeText={setLastName}
+      />
 
-        {/* Lase name input */}
-        <TextInput
-            style={styles.input}
-            placeholder="Last name"
-            placeholderTextColor={"black"}
-            value={lastName}
-            onChangeText={setLastName}
-        />
+      {/* Email input */}
+      <TextInput
+        style={styles.input}
+        placeholder="email@domain.com"
+        placeholderTextColor={"black"}
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+      />
 
-        {/* Email input */}
-        <TextInput
-            style={styles.input}
-            placeholder="email@domain.com"
-            placeholderTextColor={"black"}
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-        />
+      {/* Password input */}
+      <TextInput
+        style={styles.input}
+        placeholder="password"
+        placeholderTextColor={"black"}
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        autoCapitalize="none"
+      />
 
-        {/* Password input */}
-        <TextInput
-            style={styles.input}
-            placeholder="password"
-            placeholderTextColor={"black"}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-        />
+      {/* Continue button */}
+      <TouchableOpacity style={styles.continueButton} onPress={handleSignUp}>
+        <Text style={styles.continueButtonText}>Continue</Text>
+      </TouchableOpacity>
 
-        {/* Continue button */}
-        <TouchableOpacity style={styles.continueButton} onPress={handleAuth}>
-            <Text style={styles.continueButtonText}>Continue</Text>
-        </TouchableOpacity>
+      {/* OR Divider */}
+      <Text style={styles.orHeader}>---or---</Text>
 
-        {/* OR Divider */}
-        <Text style={styles.orHeader}>---or---</Text>
+      {/* <Link style={styles.link} href="/login">Already have an account?</Link> */}
 
-        {/* <Link style={styles.link} href="/login">Already have an account?</Link> */}
-
-        {/* Terms */}
-        <Text style={styles.terms}>
-            By clicking continue, you agree to our <Text style={styles.link}>Terms of Service</Text> and <Text style={styles.link}>Privacy Policy</Text>
-        </Text>
+      {/* Terms */}
+      <Text style={styles.terms}>
+        By clicking continue, you agree to our{" "}
+        <Text style={styles.link}>Terms of Service</Text> and{" "}
+        <Text style={styles.link}>Privacy Policy</Text>
+      </Text>
     </View>
   );
 }
@@ -223,3 +189,39 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+// export default function SignUp() {
+//   const { signUp } = useAuth();
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [error, setError] = useState<string | null>(null);
+
+//   const handleSignUp = async () => {
+//     try {
+//       setError(null);
+//       await signUp(email.trim(), password);
+//       // auth state change will switch the UI to the protected stack
+//     } catch (e: any) {
+//       setError(e.message || "Failed to sign up");
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <KeyboardAvoidingView behavior="padding">
+//         <Text style={styles.title}>Create account</Text>
+//         {!!error && <Text style={styles.error}>{error}</Text>}
+//         <TextInput
+//           style={styles.input}
+//           placeholder="Password (6+ chars)"
+//           placeholderTextColor={"#000000ff"}
+//           value={password}
+//           onChangeText={setPassword}
+//           autoCapitalize="none"
+//           secureTextEntry
+//         />
+//         <Button title="Create" onPress={handleSignUp} />
+//       </KeyboardAvoidingView>
+//     </View>
+//   );
+// }
