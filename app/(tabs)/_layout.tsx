@@ -47,6 +47,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="preferences"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
