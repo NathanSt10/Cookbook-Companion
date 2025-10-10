@@ -1,60 +1,42 @@
 import { Ionicons } from "@expo/vector-icons";
-import { doc, getDoc, getFirestore } from "@react-native-firebase/firestore";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
+import PreferencesList from "../../components/profile/PreferencesList";
+import ProfileHeader from "../../components/profile/ProfileHeader";
+import ProfileTabs, { TabType } from "../../components/profile/ProfileTabs";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { useAuth } from "../context/AuthContext";
 
-type TabType = "collections" | "recipes" | "liked" | "saved" | "preferences";
-
 export default function ProfilePage() {
-  const [loading, setLoading] = useState(false);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [preferences, setPreferences] = useState<any>(null);
+  const {
+    loading: profileLoading,
+    firstName,
+    lastName,
+    preferences,
+    error,
+    refresh,
+  } = useUserProfile();
+  const { signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("collections");
-  const db = getFirestore();
-  const { user, signOut } = useAuth();
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  const fetchUserData = async () => {
-    if (!user) return;
-
-    try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        if (!data) return;
-        setFirstName(data.firstName || "");
-        setLastName(data.lastName || "");
-        setPreferences(data.preferences || null);
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
-      setLoading(true);
+      setLoggingOut(true);
       await signOut();
       router.replace("/");
     } catch (e: any) {
       Alert.alert("Logout failed", e?.message ?? "Please try again.");
     } finally {
-      setLoading(false);
+      setLoggingOut(false);
     }
   };
 
@@ -69,12 +51,7 @@ export default function ProfilePage() {
               <Ionicons name="chevron-forward" size={20} color="black" />
             </View>
             <View style={styles.collectionCard}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1605478571920-74b90cda44bb",
-                }}
-                style={styles.collectionImage}
-              />
+              <View style={styles.collectionImagePlaceholder} />
               <Text style={styles.collectionTitle}>My Favorites</Text>
             </View>
           </View>
@@ -106,38 +83,7 @@ export default function ProfilePage() {
         );
 
       case "preferences":
-        return (
-          <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Dietary Preferences</Text>
-            {preferences?.dietary && preferences.dietary.length > 0 ? (
-              preferences.dietary.map((item: string, index: number) => (
-                <View key={index} style={styles.preferenceItem}>
-                  <Text style={styles.preferenceText}>{item}</Text>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.emptyText}>No dietary preferences set</Text>
-            )}
-
-            <Text style={styles.sectionTitle}>Favorite Cuisines</Text>
-            {preferences?.cuisines && preferences.cuisines.length > 0 ? (
-              preferences.cuisines.map((item: string, index: number) => (
-                <View key={index} style={styles.preferenceItem}>
-                  <Text style={styles.preferenceText}>{item}</Text>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.emptyText}>No cuisine preferences set</Text>
-            )}
-
-            <TouchableOpacity
-              style={styles.editPreferencesButton}
-              onPress={() => router.push("/preferences")}
-            >
-              <Text style={styles.editPreferencesText}>Edit Preferences</Text>
-            </TouchableOpacity>
-          </View>
-        );
+        return <PreferencesList preferences={preferences} />;
 
       default:
         return null;
@@ -147,75 +93,37 @@ export default function ProfilePage() {
   return (
     <View style={styles.container}>
       <ScrollView>
-        {/* Profile header */}
-        <View style={styles.profileHeader}>
-          <Image
-            source={{ uri: "https://i.pravatar.cc/300" }}
-            style={styles.avatar}
-          />
-          <Text style={styles.name}>
-            {firstName && lastName ? `${firstName} ${lastName}` : "Loading..."}
-          </Text>
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editText}>Edit profile</Text>
-          </TouchableOpacity>
-        </View>
+        <ProfileHeader
+          firstName={firstName}
+          lastName={lastName}
+          onEdit={() => router.push({ pathname: "/edit-profile" } as any)}
+        />
 
-        {/* Tabs */}
-        <View style={styles.tabs}>
-          <TouchableOpacity onPress={() => setActiveTab("collections")}>
-            <Text
-              style={[
-                styles.tab,
-                activeTab === "collections" && styles.activeTab,
-              ]}
-            >
-              Collections
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab("recipes")}>
-            <Text
-              style={[styles.tab, activeTab === "recipes" && styles.activeTab]}
-            >
-              Recipes
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab("liked")}>
-            <Text
-              style={[styles.tab, activeTab === "liked" && styles.activeTab]}
-            >
-              Liked
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab("saved")}>
-            <Text
-              style={[styles.tab, activeTab === "saved" && styles.activeTab]}
-            >
-              Saved
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab("preferences")}>
-            <Text
-              style={[
-                styles.tab,
-                activeTab === "preferences" && styles.activeTab,
-              ]}
-            >
-              Preferences
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <ProfileTabs active={activeTab} onChange={(t) => setActiveTab(t)} />
 
-        {/* Tab Content */}
-        {renderTabContent()}
+        {profileLoading && ( 
+          <Text style={styles.emptyText}>Loading profile...</Text>
+        )}
+        {error && (
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text style={{ color: "red" }}>
+              Error loading profile: {String(error.message)}
+            </Text>
+            <Pressable onPress={() => refresh()}>
+              <Text style={{ color: "blue", marginTop: 8 }}>Retry</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {!profileLoading && !error && renderTabContent()}
 
         <Pressable
           onPress={handleLogout}
-          disabled={loading}
+          disabled={loggingOut}
           style={styles.logButton}
         >
           <Text style={styles.logButtonText}>
-            {loading ? "Logging out..." : "Logout"}
+            {loggingOut ? "Logging out..." : "Logout"}
           </Text>
         </Pressable>
       </ScrollView>
@@ -291,6 +199,12 @@ const styles = StyleSheet.create({
   },
   collectionCard: {
     width: 120,
+  },
+  collectionImagePlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+    backgroundColor: "#eee",
   },
   collectionImage: {
     width: 120,
