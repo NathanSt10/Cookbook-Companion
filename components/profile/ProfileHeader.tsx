@@ -18,7 +18,7 @@ export default function ProfileHeader({ firstName, lastName, onEdit }: Props) {
         {firstName && lastName ? `${firstName} ${lastName}` : "Loading..."}
       </Text>
       <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-        <Text style={styles.editText}>Edit profile</Text>
+        <Text style={styles.editText}>Edit profile</Text>x
       </TouchableOpacity>
     </View>
   );

@@ -96,7 +96,7 @@ export default function ProfilePage() {
         <ProfileHeader
           firstName={firstName}
           lastName={lastName}
-          onEdit={() => router.push({ pathname: "/edit-profile" } as any)}
+          onEdit={() => router.push({ pathname: "/editprofile" } as any)}
         />
 
         <ProfileTabs active={activeTab} onChange={(t) => setActiveTab(t)} />
