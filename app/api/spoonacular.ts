@@ -8,7 +8,7 @@ export async function searchRecipes(query: string) {
       `${BASE_URL}/recipes/random?apiKey=${API_KEY}`
     );
     const data = await response.json();
-    return data.recipes;
+    return data;
   } catch (error) {
     console.error("Error fetching recipes:", error);
     return [];
