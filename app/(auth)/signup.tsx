@@ -4,6 +4,7 @@ import {
   getFirestore,
   setDoc,
 } from "@react-native-firebase/firestore";
+import { Link } from "expo-router";
 import { useState } from "react";
 import {
   StyleSheet,
@@ -13,7 +14,6 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "expo-router";
 
 export default function SignUp() {
   const { signUp } = useAuth();
@@ -85,7 +85,7 @@ export default function SignUp() {
       {/* Password input */}
       <TextInput
         style={styles.input}
-        placeholder="password"
+        placeholder="Password"
         placeholderTextColor={"black"}
         secureTextEntry
         value={password}

@@ -35,6 +35,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="pantry"
+        options={{
+          title: "Pantry",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "nutrition" : "nutrition-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
