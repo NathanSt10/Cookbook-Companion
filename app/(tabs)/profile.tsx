@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -42,21 +41,6 @@ export default function ProfilePage() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "collections":
-        return (
-          <View style={styles.tabContent}>
-            <View style={styles.newCollection}>
-              <Ionicons name="add" size={20} color="black" />
-              <Text style={styles.newText}>Create new collection</Text>
-              <Ionicons name="chevron-forward" size={20} color="black" />
-            </View>
-            <View style={styles.collectionCard}>
-              <View style={styles.collectionImagePlaceholder} />
-              <Text style={styles.collectionTitle}>My Favorites</Text>
-            </View>
-          </View>
-        );
-
       case "recipes":
         return (
           <View style={styles.tabContent}>
@@ -92,6 +76,7 @@ export default function ProfilePage() {
 
   return (
     <View style={styles.container}>
+      <Text style={ styles.title }>My Profile</Text>
       <ScrollView>
         <ProfileHeader
           firstName={firstName}
@@ -135,6 +120,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 40,
   },
   profileHeader: {
     alignItems: "center",

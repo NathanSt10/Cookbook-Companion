@@ -1,4 +1,4 @@
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -6,8 +6,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 
@@ -35,6 +34,10 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSignUp = async () => {
+    router.push("/(auth)/signup");
   };
 
   return (
@@ -71,16 +74,15 @@ export default function Login() {
       </Pressable>
 
       <Text style={styles.orHeader}>-----or-----</Text>
+      <Text style={styles.noAccountHeader}>No account? Sign up here</Text>
 
-      <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>Continue with Google</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.socialButton}>
-        <Text style={styles.socialButtonText}>Continue with Apple</Text>
-      </TouchableOpacity>
-
-      <Link href="/signup">No account? Sign up here</Link>
+      <Pressable
+        onPress={onSignUp}
+        disabled={loading}
+        style={styles.continueButton}
+      >
+        <Text style={styles.continueButtonText}>Sign Up</Text>
+      </Pressable>
     </View>
   );
 }
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderRadius: 8,
     paddingVertical: 12,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   continueButtonText: {
     color: "white",
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
   },
   orHeader: {
     textAlign: "center",
-    marginVertical: 10,
+    marginVertical: 5,
     fontSize: 14,
     color: "#666",
   },
@@ -164,6 +166,11 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     fontWeight: "bold",
   },
+  noAccountHeader: {
+    textAlign: "center",
+    fontSize: 12,
+    marginBottom: 10,
+  }
 });
 // import { useRouter } from "expo-router";
 // import React, { useState } from "react";

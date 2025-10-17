@@ -16,13 +16,6 @@ type Props = {
 export default function ProfileTabs({ active, onChange }: Props) {
   return (
     <View style={styles.tabs}>
-      <TouchableOpacity onPress={() => onChange("collections")}>
-        <Text
-          style={[styles.tab, active === "collections" && styles.activeTab]}
-        >
-          Collections
-        </Text>
-      </TouchableOpacity>
       <TouchableOpacity onPress={() => onChange("recipes")}>
         <Text style={[styles.tab, active === "recipes" && styles.activeTab]}>
           Recipes
