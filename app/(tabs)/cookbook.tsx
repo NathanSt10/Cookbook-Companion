@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { searchRecipes } from "../api/spoonacular";
@@ -75,32 +76,31 @@ export default function CookbookPage() {
             <Text style={styles.categoryText}>Drinks</Text>
           </TouchableOpacity>
         </ScrollView>
-
-        {/* All Recipes */}
-        <Text style={styles.sectionTitle}>All Recipes</Text>
-        <View style={styles.recipeGrid}>
-          {recipes.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>Your cookbook is empty</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={recipes}
-              renderItem={({ item: r }) => (
-                <View style={styles.recipeCard}>
-                  <Image
-                    source={{ uri: r.image }}
-                    style={styles.recipeImage}
-                  />
-                  <Text style={styles.recipeTitle}>{r.title}</Text>
-                </View>
-              )}
-              keyExtractor={(r) => r.id.toString()}
-              horizontal={true}
-            />
-          )}
-        </View>
       </ScrollView>
+      {/* All Recipes */}
+        <Text style={styles.sectionTitle}>All Recipes</Text>
+        <FlatList
+            data={recipes}
+            renderItem={({ item: r }) => (
+              <TouchableOpacity
+                key={r.id.toString()}
+                style={styles.recipeCard}
+                onPress={() => router.push('../recipe')}
+                ><Image
+                  source={{ uri: r.image }}
+                  style={styles.recipeImage}
+                />
+                <Text style={styles.recipeTitle}>{r.title}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(r) => r.id.toString()}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>Your cookbook is empty</Text>
+              </View>
+            }
+            style={styles.recipeList}
+          />
     </View>
   );
 }
@@ -150,8 +150,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingHorizontal: 10,
   },
+  recipeList: {
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    paddingVertical: 10,
+    width: "50%",
+  },
   recipeCard: {
-    width: "30%",
+    width: "70%",
     marginBottom: 20,
     marginRight: 10,
   },

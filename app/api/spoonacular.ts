@@ -14,3 +14,13 @@ export async function searchRecipes(query: string) {
     return [];
   }
 }
+export async function getRecipeInformtaion(query: number) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/recipes/${query}/information=${API_KEY}`
+    );
+  } catch (error) {
+    console.error("Error fetching recipe information", error);
+    return "";
+  }
+}

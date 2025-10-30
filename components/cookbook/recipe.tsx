@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import { searchRecipes } from "../api/spoonacular";
+import { getRecipeInformtaion, searchRecipes } from "../../app/api/spoonacular";
 
 type Recipe = {
   id: number;
   title: string;
   image: string;
+  readyInMinutes: string;
 };
 
 export default function RecipesScreen() {
@@ -18,9 +19,15 @@ export default function RecipesScreen() {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+        const info = await getRecipeInformtaion(recipes[0].id);
+    })
+  })
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>This page should not exist</Text>
+      <Text style={styles.title}>Recipe</Text>
       {recipes.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Your cookbook is empty</Text>
@@ -31,6 +38,7 @@ export default function RecipesScreen() {
           renderItem={({item: r}) => (
             <View style={styles.itemCard}>
               <Text style={styles.itemName}>{r.title}</Text>
+              <Text style={styles.itemInfo}>{r.readyInMinutes}</Text>
             </View>
           )}
           keyExtractor={(r) => r.id.toString()}
