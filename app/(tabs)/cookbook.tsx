@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { searchRecipes } from "../api/spoonacular";
@@ -14,7 +15,7 @@ export default function CookbookPage() {
 
   useEffect(() => {
     (async () => {
-      const promises = Array(5).fill(null).map(() => searchRecipes("pasta"));
+      const promises = Array(2).fill(null).map(() => searchRecipes("pasta"));
       const results = await Promise.all(promises)
       const allRecipes = results.flatMap(data => data.recipes || []);
       setRecipes(allRecipes);
@@ -75,33 +76,41 @@ export default function CookbookPage() {
             <Text style={styles.categoryText}>Drinks</Text>
           </TouchableOpacity>
         </ScrollView>
-
-        {/* All Recipes */}
-        <Text style={styles.sectionTitle}>All Recipes</Text>
-        <View style={styles.recipeGrid}>
-          {recipes.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>Your cookbook is empty</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={recipes}
-              renderItem={({ item: r }) => (
-                <View style={styles.recipeCard}>
-                  <Image
-                    source={{ uri: r.image }}
-                    style={styles.recipeImage}
-                  />
-                  <Text style={styles.recipeTitle}>{r.title}</Text>
-                </View>
-              )}
-              keyExtractor={(r) => r.id.toString()}
-              horizontal={true}
-            />
-          )}
-        </View>
       </ScrollView>
+      {/* All Recipes */}
+      <Text style={styles.sectionTitle}>All Recipes</Text>
+      <View style={styles.containerList}>
+        <FlatList
+            data={recipes}
+            //numColumns={2}
+            horizontal={true}
+            renderItem={({ item: r }) => (
+              <TouchableOpacity
+                key={r.id.toString()}
+                style={styles.recipeCard}
+                onPress={() => router.push({ 
+                  pathname: '/recipe/[id]' as const,
+                  params: { id: r.id } 
+                })}
+                ><Image
+                  source={{ uri: r.image }}
+                  style={styles.recipeImage}
+                />
+                <Text style={styles.recipeTitle}>{r.title}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(r) => r.id.toString()}
+            //columnWrapperStyle={styles.row}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>Your cookbook is empty</Text>
+              </View>
+            }
+            style={styles.recipeList}
+          />
+      </View>
     </View>
+    
   );
 }
 
@@ -116,6 +125,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     margin: 20,
+  },
+  containerList: {
+    flexDirection: "row",
+    padding: 3,
   },
   searchInput: {
     color: "black",
@@ -133,7 +146,7 @@ const styles = StyleSheet.create({
   featuredImage: {
     width: 200,
     height: 120,
-    borderRadius: 12,
+    borderRadius: 8,
     marginHorizontal: 10,
   },
   category: {
@@ -150,10 +163,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingHorizontal: 10,
   },
+  recipeList: {
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    paddingVertical: 10,
+    width: "50%",
+  },
   recipeCard: {
-    width: "30%",
-    marginBottom: 20,
-    marginRight: 10,
+    width: "60%",
+    justifyContent: "space-evenly",
+    backgroundColor: '#eee',
+    borderRadius: 10,
+    padding: 5,
+    overflow: 'hidden',
+    elevation: 5,
   },
   recipeImage: {
     width: "100%",
@@ -164,6 +187,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 14,
     fontWeight: "500",
+    padding: 8,
   },
   footer: {
     flexDirection: "row",
@@ -187,6 +211,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 20,
     color: '#999',
-    marginBottom: 8,
+    marginBottom: 75,
+    justifyContent: 'center',
+    padding: 16
+  },
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 2,
   },
 });

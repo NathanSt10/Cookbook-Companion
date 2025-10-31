@@ -1,5 +1,5 @@
 // app/api/spoonacular.ts
-const API_KEY = process.env.EXPO_PUBLIC_SPOONACULAR_KEY;
+const API_KEY = "a028bfdf060f4df99acaa9a89131e039";
 const BASE_URL = "https://api.spoonacular.com";
 
 export async function searchRecipes(query: string) {
@@ -12,5 +12,17 @@ export async function searchRecipes(query: string) {
   } catch (error) {
     console.error("Error fetching recipes:", error);
     return [];
+  }
+}
+export async function getRecipeInformtaion(query: number) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/recipes/${query}/information?apiKey=${API_KEY}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching recipe information", error);
+    return "";
   }
 }
