@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { getRecipeInformtaion } from "./../../api/spoonacular";
 
 type Recipe = {
@@ -45,6 +45,10 @@ export default function RecipesScreen() {
         ) : (
           <Text>Loading Recipe...</Text>
         )}
+
+        <TouchableOpacity onPress={() => router.push("/cookbook")}>
+          <Text style={styles.backButtom}>Back to Cookbook</Text>
+        </TouchableOpacity>
         </ScrollView>
       </View>
       )
@@ -63,6 +67,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     padding: 10,
     color: '#333',
+  },
+  backButtom: {
+    backgroundColor: "black",
+    paddingVertical: 6,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 10,
+    color: "#fff"
   },
   name: {
     fontSize: 20,
