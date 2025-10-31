@@ -38,7 +38,7 @@ export default function RecipesScreen() {
             />
             <Text style={styles.itemInfo}>Serving size: {recipes.servings}</Text>
             <Text style={styles.itemInfo}>Recipe ready in {recipes.readyInMinutes} minutes</Text>
-            <Text style={styles.itemInfo}>Cooking time: {recipes.readyInMinutes} minutes</Text>
+            <Text style={styles.itemInfo}>Cooking time: {recipes.cookingMinutes} minutes</Text>
             <Text style={styles.itemInfo}>Prep time: {recipes.preparationMinutes} minutes</Text>
             <Text style={styles.itemInfo}>Instructions: {recipes.instructions}</Text>
           </View>
