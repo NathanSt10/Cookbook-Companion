@@ -1,6 +1,5 @@
-// hooks/usePantry.ts
 import firestore from '@react-native-firebase/firestore';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { useAuth } from '../app/context/AuthContext';
 
@@ -24,15 +23,16 @@ export function usePantry() {
         return;
     }
 
-    const ref = firestore()
+    const db = firestore()
       .collection('Users').doc(user.uid)
       .collection('pantry')
       .orderBy('addedAt', 'desc');
 
-    const unsub = ref.onSnapshot(
+    const unsub = db.onSnapshot(
       (snap) => {
         const next: PantryItem[] = snap.docs.map((doc) => {
           const d = doc.data();
+          console.log("doc.data:", d);
           return {
             id: doc.id,
             name: d.name,
@@ -50,9 +50,7 @@ export function usePantry() {
     return unsub;
   }, [user]);
 
-  const addItem = useCallback(async (data: {
-    name: string; category: string; quantity?: string;
-  }) => {
+  const addItem = useCallback(async (data: { name: string; category: string; quantity?: string; }) => {
     if (!user) return;
     await firestore()
       .collection('Users').doc(user.uid)
@@ -74,10 +72,20 @@ export function usePantry() {
       .delete();
   }, [user]);
 
+  const stats = useMemo(() => ({
+    totalItems: items.length,
+    lowStockCount: items.filter(item => {
+      if (!item.quantity) return false;
+      const qty = parseFloat(item.quantity);
+      return !isNaN(qty) && qty > 0 && qty <= 2;
+    }).length
+  }), [items]);
+
   return {
     items,
     loading,
     addItem,
-    deleteItem
+    deleteItem,
+    stats,
   } as const;
 }
