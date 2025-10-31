@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { usePantry } from '../../hooks/usePantry';
 import PantryStats from '../../components/pantry/PantryStats';

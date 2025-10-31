@@ -73,9 +73,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="apitests"
+        name="recipe/[id]"
         options={{
-          
+          href: null,
         }}
       />
     </Tabs>
