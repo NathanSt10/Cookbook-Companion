@@ -15,7 +15,7 @@ export default function CookbookPage() {
 
   useEffect(() => {
     (async () => {
-      const promises = Array(5).fill(null).map(() => searchRecipes("pasta"));
+      const promises = Array(1).fill(null).map(() => searchRecipes("pasta"));
       const results = await Promise.all(promises)
       const allRecipes = results.flatMap(data => data.recipes || []);
       setRecipes(allRecipes);
@@ -85,7 +85,10 @@ export default function CookbookPage() {
               <TouchableOpacity
                 key={r.id.toString()}
                 style={styles.recipeCard}
-                onPress={() => router.push('../recipe')}
+                onPress={() => router.push({ 
+                  pathname: '/recipe/[id]' as const,
+                  params: { id: r.id } 
+                })}
                 ><Image
                   source={{ uri: r.image }}
                   style={styles.recipeImage}
