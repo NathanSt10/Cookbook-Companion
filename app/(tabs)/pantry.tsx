@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ScrollView,
   View
 } from 'react-native';
 import { usePantry } from '../../hooks/usePantry';
