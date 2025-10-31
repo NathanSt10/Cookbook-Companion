@@ -3,6 +3,10 @@
 # firebase
 google-services.json
 
+# API keys and other secrets
+*.env
+.env
+
 # dependencies
 node_modules/
 

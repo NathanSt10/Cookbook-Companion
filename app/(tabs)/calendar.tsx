@@ -1,6 +1,12 @@
 import firestore from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 import CalendarViewToggle from "../../components/calendar/CalendarViewToggle";
 import MonthView from "../../components/calendar/MonthView";
 import WeekView from "../../components/calendar/WeekView";
@@ -214,7 +220,7 @@ export default function CalendarPage() {
         <MonthView  
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
-          markedDates={getMarkedDates}
+          markedDates={getMarkedDates()}
           recipes={getRecipesForDate(selectedDate)}
           onRemoveRecipe={removeRecipeFromDate}
         />
@@ -258,5 +264,22 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 16,
+  },
+  testButton: {
+    backgroundColor: '#4A90E2',
+    padding: 14,
+    borderRadius: 8,
+    marginTop: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  testButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
