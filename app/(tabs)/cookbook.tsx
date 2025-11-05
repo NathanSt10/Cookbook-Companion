@@ -15,7 +15,7 @@ export default function CookbookPage() {
 
   useEffect(() => {
     (async () => {
-      const promises = Array(2).fill(null).map(() => searchRecipes("pasta"));
+      const promises = Array(1).fill(null).map(() => searchRecipes("pasta"));
       const results = await Promise.all(promises)
       const allRecipes = results.flatMap(data => data.recipes || []);
       setRecipes(allRecipes);
