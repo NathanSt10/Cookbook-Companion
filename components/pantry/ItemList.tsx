@@ -33,6 +33,7 @@ export default function ItemList({
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyTitle}>No items in this category</Text>
+        
         <Text style={styles.emptySubtitle}>
           Try selecting a different category or add items to this one
         </Text>
@@ -61,6 +62,7 @@ export default function ItemList({
 const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 20,
+    paddingTop: 5,
   },
   emptyContainer: {
     flex: 1,

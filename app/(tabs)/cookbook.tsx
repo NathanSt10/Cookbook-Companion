@@ -3,6 +3,8 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { searchRecipes } from "../api/spoonacular";
+import HeaderFormatFor from "../../components/HeaderFormatFor";
+import LoadingViewFor from "@/components/LoadingViewFor";
 
 type Recipe = {
   id: number;
@@ -12,6 +14,7 @@ type Recipe = {
 
 export default function CookbookPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState<Boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -20,14 +23,15 @@ export default function CookbookPage() {
       const allRecipes = results.flatMap(data => data.recipes || []);
       setRecipes(allRecipes);
     })();
+
   }, []);
+
+  // make a setLoading function to toggle it on
+  if (loading) { return (<LoadingViewFor page={"cookbook"}/>); }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Discover Recipes</Text>
-      </View>
+      <HeaderFormatFor page="Cookbook"/>
 
       {/* Search bar */}
       <View style={styles.searchContainer}>
@@ -115,9 +119,11 @@ export default function CookbookPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  header: { marginTop: 40, paddingHorizontal: 20 },
-  title: { fontSize: 22, fontWeight: "bold" },
+  container: { 
+    flex: 1, 
+    backgroundColor: "whitesmoke", 
+    padding: 8,
+  },  
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",

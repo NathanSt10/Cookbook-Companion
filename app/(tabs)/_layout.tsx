@@ -61,18 +61,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="preferences"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="editprofile"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
         name="recipe/[id]"
         options={{
           href: null,

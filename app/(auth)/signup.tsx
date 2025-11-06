@@ -1,18 +1,7 @@
-import {
-  collection,
-  doc,
-  getFirestore,
-  setDoc,
-} from "@react-native-firebase/firestore";
+import firestore from '@react-native-firebase/firestore';
 import { Link } from "expo-router";
 import { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import { useAuth } from "../context/AuthContext";
 
 export default function SignUp() {
@@ -29,16 +18,23 @@ export default function SignUp() {
       const userCredential = await signUp(email.trim(), password);
       const user = userCredential.user;
 
-      const db = getFirestore();
-      const usersRef = collection(db, "Users");
-
-      await setDoc(doc(usersRef, user.uid), {
-        first_name: firstName,
-        last_name: lastName,
-        email: user.email,
-      });
+      await firestore()
+        .collection('Users')
+        .doc(user.uid)
+        .set({
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email,
+          preferences: null,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        })
+        .then(() => {
+          console.log('user created ', firstName, ' ', lastName);
+        });
+   
     } catch (e: any) {
       setError(e.message || "Failed to sign up");
+      console.error("signup error: ", e);
     }
   };
 

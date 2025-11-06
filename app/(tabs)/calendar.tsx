@@ -1,16 +1,13 @@
 import firestore from "@react-native-firebase/firestore";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import HeaderFormatFor from "../../components/HeaderFormatFor";
 import CalendarViewToggle from "../../components/calendar/CalendarViewToggle";
 import MonthView from "../../components/calendar/MonthView";
 import WeekView from "../../components/calendar/WeekView";
 import { useAuth } from "../context/AuthContext";
+import FloatingActionButton from "@/components/FloatingActionButton";
+import { router } from "expo-router";
 
 type CalendarView = "month" | "week";
   
@@ -48,7 +45,7 @@ export default function CalendarPage() {
       const querySnapshot = await firestore()
         .collection("Users")
         .doc(user.uid)
-        .collection("planned_meals")
+        .collection("plannedMeals")
         .get();
 
       const recipes: PlannedRecipes = {}; 
@@ -91,7 +88,7 @@ export default function CalendarPage() {
       const plannedMealsDoc = await firestore()
         .collection("Users")
         .doc(user.uid)
-        .collection("planned_meals")
+        .collection("plannedMeals")
         .add({
           date: recipeData.date,
           recipeId: recipeData.recipeId, 
@@ -133,7 +130,7 @@ export default function CalendarPage() {
       await firestore()
         .collection("Users")
         .doc(user.uid)
-        .collection("planned_meals")
+        .collection("plannedMeals")
         .doc(recipeId)
         .delete();
 
@@ -211,29 +208,32 @@ export default function CalendarPage() {
 
   return (
     <View style={ styles.container }>
-      <View style={ styles.header }>
-        <Text style={ styles.headerTitle }>Meal Planner</Text>
-        <CalendarViewToggle value={calendarView} onChange={setCalendarView} />
-      </View>
+      <HeaderFormatFor page="Calendar"/>      
+      
+      <CalendarViewToggle active={calendarView} onChange={setCalendarView} />
 
-      {calendarView === "month" ? (
-        <MonthView  
-          selectedDate={selectedDate}
-          onDateSelect={setSelectedDate}
-          markedDates={getMarkedDates()}
-          recipes={getRecipesForDate(selectedDate)}
-          onRemoveRecipe={removeRecipeFromDate}
-        />
-      ) : (
-        <WeekView
-          selectedDate={selectedDate}
-          weekDates={getWeekDates(selectedDate)}
-          onDateSelect={setSelectedDate}
-          recipes={getRecipesForDate(selectedDate)}
-          onRemoveRecipe={removeRecipeFromDate}
-          getRecipesForDate={getRecipesForDate}
-        />
-      )}
+      {calendarView === "month" ? 
+        (<MonthView  
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+            markedDates={getMarkedDates()}
+            recipes={getRecipesForDate(selectedDate)}
+            onRemoveRecipe={removeRecipeFromDate}
+          />
+        ) 
+        : 
+        (<WeekView
+            selectedDate={selectedDate}
+            weekDates={getWeekDates(selectedDate)}
+            onDateSelect={setSelectedDate}
+            recipes={getRecipesForDate(selectedDate)}
+            onRemoveRecipe={removeRecipeFromDate}
+            getRecipesForDate={getRecipesForDate}
+          /> 
+        )
+      }
+
+      <FloatingActionButton onPress={() => router.push('(tabs)/cookbook')}/>
     </View>
   );
 }
@@ -241,45 +241,18 @@ export default function CalendarPage() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: "#ffff", 
+    backgroundColor: "whitesmoke", 
+    padding: 8,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ffff",
+    backgroundColor: "whitesmoke",
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
     color: "black",
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#ffff",
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  testButton: {
-    backgroundColor: '#4A90E2',
-    padding: 14,
-    borderRadius: 8,
-    marginTop: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  testButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: '600',
-    fontSize: 16,
   },
 });

@@ -1,33 +1,34 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-type CalendarView = "month" | "week";
+type CalendarViewType = "month" | "week";
 
 interface CalendarViewToggleProps {
-  value: CalendarView;
-  onChange: (view: CalendarView) => void;
+  active: CalendarViewType;
+  onChange: (view: CalendarViewType) => void;
 }
 
 export default function CalendarViewToggle({ 
-  value, 
+  active, 
   onChange 
-}: CalendarViewToggleProps) {
+  }: CalendarViewToggleProps) {
+
   return (
     <View style={styles.toggle}>
       <TouchableOpacity
-        style={[styles.item, value === "month" && styles.active]}
+        style={[styles.item, active === "month" && styles.active]}
         onPress={() => onChange("month")}
       >
-        <Text style={[styles.text, value === "month" && styles.textActive]}>
+        <Text style={[styles.text, active === "month" && styles.textActive]}>
           Month
         </Text>
       </TouchableOpacity>
       
       <TouchableOpacity
-        style={[styles.item, value === "week" && styles.active]}
+        style={[styles.item, active === "week" && styles.active]}
         onPress={() => onChange("week")}
       >
-        <Text style={[styles.text, value === "week" && styles.textActive]}>
+        <Text style={[styles.text, active === "week" && styles.textActive]}>
           Week
         </Text>
       </TouchableOpacity>
@@ -38,7 +39,8 @@ export default function CalendarViewToggle({
 const styles = StyleSheet.create({
   toggle: {
     flexDirection: "row",
-    backgroundColor: "#f1f1f1",
+    backgroundColor: 'gainsboro',
+    shadowColor: "black",
     borderRadius: 12,
     padding: 4,
   },
@@ -50,11 +52,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   active: {
-    backgroundColor: "#fff",
+    backgroundColor: "whitesmoke",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 5,
   },
   text: {
     fontSize: 14,
-    color: "#333",
+    color: "black",
   },
   textActive: {
     fontWeight: "700",

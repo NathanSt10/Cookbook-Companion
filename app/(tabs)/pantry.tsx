@@ -1,18 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  View
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { usePantry } from '../../hooks/usePantry';
-import PantryStats from '../../components/pantry/PantryStats';
-import CategoryFilter, { Category } from '../../components/pantry/CategoryFilter';
+import HeaderFormatFor from '../../components/HeaderFormatFor';
+import FloatingActionButton from '../../components/FloatingActionButton';
+import LoadingViewFor from '../../components/LoadingViewFor';
+import CategoryChips, { Category } from '../../components/pantry/CategoryChips';
+import CategoryRowView from '../../components/pantry/CategoryRowView';
 import ItemList from '../../components/pantry/ItemList';
-import ItemAddModal from '../../components/pantry/ItemAddModal';
-import CategoryAddModal from '../../components/pantry/CategoryAddModal';
+import PantryStats from '../../components/pantry/PantryStats';
 import PantryEmptyState from '../../components/pantry/PantryEmptyState';
 
 export default function PantryScreen() {
@@ -48,73 +43,52 @@ export default function PantryScreen() {
       .map(item => item.category)
       .filter((cat, index, self) => self.indexOf(cat) === index);
   }, [items]);
+  console.log("grabbed these cats: ", items);
 
   const handleDeleteItem = (id: string, name: string) => {
     deleteItem(id);
     console.log("Deleted item:", name);
   };
 
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="black" />
-        <Text style={styles.loadingText}>Loading pantry...</Text>
-      </View>
-    );
-  }
+  // make a setLoading function to toggle it on
+  if (loading) { return (<LoadingViewFor page="pantry"/>); }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>My Pantry</Text>
-      </View>
+      <HeaderFormatFor page="Pantry"/>
 
       <PantryStats
         totalItems={stats.totalItems}
         lowStockCount={stats.lowStockCount}
       />
 
-      {items.length === 0 ? (
-        <PantryEmptyState onAddItem={() => setItemModalVisible(true)} />
-      ) : (
-        <ScrollView 
-          style={styles.content}
-          showsVerticalScrollIndicator={false}
-        >
-          {categories.length > 1 && (
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              onAddCategory={() => setCategoryModalVisible(true)}
-            />
-          )}
-
-          <ItemList
+      <CategoryRowView 
+        onViewAll={() => setSelectedCategory('all')}
+        onAddCategory={() => setCategoryModalVisible(true)}
+        chips={
+          <CategoryChips
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            onAddCategory={() => setCategoryModalVisible(true)}
+          />
+        }
+      />
+      
+      <Text style={styles.itemText}>Items</Text>
+      
+      {items.length === 0 ? 
+        (<PantryEmptyState onAddItem={() => setItemModalVisible(false)}/>) 
+        :
+        (<ItemList 
             items={items}
             selectedCategory={selectedCategory}
             onDeleteItem={handleDeleteItem}
-            onAddItem={() => setItemModalVisible(true)}
-          />
-        </ScrollView>
-      )}
+          /> 
+        ) 
+      }
 
-      {items.length > 0 && (
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => setItemModalVisible(true)}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      )}
-
-      <ItemAddModal
-        visible={itemModalVisible}
-        onClose={() => setItemModalVisible(false)}
-        onAdd={addItem}
-        categories={categoryNames}
-      />
+      <FloatingActionButton onPress={() => setItemModalVisible(true)} />      
     </View>
   );
 }
@@ -122,53 +96,16 @@ export default function PantryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'ghostwhite',
-    padding: 16,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'ghostwhite',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: 'tan',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'black',
+    backgroundColor: 'whitesmoke',
+    padding: 8,
   },
   content: {
     flex: 1,
   },
-  fab: {
-    position: 'absolute',
-    right: 24,
-    bottom: 24,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  fabText: {
-    fontSize: 32,
-    color: 'ghostwhite',
-    fontWeight: '300',
+  itemText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: 'black',
+    paddingHorizontal: 12,
   },
 });
