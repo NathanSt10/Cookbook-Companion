@@ -12,21 +12,31 @@ type Recipe = {
 
 export default function CookbookPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("pasta");
+
+  const handleSearch = ()  => {
+    if (searchQuery.trim()) {
+      setSearchTerm(searchQuery);
+    }
+  };
 
   useEffect(() => {
     (async () => {
-      const promises = Array(1).fill(null).map(() => searchRecipes("pasta"));
-      const results = await Promise.all(promises)
-      const allRecipes = results.flatMap(data => data.recipes || []);
-      setRecipes(allRecipes);
+      if (searchTerm.trim()) {
+        const promises = Array(1).fill(null).map(() => searchRecipes(searchTerm));
+        const results = await Promise.all(promises)
+        const allRecipes = results.flatMap(data => data.results || []);
+        setRecipes(allRecipes);
+      }
     })();
-  }, []);
+  }, [searchTerm]);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Discover Recipes</Text>
+        <Text style={styles.title}>Cookbook</Text>
       </View>
 
       {/* Search bar */}
@@ -36,51 +46,17 @@ export default function CookbookPage() {
           placeholder="Search recipes..."
           placeholderTextColor={"black"}
           style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
         />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Featured section */}
-        <Text style={styles.sectionTitle}>Featured</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Image
-            source={{ uri: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092" }}
-            style={styles.featuredImage}
-          />
-          <Image
-            source={{ uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836" }}
-            style={styles.featuredImage}
-          />
-          <Image
-            source={{ uri: "https://images.unsplash.com/photo-1605478571920-74b90cda44bb" }}
-            style={styles.featuredImage}
-          />
-        </ScrollView>
-
-        {/* Categories */}
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Breakfast</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Lunch</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Dinner</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Desserts</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Drinks</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </ScrollView>
-      {/* All Recipes */}
-      <Text style={styles.sectionTitle}>All Recipes</Text>
-      <View style={styles.containerList}>
-        <FlatList
+        <Text style={styles.sectionTitle}>Discover Recipes</Text>        
+          <View style={styles.containerList}>
+          <FlatList
             data={recipes}
             //numColumns={2}
             horizontal={true}
@@ -103,12 +79,66 @@ export default function CookbookPage() {
             //columnWrapperStyle={styles.row}
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>Your cookbook is empty</Text>
+                <Text style={styles.emptyText}>No search results</Text>
               </View>
             }
             style={styles.recipeList}
           />
-      </View>
+        </View>
+
+        {/* Categories */}
+        <Text style={styles.sectionTitle}>Categories</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Breakfast</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Lunch</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Dinner</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Desserts</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Drinks</Text>
+          </TouchableOpacity>
+        </ScrollView>
+        {/* All Recipes */}
+        <Text style={styles.sectionTitle}>Your Recipes</Text>
+        <View style={styles.containerList}>
+          <FlatList
+            data={null}
+            //numColumns={2}
+            horizontal={true}
+            renderItem={({ item: r }) => (
+              <TouchableOpacity
+                key={r.id.toString()}
+                style={styles.recipeCard}
+                onPress={() => router.push({ 
+                  pathname: '/recipe/[id]' as const,
+                  params: { id: r.id } 
+                })}
+                ><Image
+                  source={{ uri: r.image }}
+                  style={styles.recipeImage}
+                />
+                <Text style={styles.recipeTitle}>{r.title}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(r) => r.id.toString()}
+            //columnWrapperStyle={styles.row}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>Your Cookbook is empty!</Text>
+              </View>
+            }
+            style={styles.recipeList}
+          />
+        </View>
+      </ScrollView>
+      
     </View>
     
   );
@@ -128,7 +158,7 @@ const styles = StyleSheet.create({
   },
   containerList: {
     flexDirection: "row",
-    padding: 3,
+    padding: 1,
   },
   searchInput: {
     color: "black",
@@ -161,7 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-around",
-    paddingHorizontal: 10,
+    paddingHorizontal: 3,
   },
   recipeList: {
     flexDirection: 'column',
@@ -217,6 +247,6 @@ const styles = StyleSheet.create({
   },
   row: {
     justifyContent: 'space-between',
-    paddingHorizontal: 2,
+    paddingHorizontal: 1,
   },
 });

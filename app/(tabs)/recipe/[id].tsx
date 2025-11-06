@@ -1,3 +1,4 @@
+import { getFirestore } from "@react-native-firebase/firestore";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -41,6 +42,7 @@ export default function RecipesScreen() {
   useEffect(() => {
     (async () => {
         const info = await getRecipeInformtaion(Number(id));
+        const recipe = await getFirestore().collection('Recipes').get();
         if (info) setRecipes(info);
         else console.log('No recipe data returned');
     })();
@@ -53,6 +55,8 @@ export default function RecipesScreen() {
         else console.log('No instructions found');
     })();
   }, [id]);
+
+  
 
   return (
     <View>
