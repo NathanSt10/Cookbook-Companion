@@ -106,7 +106,15 @@ export default function CookbookPage() {
           </TouchableOpacity>
         </ScrollView>
         {/* All Recipes */}
-        <Text style={styles.sectionTitle}>Your Recipes</Text>
+        <View style={styles.container}>
+          <ScrollView horizontal={true}>
+            <Text style={styles.sectionTitle}>Your Recipes</Text>
+            <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.addButtom}>
+              <Text style={styles.categoryText}>+</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+        
         <View style={styles.containerList}>
           <FlatList
             data={null}
@@ -248,5 +256,18 @@ const styles = StyleSheet.create({
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 1,
+  },
+  addButtom: {
+    backgroundColor: "#f2f2f2",
+    fontSize: 25,
+    paddingVertical: 1,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    flex: 3,
+    justifyContent: "center",
+    color: "#6b6969ff",
+    alignSelf: "flex-end"
   },
 });
