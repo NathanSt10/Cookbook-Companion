@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   View

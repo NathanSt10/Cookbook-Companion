@@ -27,12 +27,7 @@ export default function ItemCard({
   };
 
   const isExpiringSoon = (expiryDate?: string) => {
-    if (!expiryDate) return false;
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    const diffTime = expiry.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 7 && diffDays >= 0;
+    return "need a system for this";
   };
 
   return (
