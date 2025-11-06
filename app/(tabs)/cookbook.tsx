@@ -54,7 +54,26 @@ export default function CookbookPage() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Featured section */}
-        <Text style={styles.sectionTitle}>Discover Recipes</Text>        
+        <Text style={styles.sectionTitle}>Discover Recipes</Text>  
+        {/* Categories */}
+        <Text style={styles.sectionTitle}>Categories</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Breakfast</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Lunch</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Dinner</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Desserts</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.category}>
+            <Text style={styles.categoryText}>Drinks</Text>
+          </TouchableOpacity>
+        </ScrollView>      
           <View style={styles.containerList}>
           <FlatList
             data={recipes}
@@ -85,26 +104,6 @@ export default function CookbookPage() {
             style={styles.recipeList}
           />
         </View>
-
-        {/* Categories */}
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Breakfast</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Lunch</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Dinner</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Desserts</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.category}>
-            <Text style={styles.categoryText}>Drinks</Text>
-          </TouchableOpacity>
-        </ScrollView>
         {/* All Recipes */}
         <View style={styles.container}>
           <ScrollView horizontal={true}>
