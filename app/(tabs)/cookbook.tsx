@@ -42,9 +42,7 @@ export default function CookbookPage() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Cookbook</Text>
-      </View>
+      <HeaderFormatFor page="Cookbook" />
 
       {/* Search bar */}
       <View style={styles.searchContainer}>
