@@ -59,20 +59,6 @@ export default function ItemCard({
               )}
             </View>
           )}
-          
-          {item.expiryDate && (
-            <View style={[
-              styles.expiryContainer,
-              isExpiringSoon(item.expiryDate) && styles.expiringSoonContainer
-            ]}>
-              <Text style={[
-                styles.expiryText,
-                isExpiringSoon(item.expiryDate) && styles.expiringSoonText
-              ]}>
-                Expires: {formatDate(new Date(item.expiryDate))}
-              </Text>
-            </View>
-          )}
 
           <Text style={styles.addedDate}>
             Added: {formatDate(item.addedAt)}

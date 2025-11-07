@@ -12,7 +12,7 @@ export type Preferences = {
   dietary?: string[];
   allergies?: string[];
   cuisines?: string[];
-  kitchware?: string[];
+  kitchenware?: string[];
   dislikes?: string[];
   cookingpref?: string[];
   [key: string]: any;

@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textActive: {
-    fontWeight: "700",
+    fontWeight: "bold",
   }
 });

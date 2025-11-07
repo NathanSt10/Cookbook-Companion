@@ -42,7 +42,11 @@ export default function PreferenceSection({
   const [inputValue, setInputValue] = useState<string>("");
 
   const handleAdd = () => {
-
+    const trimmed = inputValue.trim();
+    if (trimmed && !items.includes(trimmed)) {
+      onAdd(trimmed);
+      setInputValue("");
+    }
   };
 
   return (
@@ -53,7 +57,7 @@ export default function PreferenceSection({
         <TextInput
           style={styles.input}
           placeholder={placeholder}
-          placeholderTextColor="gainsboros"
+          placeholderTextColor="grey"
           value={inputValue}
           onChangeText={setInputValue}
           onSubmitEditing={handleAdd}
@@ -156,12 +160,12 @@ const styles = StyleSheet.create({
   },
   removeButtonText: {
     fontSize: 20,
-    color: "gainsboros",
+    color: "black",
     fontWeight: "bold",
   },
   emptyText: {
     fontSize: 14,
-    color: "gainsboros",
+    color: "royalblue",
     fontStyle: "italic",
   },
 })

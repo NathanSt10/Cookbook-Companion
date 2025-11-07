@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import FloatingActionButton from '../FloatingActionButton';
 
 interface EmptyStateProps {
@@ -9,28 +9,28 @@ interface EmptyStateProps {
 export default function EmptyStateFor({tab, onAddItem} : EmptyStateProps) { 
 
     return (
-        <ScrollView>
+        <View style={styles.container}>
             <Text style={styles.titleText}>Empty {tab} collection</Text>
-
             <Text style={styles.subtitleText}>Click the + button to add to this collection</Text>  
-
-            <View style={styles.fabRealign}>
+            <View style={styles.fabWrap} pointerEvents="box-none">
                 <FloatingActionButton onPress={onAddItem} />
             </View>
-        </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        minHeight: 280,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 24,
     },
     titleText: {
         fontSize: 18,
         textAlign: 'center',
-        fontWeight: 600,
+        fontWeight: 'bold',
         color: 'black',
         marginBottom: 8,
     },
@@ -40,7 +40,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 15,
     },
-    fabRealign: {
-        bottom: -484,
+    tabContent: {
+        position: 'relative',
     },
-})
+    fabWrap: {
+        position: 'absolute',
+        bottom: -270,
+        zIndex: 10,
+        elevation: 10,
+    },
+});

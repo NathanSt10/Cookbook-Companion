@@ -1,21 +1,22 @@
 import firestore from '@react-native-firebase/firestore';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert } from 'react-native';
 import { useAuth } from '../app/context/AuthContext';
+import { pantryServices } from '../services/pantryServices';
 
 export interface Category {
   fireId: string;
   name: string;
-  isDefault: boolean;
   addedAt: Date;
 }
 
 export interface PantryItem {
-    fireId: string;
-    name: string;
-    category: string;
-    quantity?: string;
-    expireDate?: string;
-    addedAt: Date;
+  fireId: string;
+  name: string;
+  category: string;
+  quantity?: string;
+  expireDate?: string;
+  addedAt: Date;
 }
 
 export interface PantryStats {
@@ -32,21 +33,6 @@ interface InputData {
   expireDate?: string;
 }
 
-const DEFAULT_CATEGORIES: Omit<Category, 'fireId' | 'addedAt'>[] = [
-  { name: 'Vegetables', isDefault: true },
-  { name: 'Fruits', isDefault: true },
-  { name: 'Dairy', isDefault: true },
-  { name: 'Meat', isDefault: true },
-  { name: 'Seafood', isDefault: true },
-  { name: 'Grains & Pasta', isDefault: true },
-  { name: 'Canned Goods', isDefault: true },
-  { name: 'Snacks', isDefault: true },
-  { name: 'Beverages', isDefault: true },
-  { name: 'Condiments & Sauces', isDefault: true },
-  { name: 'Spices & Seasonings', isDefault: true },
-  { name: 'Baking', isDefault: true },
-];
-
 export function usePantry() {
   const { user } = useAuth();
   const [items, setItems] = useState<PantryItem[]>([]);
@@ -54,33 +40,25 @@ export function usePantry() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchDefaultCategories = useCallback(async () => {
-    if (!user) { return; }
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    if (!user) return;
 
-    try {
-      const defaultCateDoc = await firestore()
-        .collection('Users')
-        .doc(user.uid)
-        .collection('categories');
-      console.log("default cates: ", defaultCateDoc);
-    }
-    catch (e: any) {
-      setError(e);
-      console.error("usePantry: error fetching pantry data", e);
-    }
-    finally {
-      setLoading(false);
-    }
+    const initializeCategories = async () => {
+      try {
+        await pantryServices.initializeDefaultCategories(user.uid);
+      } catch (error) {
+        console.error('Error initializing categories:', error);
+      }
+    };
+
+    initializeCategories();
   }, [user]);
 
   useEffect(() => {
-    if (!user) { return; }
-    setLoading(true);
-    setError(null);
-
-    fetchDefaultCategories();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const unsubCategories = firestore()
       .collection('Users')
@@ -94,19 +72,26 @@ export function usePantry() {
             return {
               fireId: doc.id,
               name: d.name,
-              isDefault: d.isDefault,
+              isDefault: d.isDefault ?? false,
               addedAt: d.addedAt?.toDate?.() ?? new Date(),
             };
           });
           setCategories(categoriesData);
         },
+        (err) => {
+          setError(err);
+          console.error('Categories listen error:', err);
+        }
       );
 
     return unsubCategories;
-  }, [user, fetchDefaultCategories]);
+  }, [user]);
 
   useEffect(() => {
-    if (!user) { return; }
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const unsubItems = firestore()
       .collection('Users')
@@ -126,90 +111,173 @@ export function usePantry() {
               addedAt: d.addedAt?.toDate?.() ?? new Date(),
             };
           });
-          setItems(itemsData)
+          setItems(itemsData);
           setLoading(false);
         },
+        (err) => {
+          setError(err);
+          console.error('Pantry items listen error:', err);
+          setLoading(false);
+        }
       );
 
-      return unsubItems;
+    return unsubItems;
   }, [user]);
 
-  const addCategory = useCallback(async (categoryName: string) => {
-    if (!user) { return; }
-    setLoading(true);
-    setError(null);
+  const addCategory = useCallback(
+    async (categoryName: string) => {
+      if (!user) return;
 
-    // can't be emptied
-    // check if it already exists
-    // try a firestore call and add it
-    
+      const trimmedName = categoryName.trim();
+      if (!trimmedName) {
+        Alert.alert('Error', 'Category name cannot be empty');
+        return;
+      }
 
-  }, [user, categories]);
+      const exists = categories.some(
+        (cat) => cat.name.toLowerCase() === trimmedName.toLowerCase()
+      );
 
-  const deleteCategory = useCallback(async () => {
-    if (!user) { return; }
-    setLoading(true)
-    setError(null);
+      if (exists) {
+        Alert.alert('Error', 'This category already exists');
+        return;
+      }
 
-    // find the category name
+      try {
+        await pantryServices.addCategory(user.uid, trimmedName);
+      }  
+      catch (error) {
+        console.error('Error adding category:', error);
+        Alert.alert('Error', 'Failed to add category');
+      }
+    },
+    [user, categories]
+  );
 
-    // check if any items use this category
+  const deleteCategory = useCallback(
+    async (categoryId: string) => {
+      if (!user) return;
 
-  }, [user, categories, items]);
+      const category = categories.find((cat) => cat.fireId === categoryId);
+      if (!category) return;
 
-  const addItem = useCallback(async (data: InputData) => {
-    if (!user) { return; }
+      const itemsInCategory = items.filter(
+        (item) => item.category === category.name
+      );
 
+      if (itemsInCategory.length > 0) {
+        Alert.alert(
+          'Warning',
+          `${itemsInCategory.length} item(s) are in this category. Delete anyway?`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Delete',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await pantryServices.deleteCategory(
+                    user.uid,
+                    categoryId,
+                    category.name,
+                  );
+                } catch (error) {
+                  console.error('Error deleting category:', error);
+                  Alert.alert('Error', 'Failed to delete category');
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        try {
+          await pantryServices.deleteCategory(
+            user.uid,
+            categoryId,
+            category.name,
+          );
+        } catch (error) {
+          console.error('Error deleting category:', error);
+          Alert.alert('Error', 'Failed to delete category');
+        }
+      }
+    },
+    [user, categories, items]
+  );
+
+  const addItem = useCallback(
+    async (data: InputData) => {
+      if (!user) return;
+
+      try {
+        await pantryServices.addItem(user.uid, data);
+      } catch (error) {
+        console.error('Error adding item:', error);
+        Alert.alert('Error', 'Failed to add item');
+        throw error;
+      }
+    },
+    [user]
+  );
+
+  const updateItem = useCallback(
+    async (itemId: string, updates: Partial<InputData>) => {
+      if (!user) return;
+
+      try {
+        await pantryServices.updateItem(user.uid, itemId, updates);
+      } 
+      catch (error) {
+        console.error('Error updating item:', error);
+        Alert.alert('Error', 'Failed to update item');
+        throw error;
+      }
+    },
+    [user]
+  );
+
+  const deleteItem = useCallback(
+    async (fireId: string) => {
+      if (!user) return;
+
+      try {
+        await pantryServices.deleteItem(user.uid, fireId);
+      } 
+      catch (error) {
+        console.error('Error deleting item:', error);
+        Alert.alert('Error', 'Failed to delete item');
+      }
+    },
+    [user]
+  );
+
+  const getAvailableIngredients = useCallback(async () => {
+    if (!user) return [];
     try {
-      await firestore()
-        .collection('Users')
-        .doc(user.uid)
-        .collection('pantry')
-        .add({
-          name: data.name.trim(),
-          category: data.category,
-          quantity: (data.quantity ?? '').trim() || null, // whet?
-          expireDate: data.expireDate || null,
-          addedAt: firestore.FieldValue.serverTimestamp(),
-        })
-        .then(() => console.log("added: ", data.name));
-    }
-    catch (e: any) {
-      setError(e);
-      console.error("error", error);
-    }
-  }, [user]);
-
-  const deleteItem = useCallback(async (fireId: string) => {
-    if (!user) { return; }
-
-    try {
-      await firestore()
-        .collection('Users')
-        .doc(user.uid)
-        .collection('pantry')
-        .doc(fireId)
-        .delete()
-        .then(() => console.log("item deleted: ", fireId));
-    }
-    catch (e: any) {
-      setError(e);
-      console.error("Error: ", e);
+      return await pantryServices.getAvailableIngredients(user.uid);
+    } 
+    catch (error) {
+      console.error('Error getting ingredients:', error);
+      return [];
     }
   }, [user]);
 
   const stats: PantryStats = useMemo(() => {
     const lowStockCount = items.filter((item) => {
-      if (!item.quantity) { return false; }
-
+      if (!item.quantity) return false;
       const quantity = parseFloat(item.quantity);
       return !isNaN(quantity) && quantity > 0 && quantity <= 2;
     }).length;
 
-    const expiringSoonCount = items.filter((item => {
-      if (!item.expireDate) { return false; }
-      console.log("think of a system for expiring items")
-    })).length;
+    const today = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+
+    const expiringSoonCount = items.filter((item) => {
+      if (!item.expireDate) return false;
+      const expiryDate = new Date(item.expireDate);
+      return expiryDate >= today && expiryDate <= sevenDaysFromNow;
+    }).length;
 
     return {
       totalItems: items.length,
@@ -219,15 +287,22 @@ export function usePantry() {
     };
   }, [items, categories]);
 
+  const categoryNames = useMemo(() => {
+    return categories.map((cat) => cat.name);
+  }, [categories]);
+
   return {
     items,
     categories,
     categoryNames,
     loading,
+    error,
     addItem,
+    updateItem,
     deleteItem,
     addCategory,
     deleteCategory,
+    getAvailableIngredients,
     stats,
   } as const;
 }

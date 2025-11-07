@@ -14,6 +14,12 @@ export default function PreferencesView({ preferences }: PreferencesViewProps) {
   return (
     <>
       <ScrollView style={styles.container}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => setEditModalVisible(true)}
+        >
+          <Text style={styles.editButtonText}>Edit Preferences</Text>
+        </TouchableOpacity>
         
         <PreferenceCard
           title="Dietary Preferences"
@@ -37,24 +43,15 @@ export default function PreferencesView({ preferences }: PreferencesViewProps) {
 
         <PreferenceCard
           title="Kitchenware"
-          items={preferences?.kitchware}
+          items={preferences?.kitchenware}
         />
 
         <PreferenceCard
           title="Cooking Preferences"
           items={preferences?.cookingpref}
         />
-
-        {/* Edit Button */}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => setEditModalVisible(true)}
-        >
-          <Text style={styles.editButtonText}>Edit Preferences</Text>
-        </TouchableOpacity>
       </ScrollView>
 
-      {/* Edit Preferences Modal */}
       <PreferencesEditModal
         visible={editModalVisible}
         onClose={() => setEditModalVisible(false)}

@@ -1,4 +1,5 @@
 import firestore from '@react-native-firebase/firestore';
+import { Preferences } from '../hooks/useUserProfile';
 
 export const userProfileServices = {
   async updateFirstName(userId: string, firstName: string): Promise<void> {
@@ -70,7 +71,7 @@ export const userProfileServices = {
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`do something about preferences storage`);
+    console.log(`updated preferences`);
   },
 
   async addDietaryPreference(userId: string, preference: string): Promise<void> {
@@ -78,11 +79,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.dietary': preference,
+        'preferences.dietary': firestore.FieldValue.arrayUnion(preference),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`should be it?`);
+    console.log(`added ${preference}`);
   },
 
   async removeDietaryPreference(userId: string, preference: string): Promise<void> {
@@ -90,11 +91,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.dietary': preference,
+        'preferences.dietary': firestore.FieldValue.arrayRemove(preference),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`testing remove diet`);
+    console.log(`removed ${preference}`);
   },
 
   async addAllergy(userId: string, allergy: string): Promise<void> {
@@ -102,11 +103,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.allergies': allergy,
+        'preferences.allergies': firestore.FieldValue.arrayUnion(allergy),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`testing add allergy`);
+    console.log(`adding ${allergy}`);
   },
 
   async removeAllergy(userId: string, allergy: string): Promise<void> {
@@ -114,11 +115,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.allergies': allergy,
+        'preferences.allergies': firestore.FieldValue.arrayRemove(allergy),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`testing remove allegy`);
+    console.log(`removed ${allergy}`);
   },
 
   async addCuisine(userId: string, cuisine: string): Promise<void> {
@@ -126,11 +127,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.cuisines': cuisine,
+        'preferences.cuisines': firestore.FieldValue.arrayUnion(cuisine),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log('testing add cuisine');
+    console.log(`adding ${cuisine}`);
   },
 
   async removeCuisine(userId: string, cuisine: string): Promise<void> {
@@ -138,11 +139,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.cuisines': cuisine,
+        'preferences.cuisines': firestore.FieldValue.arrayRemove(cuisine),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log('cuisine removal');
+    console.log(`removed ${cuisine}`);
   },
 
   async addKitchenware(userId: string, item: string): Promise<void> {
@@ -150,11 +151,11 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.kitchware': item,
+        'preferences.kitchenware': firestore.FieldValue.arrayUnion(item),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`add kitchenware test`);
+    console.log(`adding ${item}`);
   },
 
   async removeKitchenware(userId: string, item: string): Promise<void> {
@@ -162,10 +163,10 @@ export const userProfileServices = {
       .collection('Users')
       .doc(userId)
       .update({
-        'preferences.kitchware': item,
+        'preferences.kitchenware': firestore.FieldValue.arrayRemove(item),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
     
-    console.log(`remove kitchenware test`);
+    console.log(`removed ${item}`);
   },
 };

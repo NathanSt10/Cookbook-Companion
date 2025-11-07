@@ -148,13 +148,13 @@ export default function ItemAddModal({
             <Text style={styles.label}>Quantity (Optional)</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g., 2, 1 lb, 500g"
+              placeholder=""
               value={quantity}
               onChangeText={setQuantity}
               editable={!loading}
             />
             <Text style={styles.hint}>
-              Enter low quantities (≤2) to get low stock alerts
+              .
             </Text>
           </View>
 
@@ -162,13 +162,13 @@ export default function ItemAddModal({
             <Text style={styles.label}>Expiry Date (Optional)</Text>
             <TextInput
               style={styles.input}
-              placeholder="YYYY-MM-DD or MM/DD/YYYY"
+              placeholder=""
               value={expiryDate}
               onChangeText={setExpiryDate}
               editable={!loading}
             />
             <Text style={styles.hint}>
-              Items expiring within 7 days will be highlighted
+              .
             </Text>
           </View>
         </ScrollView>

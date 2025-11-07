@@ -83,6 +83,6 @@ const styles = StyleSheet.create({
     fontWeight: '600' 
   },
   content: {
-    // keeps chips visually grouped
+    // style for the chip tsx file
   },
 });

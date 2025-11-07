@@ -44,13 +44,13 @@ export default function ItemList({
   return (
     <FlatList
       data={filteredItems}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.fireId}
       renderItem={({ item }) => (
         <ItemCard
           item={item}
           onPress={onItemPress ? () => onItemPress(item) : undefined}
           onEdit={onEditItem ? () => onEditItem(item) : undefined}
-          onDelete={onDeleteItem ? () => onDeleteItem(item.id, item.name) : undefined}
+          onDelete={onDeleteItem ? () => onDeleteItem(item.fireId, item.name) : undefined}
         />
       )}
       contentContainerStyle={styles.listContent}
@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: 'sienna',
+    fontWeight: 'bold',
+    color: 'grey',
     marginBottom: 8,
   },
   emptySubtitle: {

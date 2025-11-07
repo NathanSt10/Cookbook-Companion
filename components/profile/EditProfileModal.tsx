@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
+import HeaderFormatFor from "../../components/HeaderFormatFor";
 import { useAuth } from "../../app/context/AuthContext";
 import { useUserProfile } from "../../hooks/useUserProfile";
-import HeaderFormatFor from "../../components/HeaderFormatFor";
+import { userProfileServices } from "@/services/userProfileServices";
 
 interface EditProfileModalProps {
   onClose: () => void;
 }
 
 export default function EditProfile( { onClose }: EditProfileModalProps) {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [loading, setLoading] = useState<Boolean>(false);
   const { firstName: currentFirstName, lastName: currentLastName, email: currentEmail, refresh } = useUserProfile();
   const [firstName, setFirstName] = useState<string>("");
@@ -23,12 +24,41 @@ export default function EditProfile( { onClose }: EditProfileModalProps) {
   }, [currentFirstName, currentLastName, currentEmail]);
 
   const handleSave = async () => {
+    const update = {
+      firstName: (firstName || "").trim(),
+      lastName: (lastName || "").trim(),
+      email: (email || "").trim(),
+    };
+
+    const curr = {
+      firstName: (currentFirstName || "").trim(),
+      lastName: (currentLastName || "").trim(),
+      email: (currentEmail || "").trim(),
+    };
+
+    const nothing = 
+      update.firstName === curr.firstName &&
+      update.lastName === curr.lastName &&
+      update.email === curr.email;
+
+    if (nothing) {
+      onClose();
+      return;
+    }
+    
+    if (!user) {
+      Alert.alert("Error", "Not signed in");
+      console.error("user not signed in");
+      return;
+    }
+
     try {
       setLoading(true);
-      // create a service and use it here
+      await userProfileServices.updateProfile(user.uid, update);
       await refresh();
       onClose();
     } catch (e) {
+      Alert.alert("Save failed", "Couldn't save profile changes.  Try again.")
       console.warn(e);
     } finally {
       setLoading(false);

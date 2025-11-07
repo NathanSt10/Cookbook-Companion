@@ -28,7 +28,7 @@ export default function PreferencesEditModal({ visible, onClose } : EditPreferen
         if (currentPreferences) {
             setPreferences({
                 dietary: currentPreferences.dietary || [],
-                alergies: currentPreferences.allergies || [],
+                allergies: currentPreferences.allergies || [],
                 cuisines: currentPreferences.cuisines || [],
                 kitchenware: currentPreferences.kitchenware || [],
                 dislikes: currentPreferences.dislikes || [],
@@ -37,20 +37,53 @@ export default function PreferencesEditModal({ visible, onClose } : EditPreferen
         }
     }, [currentPreferences]);
 
-    const handleAdd = async (pref: Preferences, item: string) => {
-
+    const handleAdd = async (prefType: keyof Preferences, item: string) => {
+        setPreferences(prev => ({
+            ...prev,
+            [prefType]: [...(prev[prefType] || []), item]
+        }));
     };
 
-    const handleRemove = async (pref: Preferences, item: string) => {
-
+    const handleRemove = (prefType: keyof Preferences, item: string) => {
+        setPreferences(prev => ({
+            ...prev,
+            [prefType]: (prev[prefType] || []).filter((x: string) => x !== item),
+        }));
     };
 
     const handleSave = async () => {
+        if (!user) {
+            Alert.alert("Error", "No user logged in");
+            return;
+        }
 
+        try {
+            setLoading(true);
+            await userProfileServices.updatePreferences(user.uid, preferences);
+            await refresh();
+            console.log("saved preferences");
+            onClose();
+        }
+        catch (e: any) {
+            console.warn("error: ", e.message);
+        }
+        finally {
+            setLoading(false);
+        }
     };
 
     const handleCancel = async () => {
-
+        if (currentPreferences) {
+            setPreferences({
+                dietary: currentPreferences.dietary || [],
+                allergies: currentPreferences.allergies || [],
+                cuisines: currentPreferences.cuisines || [],
+                kitchenware: currentPreferences.kitchenware || [],
+                dislikes: currentPreferences.dislikes || [],
+                cookingpref: currentPreferences.cookingpref || [],
+            });
+        }
+        onClose();
     };
 
     return (
@@ -131,7 +164,7 @@ export default function PreferencesEditModal({ visible, onClose } : EditPreferen
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.cancelButton, loading && { opacity: 0.6 }]}
+                        style={styles.cancelButton}
                         onPress={handleCancel}
                         disabled={loading}
                     >
@@ -172,11 +205,10 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     cancelButton: {
-        backgroundColor: "whitesmoke",
-        borderRadius: 8,
-        padding: 16,
+        padding: 14,
+        marginTop: 1,
         borderWidth: 1,
-        borderColor: "black",
+        elevation: 10,
     },
     cancelButtonText: {
         color: "black",

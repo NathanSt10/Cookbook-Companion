@@ -7,12 +7,12 @@ interface PreferenceDisplayCardProps {
     emptyMessage?: string;
 }
 
-export default function PreferenceDisplayCard({
+export default function PreferenceCard({
     title, 
     items, 
     emptyMessage=`No ${title.toLowerCase()} set`,
 } : PreferenceDisplayCardProps) {
-    
+
     return (
         <View style={styles.card}>
             <Text style={styles.title}>{title}</Text>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 14,
-        color: "gainsboros",
+        color: "gainsboro",
         fontStyle: "italic",
         textAlign: "center",
         paddingVertical: 8,

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import EmptyStateFor from '../../components/profile/EmptyStateFor';
@@ -56,22 +56,14 @@ export default function ProfilePage() {
       case "preferences":
         return (
           <View style={styles.tabContent}>
-            {preferences === null  ?
-              (<EmptyStateFor 
-                  tab="preferences"
-                  onAddItem={() => PreferencesView}
-                />
-              )
-              :
-              (<PreferencesView preferences={preferences} />)
-            }
+            <PreferencesView preferences={preferences} />
           </View>
         );
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 120 }}>
       <HeaderFormatFor page="Profile"/>
 
       <ProfileHeaderCard
@@ -99,5 +91,6 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     padding: 20,
+    position: "relative",
   }
 });
