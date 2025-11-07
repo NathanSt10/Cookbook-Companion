@@ -33,6 +33,7 @@ export default function ItemList({
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyTitle}>No items in this category</Text>
+        
         <Text style={styles.emptySubtitle}>
           Try selecting a different category or add items to this one
         </Text>
@@ -43,13 +44,13 @@ export default function ItemList({
   return (
     <FlatList
       data={filteredItems}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.fireId}
       renderItem={({ item }) => (
         <ItemCard
           item={item}
           onPress={onItemPress ? () => onItemPress(item) : undefined}
           onEdit={onEditItem ? () => onEditItem(item) : undefined}
-          onDelete={onDeleteItem ? () => onDeleteItem(item.id, item.name) : undefined}
+          onDelete={onDeleteItem ? () => onDeleteItem(item.fireId, item.name) : undefined}
         />
       )}
       contentContainerStyle={styles.listContent}
@@ -61,6 +62,7 @@ export default function ItemList({
 const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 20,
+    paddingTop: 5,
   },
   emptyContainer: {
     flex: 1,
@@ -71,8 +73,8 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: 'sienna',
+    fontWeight: 'bold',
+    color: 'grey',
     marginBottom: 8,
   },
   emptySubtitle: {

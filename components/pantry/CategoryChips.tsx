@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 
 export interface Category {
   id: string;
   name: string;
-  icon?: string;
 }
 
 interface CategoryFilterProps {
@@ -21,7 +14,7 @@ interface CategoryFilterProps {
   onViewAllCategories?: () => void;
 }
 
-export default function CategoryFilter({
+export default function CategoryChips({
   categories,
   selectedCategory,
   onSelectCategory,
@@ -34,7 +27,6 @@ export default function CategoryFilter({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        style={styles.scrollView}
       >
         {categories.map((category) => (
           <TouchableOpacity
@@ -47,9 +39,6 @@ export default function CategoryFilter({
             activeOpacity={0.7}
             testID={`category-${category.id}`}
           >
-            {category.icon && (
-              <Text style={styles.categoryIcon}>{category.icon}</Text>
-            )}
             <Text
               style={[
                 styles.categoryText,
@@ -61,38 +50,13 @@ export default function CategoryFilter({
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      <View style={styles.actionButtons}>
-        {onAddCategory && (
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={onAddCategory}
-            testID="add-category-button"
-          >
-            <Text style={styles.actionButtonText}>+ Add Category</Text>
-          </TouchableOpacity>
-        )}
-
-        {onViewAllCategories && (
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={onViewAllCategories}
-            testID="view-all-button"
-          >
-            <Text style={styles.actionButtonText}>View All</Text>
-          </TouchableOpacity>
-        )}
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
-  },
-  scrollView: {
-    marginBottom: 12,
+    marginBottom: 0,
   },
   scrollContent: {
     paddingRight: 16,
@@ -102,11 +66,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'gainsboro',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 5,
     borderRadius: 20,
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: 'white',
   },
   categoryChipSelected: {
     backgroundColor: 'gainsboro',
@@ -142,4 +104,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  categorySubtitle: {
+    color: 'black',
+    fontSize: 20,
+    marginBottom: 12,
+    fontWeight: 500,
+    alignSelf: 'center',
+  }
 });
