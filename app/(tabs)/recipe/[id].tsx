@@ -1,3 +1,4 @@
+//import { getFirestore } from "@react-native-firebase/firestore";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -41,6 +42,7 @@ export default function RecipesScreen() {
   useEffect(() => {
     (async () => {
         const info = await getRecipeInformtaion(Number(id));
+        //const recipe = await getFirestore().collection('Recipes').get();
         if (info) setRecipes(info);
         else console.log('No recipe data returned');
     })();
@@ -54,6 +56,8 @@ export default function RecipesScreen() {
     })();
   }, [id]);
 
+  
+
   return (
     <View>
       <ScrollView>
@@ -65,8 +69,8 @@ export default function RecipesScreen() {
               style={styles.featuredImage}
             />
             <View style={styles.ingredientSection}>
-              <TouchableOpacity onPress={() => router.push("/cookbook")}>
-                <Text style={styles.backButtom}>Back to Cookbook</Text>
+              <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.backButtom}>
+                <Text style={ styles.buttonText }>Back to Cookbook</Text>
               </TouchableOpacity>
               <Text style={styles.itemInfo}>Serving size: {recipes.servings}</Text>
               <Text style={styles.itemInfo}>Recipe ready in {recipes.readyInMinutes} minutes</Text>
@@ -133,6 +137,23 @@ const styles = StyleSheet.create({
     width: "60%",
     flex: 1,
     alignSelf: "center"
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 15
+  },
+  addButtom: {
+    backgroundColor: "#f2f2f2",
+    fontSize: 25,
+    paddingVertical: 1,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    flex: 3,
+    justifyContent: "center",
+    color: "#6b6969ff",
+    alignSelf: "flex-end"
   },
   name: {
     fontSize: 20,
