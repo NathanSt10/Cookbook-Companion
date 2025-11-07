@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from 'expo-router';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { searchRecipes } from "../api/spoonacular";
 
@@ -13,7 +13,9 @@ type Recipe = {
 export default function CookbookPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchTerm, setSearchTerm] = useState("pasta");
+  const [searchTerm, setSearchTerm] = useState("");
+  const isFirstRender = useRef(true);
+  const renderCount = useRef(0);
 
   const handleSearch = ()  => {
     if (searchQuery.trim()) {
@@ -22,12 +24,15 @@ export default function CookbookPage() {
   };
 
   useEffect(() => {
+    // Skip the first render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    return;
+    }
     (async () => {
       if (searchTerm.trim()) {
-        const promises = Array(1).fill(null).map(() => searchRecipes(searchTerm));
-        const results = await Promise.all(promises)
-        const allRecipes = results.flatMap(data => data.results || []);
-        setRecipes(allRecipes);
+        const data = await searchRecipes(searchTerm);
+        setRecipes(data.results || []);
       }
     })();
   }, [searchTerm]);
@@ -73,12 +78,13 @@ export default function CookbookPage() {
           <TouchableOpacity style={styles.category}>
             <Text style={styles.categoryText}>Drinks</Text>
           </TouchableOpacity>
-        </ScrollView>      
-          <View style={styles.containerList}>
+        </ScrollView>
+          <View style={styles.recipeGrid}>
           <FlatList
             data={recipes}
             //numColumns={2}
             horizontal={true}
+            showsHorizontalScrollIndicator={false}
             renderItem={({ item: r }) => (
               <TouchableOpacity
                 key={r.id.toString()}
@@ -103,14 +109,11 @@ export default function CookbookPage() {
             }
             style={styles.recipeList}
           />
-        </View>
+        </View>   
         {/* All Recipes */}
         <View style={styles.container}>
           <ScrollView horizontal={true}>
             <Text style={styles.sectionTitle}>Your Recipes</Text>
-            <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.addButtom}>
-              <Text style={styles.categoryText}>+</Text>
-            </TouchableOpacity>
           </ScrollView>
         </View>
         
@@ -164,7 +167,8 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   containerList: {
-    flexDirection: "row",
+    flex: 1,
+    width: "100%",
     padding: 1,
   },
   searchInput: {
@@ -201,19 +205,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   recipeList: {
-    flexDirection: 'column',
-    flexWrap: 'wrap',
     paddingVertical: 10,
-    width: "50%",
   },
   recipeCard: {
-    width: "60%",
+    width: 150,
+    marginRight: 20,
     justifyContent: "space-evenly",
     backgroundColor: '#eee',
     borderRadius: 10,
     padding: 5,
     overflow: 'hidden',
-    elevation: 5,
+    elevation: 7,
   },
   recipeImage: {
     width: "100%",
