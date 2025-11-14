@@ -1,5 +1,5 @@
 // app/api/spoonacular.ts
-const API_KEY = "56f7f243462849a3a59771dc4605a43a";
+const API_KEY = process.env.EXPO_PUBLIC_SPOONACULAR_KEY;
 const BASE_URL = "https://api.spoonacular.com";
 
 export async function searchRecipes(query: string) {
