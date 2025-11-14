@@ -6,7 +6,7 @@ import RecipeCard from './RecipeCard';
 
 interface PlannedRecipe {
   fireId: string;
-  recipeId: string;
+  recipeId: number;
   title: string;
   image: string;
   date: string;

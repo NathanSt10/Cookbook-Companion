@@ -1,4 +1,5 @@
-//import { getFirestore } from "@react-native-firebase/firestore";
+import auth from '@react-native-firebase/auth';
+import { getFirestore } from "@react-native-firebase/firestore";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -38,40 +39,163 @@ export default function RecipesScreen() {
   const { id } = useLocalSearchParams();
   const [recipes, setRecipes] = useState<Recipe | null>(null);
   const [instructions, setInstructions] = useState<Instructions[]>([]);
+  const [isInFirestore, setIsInFirestore] = useState(false);
+  const user = auth().currentUser;
+
+  if (!user) {
+    console.log('User not authenticated');
+  }
 
   useEffect(() => {
     (async () => {
-        const info = await getRecipeInformtaion(Number(id));
-        //const recipe = await getFirestore().collection('Recipes').get();
-        if (info) setRecipes(info);
-        else console.log('No recipe data returned');
+      try {
+        
+        // First, check if recipe exists in Firestore
+        const firestoreSnapshot = await getFirestore()
+          .collection('Users')
+          .doc(user?.uid)
+          .collection('recipes')
+          .where('id', '==', Number(id))
+          .get();
+
+        if (!firestoreSnapshot.empty) {
+          // Recipe found in Firestore
+          const firestoreData = firestoreSnapshot.docs[0].data();
+          setRecipes({
+            id: firestoreData.id,
+            title: firestoreData.title,
+            image: firestoreData.image,
+            readyInMinutes: firestoreData.readyInMinutes,
+            servings: firestoreData.servings,
+            cookingMinutes: firestoreData.cookingMinutes,
+            preparationMinutes: firestoreData.preparationMinutes,
+            instructions: firestoreData.instructions,
+            extendedIngredients: firestoreData.extendedIngredients
+          } as Recipe);
+          setIsInFirestore(true);
+          console.log('Recipe loaded from Firestore');
+        } else {
+          // Recipe not in Firestore, fetch from API
+          const info = await getRecipeInformtaion(Number(id));
+          if (info) {
+            setRecipes(info);
+            setIsInFirestore(false);
+            console.log('Recipe loaded from API');
+          } else {
+            console.log('No recipe data returned');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching recipe:', error);
+      } 
     })();
   }, [id]);
 
   useEffect(() => {
+     // Only fetch instructions from API if not already loaded from Firestore
+    if (isInFirestore && instructions.length > 0) {
+      console.log('Instructions already loaded from Firestore');
+      return;
+    }
+
     (async () => {
         const data = await getAnalyzedInstructions(Number(id));
-        if (data) setInstructions(data);
-        else console.log('No instructions found');
+      if (data) {
+        setInstructions(data);
+      } else {
+        console.log('No instructions found');
+      }
     })();
-  }, [id]);
+  }, [id, isInFirestore]);
 
-  
+  const addRecipe = async () => {
+    if (isInFirestore) {
+      console.log('Recipe already saved');
+      return;
+    }
+
+    try {
+      // Fetch instructions if not already loaded
+      let instructionsToSave = instructions;
+      if (instructions.length === 0) {
+        const data = await getAnalyzedInstructions(Number(id));
+        if (data) {
+          instructionsToSave = data;
+          setInstructions(data);
+        }
+      }
+
+      await getFirestore()
+      .collection('Users')
+      .doc(user?.uid)
+      .collection('recipes')
+      .add({
+        id: recipes?.id,
+        title: recipes?.title,
+        image: recipes?.image,
+        readyInMinutes: recipes?.readyInMinutes,
+        servings: recipes?.servings,
+        cookingMinutes: recipes?.cookingMinutes,
+        preparationMinutes: recipes?.preparationMinutes,
+        instructions: instructionsToSave,
+        extendedIngredients: recipes?.extendedIngredients
+      });
+
+      setIsInFirestore(true);
+    } catch (error) {
+      console.error('Error adding recipe:', error)
+    }
+  };
+
+  const removeRecipe = async () => {
+  try {
+    // Find the document to delete
+    const firestoreSnapshot = await getFirestore()
+      .collection('Users')
+      .doc(user?.uid)
+      .collection('recipes')
+      .where('id', '==', Number(id))
+      .get();
+
+    if (!firestoreSnapshot.empty) {
+      // Delete the document
+      await firestoreSnapshot.docs[0].ref.delete();
+      setIsInFirestore(false);
+      console.log('Recipe removed from Firestore');
+    }
+  } catch (error) {
+    console.error('Error removing recipe:', error);
+  }
+};
 
   return (
     <View>
-      <ScrollView>
         {recipes ? (
+          <ScrollView>
           <View style={styles.container}>
-            <Text style={styles.title}>{recipes.title}</Text>
-            <Image
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>{recipes.title}</Text>
+            </View>
+            <View style={styles.imageContainer}>
+              <Image
               source={{ uri: recipes.image || "https://images.unsplash.com/photo-1600891964599-f61ba0e24092"}}
               style={styles.featuredImage}
             />
+            </View>
             <View style={styles.ingredientSection}>
               <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.backButtom}>
-                <Text style={ styles.buttonText }>Back to Cookbook</Text>
+                <Text style={styles.backText}>Return to Cookbook</Text>
               </TouchableOpacity>
+              {isInFirestore ? (
+                <TouchableOpacity style={styles.removeButton} onPress={removeRecipe}>
+                  <Text style={styles.removeText}>Remove from Cookbook</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={addRecipe} style={styles.addButtom}>
+                  <Text style={styles.itemInfo}>Save to Cookbook</Text>
+                </TouchableOpacity>
+              )}
+              
               <Text style={styles.itemInfo}>Serving size: {recipes.servings}</Text>
               <Text style={styles.itemInfo}>Recipe ready in {recipes.readyInMinutes} minutes</Text>
               <Text style={styles.itemInfo}>Cooking time: {recipes.cookingMinutes || 'N/A'} {recipes.cookingMinutes ? 'minutes' : ''}</Text>
@@ -103,10 +227,10 @@ export default function RecipesScreen() {
             </View>
 
           </View>
+          </ScrollView>
         ) : (
           <Text>Loading Recipe...</Text>
         )}
-        </ScrollView>
       </View>
       )
 }
@@ -118,32 +242,37 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 15,
     marginTop: 20,
     padding: 10,
     color: '#333',
   },
-  backButtom: {
-    backgroundColor: "black",
-    paddingVertical: 6,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    marginTop: 10,
-    marginBottom: 20,
-    justifyContent: "center",
-    color: "#fff",
-    width: "60%",
+  titleContainer:{
     flex: 1,
-    alignSelf: "center"
+    backgroundColor: '#f5f5f5',
+    padding: 10,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 15
+  backButtom: {
+    backgroundColor: "#333131ff",
+    fontSize: 25,
+    paddingVertical: 1,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom: 5,
+    flex: 3,
+    justifyContent: "center",
+    color: "#6b6969ff",
+    alignSelf: "flex-start"
+  },
+  backText: {
+    color: '#f2f2f2',
+    fontSize: 20
   },
   addButtom: {
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#b1b1b1ff",
     fontSize: 25,
     paddingVertical: 1,
     paddingHorizontal: 10,
@@ -153,7 +282,24 @@ const styles = StyleSheet.create({
     flex: 3,
     justifyContent: "center",
     color: "#6b6969ff",
-    alignSelf: "flex-end"
+    alignSelf: "flex-start"
+  },
+  removeButton: {
+    backgroundColor: "#e61414ff",
+    fontSize: 25,
+    paddingVertical: 1,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    flex: 3,
+    justifyContent: "center",
+    color: "#6b6969ff",
+    alignSelf: "flex-start"
+  },
+  removeText: {
+    color: '#f2f2f2',
+    fontSize: 20
   },
   name: {
     fontSize: 20,
@@ -198,10 +344,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   featuredImage: {
-    width: 200,
-    height: 120,
+    width: "100%",
+    height: 200,
     borderRadius: 12,
     marginHorizontal: 10,
+  },
+  imageContainer: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    padding: 10,
   },
   ingredientSection: {
     backgroundColor: '#fff',
