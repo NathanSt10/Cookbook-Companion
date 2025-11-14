@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     padding: 1,
+    marginBottom: 20
   },
   searchInput: {
     color: "black",
