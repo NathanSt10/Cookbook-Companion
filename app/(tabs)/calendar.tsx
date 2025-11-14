@@ -1,9 +1,11 @@
+import FloatingActionButton from "@/components/FloatingActionButton";
 import firestore from "@react-native-firebase/firestore";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import CalendarViewToggle from "../../components/calendar/CalendarViewToggle";
 import MonthView from "../../components/calendar/MonthView";
+import { default as Recipe, default as RecipePickerModal } from "../../components/calendar/RecipePicker";
 import WeekView from "../../components/calendar/WeekView";
 import FloatingActionButton from "../../utils/FloatingActionButton";
 import HeaderFormatFor from "../../utils/HeaderFormatFor";
@@ -11,9 +13,16 @@ import { useAuth } from "../context/AuthContext";
 
 type CalendarView = "month" | "week";
   
+interface Recipe {
+  fireId: string;
+  recipeId: number;
+  title: string;
+  image: string;
+};
+
 type PlannedRecipe = {
   fireId: string;
-  recipeId: string;
+  recipeId: number;
   title: string;
   image: string;
   date: string;
@@ -27,6 +36,23 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const [plannedRecipes, setPlannedRecipes] = useState<PlannedRecipes>({});
   const [loading, setLoading] = useState(false); 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openRecipePicker = (date: string) => {
+    setSelectedDate(date);
+    setModalVisible(true);
+  };
+
+  // Handle recipe selection from modal
+  const handleRecipeSelected = async (recipe: Recipe) => {
+    await addRecipeToDate({
+      fireId: recipe.fireId,
+      date: selectedDate,
+      recipeId: recipe.recipeId,
+      title: recipe.title,
+      image: recipe.image,
+    });
+  };
 
   useEffect(() => {
     if (user) {
@@ -233,7 +259,14 @@ export default function CalendarPage() {
         )
       }
 
-      <FloatingActionButton onPress={() => router.push('(tabs)/cookbook')}/>
+      <FloatingActionButton onPress={() => openRecipePicker(selectedDate)}/>
+
+      <RecipePickerModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSelectRecipe={handleRecipeSelected}
+        selectedDate={selectedDate}
+      />  
     </View>
   );
 }
