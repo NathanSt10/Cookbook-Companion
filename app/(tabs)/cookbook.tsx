@@ -1,29 +1,59 @@
 import { Ionicons } from "@expo/vector-icons";
+import auth from '@react-native-firebase/auth';
+import { getFirestore } from "@react-native-firebase/firestore";
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { searchRecipes } from "../api/spoonacular";
 import HeaderFormatFor from "../../components/HeaderFormatFor";
-import LoadingViewFor from "@/components/LoadingViewFor";
+import { searchRecipes } from "../api/spoonacular";
 
 type Recipe = {
   id: number;
   title: string;
   image: string;
+  source?: 'firestore' | 'api';
 };
 
 export default function CookbookPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [userRecipes, setUserRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const isFirstRender = useRef(true);
   const renderCount = useRef(0);
+  const user = auth().currentUser;
+
+  if (!user) {
+    console.log('User not authenticated');
+  }
 
   const handleSearch = ()  => {
     if (searchQuery.trim()) {
       setSearchTerm(searchQuery);
     }
   };
+
+  useEffect(() => {
+    const getUserRecipes = getFirestore()
+    .collection('Users')
+    .doc(user?.uid)
+    .collection('recipes')
+    .onSnapshot(snapshot => {
+      const recipes: Recipe[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: data.id,
+          title: data.title,
+          image: data.image,
+          source: 'firestore'
+        };
+      });
+      setUserRecipes(recipes);
+    });
+
+    return () => getUserRecipes();
+  }, []);
+  
 
   useEffect(() => {
     // Skip the first render
@@ -119,7 +149,7 @@ export default function CookbookPage() {
         
         <View style={styles.containerList}>
           <FlatList
-            data={null}
+            data={userRecipes}
             //numColumns={2}
             horizontal={true}
             renderItem={({ item: r }) => (
@@ -137,7 +167,7 @@ export default function CookbookPage() {
                 <Text style={styles.recipeTitle}>{r.title}</Text>
               </TouchableOpacity>
             )}
-            keyExtractor={(r) => r.id.toString()}
+            keyExtractor={(r) => `${r.source}-${r.id}`}
             //columnWrapperStyle={styles.row}
             ListEmptyComponent={
               <View style={styles.emptyState}>
@@ -229,6 +259,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     padding: 8,
+    color: "black"
   },
   footer: {
     flexDirection: "row",
