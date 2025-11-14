@@ -20,7 +20,6 @@ export default function CookbookPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const isFirstRender = useRef(true);
-  const renderCount = useRef(0);
   const user = auth().currentUser;
 
   if (!user) {
@@ -193,7 +192,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#dfddddff",
     borderRadius: 10,
     paddingHorizontal: 10,
     margin: 20,
