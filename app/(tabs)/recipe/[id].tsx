@@ -186,15 +186,6 @@ export default function RecipesScreen() {
               <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.backButtom}>
                 <Text style={styles.backText}>Return to Cookbook</Text>
               </TouchableOpacity>
-              {isInFirestore ? (
-                <TouchableOpacity style={styles.removeButton} onPress={removeRecipe}>
-                  <Text style={styles.removeText}>Remove from Cookbook</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity onPress={addRecipe} style={styles.addButtom}>
-                  <Text style={styles.itemInfo}>Save to Cookbook</Text>
-                </TouchableOpacity>
-              )}
               
               <Text style={styles.itemInfo}>Serving size: {recipes.servings}</Text>
               <Text style={styles.itemInfo}>Recipe ready in {recipes.readyInMinutes} minutes</Text>
@@ -225,12 +216,31 @@ export default function RecipesScreen() {
                 </View>
               )) || <Text style={styles.ingredientText}>No instructions available</Text>}
             </View>
-
+              
           </View>
+          
           </ScrollView>
         ) : (
           <Text>Loading Recipe...</Text>
         )}
+        {isInFirestore ? (
+          <TouchableOpacity   
+            style={styles.removeButton}
+            onPress={removeRecipe}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.removeButtonText}>✕</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity   
+            style={styles.addButtom}
+            onPress={addRecipe}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.addText}>+</Text>
+          </TouchableOpacity>
+        )}        
+        
       </View>
       )
 }
@@ -272,34 +282,29 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
   addButtom: {
-    backgroundColor: "#b1b1b1ff",
-    fontSize: 25,
-    paddingVertical: 1,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    flex: 3,
-    justifyContent: "center",
-    color: "#6b6969ff",
-    alignSelf: "flex-start"
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  removeButton: {
-    backgroundColor: "#e61414ff",
-    fontSize: 25,
-    paddingVertical: 1,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    flex: 3,
-    justifyContent: "center",
-    color: "#6b6969ff",
-    alignSelf: "flex-start"
+  addText: {
+    fontSize: 32,
+    color: 'ghostwhite',
+    fontWeight: '300',
   },
   removeText: {
-    color: '#f2f2f2',
-    fontSize: 20
+    fontSize: 18,
+    color: '#f44',
   },
   name: {
     fontSize: 20,
@@ -370,5 +375,25 @@ const styles = StyleSheet.create({
   },
   ingredientText: {
     fontSize: 16,
+  },
+  removeButton: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#fee',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  removeButtonText: {
+    fontSize: 18,
+    color: '#f44',
   },
 });
