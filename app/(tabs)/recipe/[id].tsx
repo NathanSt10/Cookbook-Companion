@@ -174,6 +174,9 @@ export default function RecipesScreen() {
           <ScrollView>
           <View style={styles.container}>
             <View style={styles.titleContainer}>
+              <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.backButtom}>
+                <Text style={styles.backText}>←</Text>
+              </TouchableOpacity>
               <Text style={styles.title}>{recipes.title}</Text>
             </View>
             <View style={styles.imageContainer}>
@@ -183,9 +186,7 @@ export default function RecipesScreen() {
             />
             </View>
             <View style={styles.ingredientSection}>
-              <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.backButtom}>
-                <Text style={styles.backText}>Return to Cookbook</Text>
-              </TouchableOpacity>
+              
               
               <Text style={styles.itemInfo}>Serving size: {recipes.servings}</Text>
               <Text style={styles.itemInfo}>Recipe ready in {recipes.readyInMinutes} minutes</Text>
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 15,
-    marginTop: 20,
+    marginTop: 5,
     padding: 10,
     color: '#333',
   },
@@ -265,21 +266,18 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   backButtom: {
-    backgroundColor: "#333131ff",
-    fontSize: 25,
+    backgroundColor: "#f5f5f5",
     paddingVertical: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     borderRadius: 10,
-    marginTop: 10,
-    marginBottom: 5,
-    flex: 3,
+    flex: 1,
     justifyContent: "center",
     color: "#6b6969ff",
     alignSelf: "flex-start"
   },
   backText: {
-    color: '#f2f2f2',
-    fontSize: 20
+    color: '#333131ff',
+    fontSize: 50
   },
   addButtom: {
     position: 'absolute',
