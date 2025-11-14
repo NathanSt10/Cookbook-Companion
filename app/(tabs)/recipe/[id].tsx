@@ -1,4 +1,5 @@
-//import { getFirestore } from "@react-native-firebase/firestore";
+import auth from '@react-native-firebase/auth';
+import { getFirestore } from "@react-native-firebase/firestore";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -38,6 +39,11 @@ export default function RecipesScreen() {
   const { id } = useLocalSearchParams();
   const [recipes, setRecipes] = useState<Recipe | null>(null);
   const [instructions, setInstructions] = useState<Instructions[]>([]);
+  const user = auth().currentUser;
+
+  if (!user) {
+    console.log('User not authenticated');
+  }
 
   useEffect(() => {
     (async () => {
@@ -56,7 +62,25 @@ export default function RecipesScreen() {
     })();
   }, [id]);
 
-  
+  const addRecipe = async () => {
+    try {
+      await getFirestore()
+      .collection('Users')
+      .doc(user?.uid)
+      .collection('recipes')
+      .add({
+        id: recipes?.id,
+        title: recipes?.title,
+        image: recipes?.image,
+        readyInMinutes: recipes?.readyInMinutes,
+        servings: recipes?.servings,
+        cookingMinutes: recipes?.cookingMinutes,
+        preparationMinutes: recipes?.preparationMinutes,
+      });
+    } catch (error) {
+      console.error('Error adding recipe:', error)
+    }
+  };
 
   return (
     <View>
@@ -70,7 +94,10 @@ export default function RecipesScreen() {
             />
             <View style={styles.ingredientSection}>
               <TouchableOpacity onPress={() => router.push("/cookbook")} style={styles.backButtom}>
-                <Text style={ styles.buttonText }>Back to Cookbook</Text>
+                <Text style={styles.itemInfo}>Back to Cookbook</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={addRecipe} style={styles.addButtom}>
+                <Text style={styles.itemInfo}>Add to Cookbook</Text>
               </TouchableOpacity>
               <Text style={styles.itemInfo}>Serving size: {recipes.servings}</Text>
               <Text style={styles.itemInfo}>Recipe ready in {recipes.readyInMinutes} minutes</Text>
@@ -137,10 +164,6 @@ const styles = StyleSheet.create({
     width: "60%",
     flex: 1,
     alignSelf: "center"
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 15
   },
   addButtom: {
     backgroundColor: "#f2f2f2",
