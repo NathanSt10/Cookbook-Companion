@@ -1,6 +1,4 @@
-import FloatingActionButton from "@/components/FloatingActionButton";
 import firestore from "@react-native-firebase/firestore";
-import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import CalendarViewToggle from "../../components/calendar/CalendarViewToggle";
