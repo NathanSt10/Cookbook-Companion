@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
-import HeaderFormatFor from "../../components/HeaderFormatFor";
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../../app/context/AuthContext";
-import { useUserProfile } from "../../hooks/useUserProfile";
-import { userProfileServices } from "@/services/userProfileServices";
+import { useProfile } from "../../hooks/useProfile";
+import { profileServices } from "../../services/profileServices";
+import ModalHeaderFor from "../../utils/ModalHeaderFor";
 
 interface EditProfileModalProps {
   onClose: () => void;
@@ -11,8 +11,8 @@ interface EditProfileModalProps {
 
 export default function EditProfile( { onClose }: EditProfileModalProps) {
   const { user, signOut } = useAuth();
-  const [loading, setLoading] = useState<Boolean>(false);
-  const { firstName: currentFirstName, lastName: currentLastName, email: currentEmail, refresh } = useUserProfile();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { firstName: currentFirstName, lastName: currentLastName, email: currentEmail, refresh } = useProfile();
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -54,7 +54,7 @@ export default function EditProfile( { onClose }: EditProfileModalProps) {
 
     try {
       setLoading(true);
-      await userProfileServices.updateProfile(user.uid, update);
+      await profileServices.updateProfile(user.uid, update);
       await refresh();
       onClose();
     } catch (e) {
@@ -93,57 +93,45 @@ export default function EditProfile( { onClose }: EditProfileModalProps) {
 
   return (
     <View style={styles.container}>
-      <HeaderFormatFor page="Edit Profile" />
-
-      <Text style={styles.label}>Email</Text>
-      <TextInput 
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
+      <ModalHeaderFor 
+        title='Edit Profile'
+        onBack={handleCancel}
+        onSave={handleSave}
+        loading={loading}
       />
 
-      <Text style={styles.label}>First Name</Text>
-      <TextInput
-        style={styles.input}
-        value={firstName}
-        onChangeText={setFirstName}
-        placeholder="First Name"
-      />
+      <ScrollView style={styles.scrollView}>
+        <Text style={styles.label}>Email</Text>
+        <TextInput 
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+        />
 
-      <Text style={styles.label}>Last Name</Text>
-      <TextInput
-        style={styles.input}
-        value={lastName}
-        onChangeText={setLastName}
-        placeholder="Last Name"
-      />
+        <Text style={styles.label}>First Name</Text>
+        <TextInput
+          style={styles.input}
+          value={firstName}
+          onChangeText={setFirstName}
+          placeholder="First Name"
+        />
 
-      <TouchableOpacity
-        style={[styles.button, loading && { opacity: 0.6 }]}
-        onPress={handleSave}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "Saving..." : "Save Changes"}
-        </Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Last Name</Text>
+        <TextInput
+          style={styles.input}
+          value={lastName}
+          onChangeText={setLastName}
+          placeholder="Last Name"
+        />
 
-      <TouchableOpacity
-        style={[styles.button, loading && { opacity: 0.6 }]}
-        onPress={handleCancel}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "Canceling..." : "Cancel Changes"}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.signOutButton}
-        onPress={handleSignOut}
-      >
-        <Text style={styles.signOutText}>{loading ? "Standby..." : "Sign Out"}</Text>
-      </TouchableOpacity>
-
+        <TouchableOpacity 
+          style={styles.signOutButton}
+          onPress={handleSignOut}
+        >
+          <Text style={styles.signOutText}>{loading ? "Standby..." : "Sign Out"}</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
@@ -152,7 +140,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "whitesmoke",
-    padding: 24,
+  },
+  scrollView: {
+    flex: 1,
+    padding: 16,
   },
   input: {
     borderWidth: 1,
@@ -161,10 +152,11 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 15,
     fontSize: 16,
+    backgroundColor: "white",
   },
   label: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: "600",
     color: "black",
     marginBottom: 6,
     marginLeft: 4,
@@ -181,19 +173,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     elevation: 10,
-  },
-  cancelButton: { 
-    padding: 14,
-    borderRadius: 8,
-    marginTop: 10,
-    borderWidth: 1,
-    elevation: 10,
-  },
-  cancelButtonText: {
-    color: "black",
-    fontWeight: "bold",
-    textAlign: "center",
-    fontSize: 16,
   },
   signOutButton: {
     padding: 14,

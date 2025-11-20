@@ -2,9 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import HeaderFormatFor from "../../utils/HeaderFormatFor";
 import { searchRecipes } from "../api/spoonacular";
-import HeaderFormatFor from "../../components/HeaderFormatFor";
-import LoadingViewFor from "@/components/LoadingViewFor";
 
 type Recipe = {
   id: number;

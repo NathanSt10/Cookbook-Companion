@@ -23,8 +23,7 @@ export default function PreferenceCard({
                         <View key={index} style={styles.item}>
                             <Text style={styles.itemText}>{item}</Text>
                         </View>))}
-                </View>
-                )
+                </View>)
                 :
                 ( <Text style={styles.emptyText}>{emptyMessage}</Text> )
             }
@@ -34,7 +33,7 @@ export default function PreferenceCard({
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: "whitesmoke",
+        backgroundColor: "ghostwhite",
         borderRadius: 12,
         padding: 16, 
         marginBottom: 16, 
@@ -54,9 +53,10 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     item: {
-        backgroundColor: "ghostwhite",
+        backgroundColor: "whitesmoke",
         padding: 12,
         borderRadius: 8,
+        elevation: 5, 
     },
     itemText: {
         fontSize: 16,

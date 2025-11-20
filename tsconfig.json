@@ -1,15 +1,26 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-native",
     "strict": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": [
+      "jest",
+      "@testing-library/jest-native"
+    ]
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+    "app",
+    "components",
+    "context",
+    "api"
+  ],
+  "extends": "expo/tsconfig.base"
 }

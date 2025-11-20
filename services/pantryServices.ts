@@ -1,189 +1,57 @@
 import firestore from '@react-native-firebase/firestore';
-import { Alert } from 'react-native';
-import { Category, PantryItem } from '../hooks/usePantry';
-
-const DEFAULT_CATEGORIES: Omit<Category, 'fireId' | 'addedAt'>[] = [
-  { name: 'Vegetables' },
-  { name: 'Fruits' },
-  { name: 'Dairy' },
-  { name: 'Meat' },
-  { name: 'Seafood' },
-  { name: 'Grains & Pasta' },
-  { name: 'Canned Goods' },
-  { name: 'Snacks' },
-  { name: 'Beverages' },
-  { name: 'Condiments & Sauces' },
-  { name: 'Spices & Seasonings' },
-  { name: 'Baking' },
-];
+import { PantryItemInput } from '../hooks/usePantry';
 
 export const pantryServices = {
-  async initializeDefaultCategories(userId: string): Promise<void> {
+  async addItem(userId: string, itemData: PantryItemInput): Promise<void> {
+    if (!itemData.name.trim()) { throw new Error("item name cannot be empty") }
+
+    let categories = Array.isArray(itemData.category) 
+      ? itemData.category.filter(cat => cat && cat.trim().toLowerCase())
+      : (itemData.category ? [itemData.category] : []);
+
+    if (categories.length === 0) {
+      categories = ['other'];
+      console.log('no category specified, setting to other');
+    }
+
     try {
-      const categoriesRef = firestore()
+      await firestore()
         .collection('Users')
         .doc(userId)
-        .collection('categories');
-
-      const snapshot = await categoriesRef.limit(1).get();
-      
-      if (snapshot.empty) {
-        const batch = firestore().batch();
-        DEFAULT_CATEGORIES.forEach((cat) => {
-          const docRef = categoriesRef.doc();
-          batch.set(docRef, {
-            name: cat.name,
-            addedAt: firestore.FieldValue.serverTimestamp(),
-          });
+        .collection('pantry')
+        .add({
+          name: itemData.name.trim(),
+          category: categories.map(cat => cat.trim().toLowerCase()),
+          quantity: itemData.quantity || '',
+          expireDate: itemData.expireDate || null,
+          addedAt: firestore.FieldValue.serverTimestamp(),
         });
-        await batch.commit();
-        console.log('Default categories initialized');
+
+      console.log(`adding to pantry ${itemData}`);
+    }
+    catch(e: any) { 
+      console.error(`error adding to the pantry: ${e}`);
+      throw e;
+    }
+  },
+
+  async editItem(userId: string, itemId: string, updates: Partial<PantryItemInput>): Promise<void> {
+    if (!updates.name) {
+      throw new Error("item name cannot be empty");
+    }
+
+    if (updates.category) {
+      const categories = Array.isArray(updates.category)
+        ? updates.category
+        : [updates.category];
+
+      if (categories.length === 0 || !categories[0].trim()) {
+        updates.category = ['other'];
+        console.log('updated pantry item with no category, setting to other');
       }
-    } catch (error) {
-      console.error('Error initializing default categories:', error);
-      throw error;
-    }
-  },
-
-  async addCategory(userId: string, categoryName: string): Promise<void> {
-    const trimmedName = categoryName.trim();
-    if (!trimmedName) {
-      throw new Error('Category name cannot be empty');
-    }
-
-    try {
-      await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('categories')
-        .add({
-          name: trimmedName,
-          addedAt: firestore.FieldValue.serverTimestamp(),
-        });
-      console.log('Category added:', trimmedName);
-    } catch (error) {
-      console.error('Error adding category:', error);
-      throw error;
-    }
-  },
-
-
-  async deleteCategory(
-    userId: string, 
-    categoryId: string, 
-    categoryName: string,
-  ): Promise<void> {
-    try {
-      await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('categories')
-        .doc(categoryId)
-        .delete();
-      console.log('Category deleted:', categoryName);
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      throw error;
-    }
-  },
-
-
-  async renameCategory(
-    userId: string,
-    categoryId: string,
-    newName: string
-  ): Promise<void> {
-    const trimmedName = newName.trim();
-    if (!trimmedName) {
-      throw new Error('Category name cannot be empty');
-    }
-
-    try {
-      await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('categories')
-        .doc(categoryId)
-        .update({
-          name: trimmedName,
-          updatedAt: firestore.FieldValue.serverTimestamp(),
-        });
-      console.log('Category renamed to:', trimmedName);
-    } catch (error) {
-      console.error('Error renaming category:', error);
-      throw error;
-    }
-  },
-
-  async getCategoryItemCount(userId: string, categoryName: string): Promise<number> {
-    try {
-      const snapshot = await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .where('category', '==', categoryName)
-        .get();
-      
-      return snapshot.size;
-    } catch (error) {
-      console.error('Error getting category item count:', error);
-      throw error;
-    }
-  },
-
-  async addItem(
-    userId: string,
-    data: {
-      name: string;
-      category: string;
-      quantity?: string;
-      expireDate?: string;
-    }
-  ): Promise<void> {
-    try {
-      await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .add({
-          name: data.name.trim(),
-          category: data.category.trim(),
-          quantity: data.quantity?.trim() || null,
-          expireDate: data.expireDate || null,
-          addedAt: firestore.FieldValue.serverTimestamp(),
-        });
-      console.log('Item added:', data.name);
-    } catch (error) {
-      console.error('Error adding item:', error);
-      throw error;
-    }
-  },
-
-  async updateItem(
-    userId: string,
-    itemId: string,
-    updates: {
-      name?: string;
-      category?: string;
-      quantity?: string;
-      expireDate?: string;
-    }
-  ): Promise<void> {
-    const cleanUpdates: any = {
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    };
-
-    if (updates.name !== undefined) {
-      cleanUpdates.name = updates.name.trim();
-    }
-    if (updates.category !== undefined) {
-      cleanUpdates.category = updates.category.trim();
-    }
-    if (updates.quantity !== undefined) {
-      cleanUpdates.quantity = updates.quantity.trim() || null;
-    }
-    if (updates.expireDate !== undefined) {
-      cleanUpdates.expireDate = updates.expireDate || null;
+      else {
+        updates.category = categories.map(cat => cat.trim().toLowerCase()) as any;
+      }
     }
 
     try {
@@ -192,11 +60,13 @@ export const pantryServices = {
         .doc(userId)
         .collection('pantry')
         .doc(itemId)
-        .update(cleanUpdates);
-      console.log('Item updated:', itemId);
-    } catch (error) {
-      console.error('Error updating item:', error);
-      throw error;
+        .update({ ...updates });
+        
+      console.log(`updated pantry item successfully for: ${itemId}`);
+      } 
+    catch (e: any) {
+      console.error(`error updating pantry item: ${e}`);
+      throw e;
     }
   },
 
@@ -207,38 +77,134 @@ export const pantryServices = {
         .doc(userId)
         .collection('pantry')
         .doc(itemId)
-        .delete();
-      console.log('Item deleted:', itemId);
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      throw error;
+        .delete()
+      
+      console.log(`deleted pantry item: ${itemId}`);
+    }
+    catch (e: any) {
+      console.error(`error deleting pantry item: ${e}`);
+      throw e;
     }
   },
-
-  async deleteMultipleItems(userId: string, itemIds: string[]): Promise<void> {
+  
+  async bulkDeleteItems(userId: string, itemIds: string[]): Promise<void> {
     try {
-      const batch = firestore().batch();
-      itemIds.forEach((itemId) => {
-        const docRef = firestore()
+      const deletePicked = itemIds.map(async itemId => {
+        await firestore()
           .collection('Users')
           .doc(userId)
           .collection('pantry')
-          .doc(itemId);
-        batch.delete(docRef);
+          .doc(itemId)
+          .delete()
       });
-      await batch.commit();
-      console.log(`Deleted ${itemIds.length} items`);
-    } catch (error) {
-      console.error('Error deleting multiple items:', error);
-      throw error;
+
+      await Promise.all(deletePicked);
+      console.log(`bulk deleted ${itemIds.length} items`);
+    }
+    catch (e: any) {
+      console.error(`error bulk deleting: ${e}`);
+      throw e;
     }
   },
 
-  async updateQuantity(
-    userId: string,
-    itemId: string,
-    newQuantity: string
-  ): Promise<void> {
+  async getPantryStats(userId: string): Promise<{totalItems: number, categoryCount: number, lowStockCount: number}> {
+    try {
+      const pantrySnapshot = await firestore()
+        .collection('Users')
+        .doc(userId)
+        .collection('pantry')
+        .get();
+
+      const categories = new Set<string>();
+      let lowStockCount = 0;
+
+      pantrySnapshot.docs.forEach((pantryDoc) => {
+        const item = pantryDoc.data();
+
+        if (item.category && Array.isArray(item.category)) { 
+          item.category.forEach((cat: string) => categories.add(cat)); 
+        }
+
+        const quantity = parseInt(item.quantity) || 0;
+        if (quantity > 0 && quantity < 2) {
+          lowStockCount++;
+        }
+      });
+
+      const stats = {
+        totalItems: pantrySnapshot.size,
+        categoryCount: categories.size,
+        lowStockCount,
+      };
+
+      console.log(`pantry stats: ${stats}`);
+      return stats;
+    }
+    catch (e: any) {
+      console.error(`error getting pantry stats: ${e}`);
+      throw e;
+    }
+  },
+
+  async getPantryItemCount(userId: string): Promise<number> {
+    try {
+      const pantrySnapshot = await firestore()
+        .collection('Users')
+        .doc(userId)
+        .collection('pantry')
+        .get();
+
+      console.log(`pantry item count: ${pantrySnapshot.size}`);
+      return pantrySnapshot.size;
+    }
+    catch (e: any) {
+      console.error(`error getting pantry item count ${e}`);
+      throw e;
+    }
+  },
+
+  async getPantryItemCountByCategory(userId: string, categoryName: string): Promise<number> {
+    try {
+      const pantrySnapshot = await firestore()
+        .collection('Users')
+        .doc(userId)
+        .collection('pantry')
+        .where('category', 'array-contains', categoryName.toLowerCase())
+        .get();
+
+      console.log(`pantry item count for ${categoryName}: ${pantrySnapshot.size}`);
+      return pantrySnapshot.size;      
+    }
+    catch (e: any) {
+      console.error(`unable to get pantry item with ${categoryName} from pantry`)
+      throw e;
+    }
+  },
+
+  async getPantryLowStockAlert(userId: string): Promise<void> {
+    // Todo, find a low stock system
+  },
+
+  async addCategoryToItem(userId: string, itemId: string, categoryName: string): Promise<void> {
+    try {
+      await firestore() 
+        .collection('Users')
+        .doc(userId)
+        .collection('pantry')
+        .doc(itemId)
+        .update({
+          category: firestore.FieldValue.arrayUnion(categoryName.trim().toLowerCase())
+        });
+
+      console.log(`added category ${categoryName} to item ${itemId}`);
+    }
+    catch (e: any) {
+      console.error(`error adding category to item ${e}`); 
+      throw e;
+    }
+  },
+
+  async deleteCategoryFromItem(userId: string, itemId: string, categoryName: string): Promise<void> {
     try {
       await firestore()
         .collection('Users')
@@ -246,235 +212,14 @@ export const pantryServices = {
         .collection('pantry')
         .doc(itemId)
         .update({
-          quantity: newQuantity.trim() || null,
-          updatedAt: firestore.FieldValue.serverTimestamp(),
-        });
-      console.log('Quantity updated for item:', itemId);
-    } catch (error) {
-      console.error('Error updating quantity:', error);
-      throw error;
-    }
-  },
-
-  async searchItemsByName(userId: string, searchTerm: string): Promise<PantryItem[]> {
-    try {
-      const snapshot = await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .get();
-
-      const items: PantryItem[] = snapshot.docs
-        .map((doc) => {
-          const d = doc.data();
-          return {
-            fireId: doc.id,
-            name: d.name,
-            category: d.category,
-            quantity: d.quantity ?? undefined,
-            expireDate: d.expireDate ?? undefined,
-            addedAt: d.addedAt?.toDate?.() ?? new Date(),
-          };
-        })
-        .filter((item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
-      return items;
-    } catch (error) {
-      console.error('Error searching items:', error);
-      throw error;
-    }
-  },
-
-  async getItemsByCategory(userId: string, categoryName: string): Promise<PantryItem[]> {
-    try {
-      const snapshot = await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .where('category', '==', categoryName)
-        .orderBy('addedAt', 'desc')
-        .get();
-
-      const items: PantryItem[] = snapshot.docs.map((doc) => {
-        const d = doc.data();
-        return {
-          fireId: doc.id,
-          name: d.name,
-          category: d.category,
-          quantity: d.quantity ?? undefined,
-          expireDate: d.expireDate ?? undefined,
-          addedAt: d.addedAt?.toDate?.() ?? new Date(),
-        };
-      });
-
-      return items;
-    } catch (error) {
-      console.error('Error getting items by category:', error);
-      throw error;
-    }
-  },
-
-  async getLowStockItems(userId: string): Promise<PantryItem[]> {
-    try {
-      const snapshot = await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .get();
-
-      const items: PantryItem[] = snapshot.docs
-        .map((doc) => {
-          const d = doc.data();
-          return {
-            fireId: doc.id,
-            name: d.name,
-            category: d.category,
-            quantity: d.quantity ?? undefined,
-            expireDate: d.expireDate ?? undefined,
-            addedAt: d.addedAt?.toDate?.() ?? new Date(),
-          };
-        })
-        .filter((item) => {
-          if (!item.quantity) return false;
-          const qty = parseFloat(item.quantity);
-          return !isNaN(qty) && qty > 0 && qty <= 2;
+          category: firestore.FieldValue.arrayRemove(categoryName.trim().toLowerCase()),
         });
 
-      return items;
-    } catch (error) {
-      console.error('Error getting low stock items:', error);
-      throw error;
+      console.log(`removed category ${categoryName} from item ${itemId}`);
+    }
+    catch (e: any) {
+      console.error(`error deleting category to item ${e}`);
+      throw e;
     }
   },
-
-  async getAvailableIngredients(userId: string): Promise<string[]> {
-    try {
-      const snapshot = await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .get();
-
-      const ingredients = snapshot.docs.map((doc) => doc.data().name);
-      return ingredients;
-    } catch (error) {
-      console.error('Error getting available ingredients:', error);
-      throw error;
-    }
-  },
-
-  async getPantrySummary(userId: string): Promise<Record<string, string[]>> {
-    try {
-      const snapshot = await firestore()
-        .collection('Users')
-        .doc(userId)
-        .collection('pantry')
-        .get();
-
-      const summary: Record<string, string[]> = {};
-      snapshot.docs.forEach((doc) => {
-        const data = doc.data();
-        if (!summary[data.category]) {
-          summary[data.category] = [];
-        }
-        summary[data.category].push(data.name);
-      });
-
-      return summary;
-    } catch (error) {
-      console.error('Error getting pantry summary:', error);
-      throw error;
-    }
-  },
-
-  async hasIngredients(userId: string, ingredientNames: string[]): Promise<boolean> {
-    try {
-      const availableIngredients = await this.getAvailableIngredients(userId);
-      const availableSet = new Set(
-        availableIngredients.map((i) => i.toLowerCase())
-      );
-
-      return ingredientNames.every((ingredient) =>
-        availableSet.has(ingredient.toLowerCase())
-      );
-    } catch (error) {
-      console.error('Error checking ingredients:', error);
-      throw error;
-    }
-  },
-
-  async getPantryStats(userId: string): Promise<{
-    totalItems: number;
-    lowStockCount: number;
-    expiringSoonCount: number;
-    categoriesCount: number;
-    mostUsedCategory: string;
-    totalValue?: number;
-  }> {
-    try {
-      const [itemsSnapshot, categoriesSnapshot] = await Promise.all([
-        firestore()
-          .collection('Users')
-          .doc(userId)
-          .collection('pantry')
-          .get(),
-        firestore()
-          .collection('Users')
-          .doc(userId)
-          .collection('categories')
-          .get(),
-      ]);
-
-      const items: PantryItem[] = itemsSnapshot.docs.map((doc) => {
-        const d = doc.data();
-        return {
-          fireId: doc.id,
-          name: d.name,
-          category: d.category,
-          quantity: d.quantity ?? undefined,
-          expireDate: d.expireDate ?? undefined,
-          addedAt: d.addedAt?.toDate?.() ?? new Date(),
-        };
-      });
-
-      const lowStockCount = items.filter((item) => {
-        if (!item.quantity) return false;
-        const qty = parseFloat(item.quantity);
-        return !isNaN(qty) && qty > 0 && qty <= 2;
-      }).length;
-
-      const today = new Date();
-      const sevenDaysFromNow = new Date();
-      sevenDaysFromNow.setDate(today.getDate() + 7);
-
-      const expiringSoonCount = items.filter((item) => {
-        if (!item.expireDate) return false;
-        const expiryDate = new Date(item.expireDate);
-        return expiryDate >= today && expiryDate <= sevenDaysFromNow;
-      }).length;
-
-      const categoryCount: Record<string, number> = {};
-      items.forEach((item) => {
-        categoryCount[item.category] = (categoryCount[item.category] || 0) + 1;
-      });
-
-      const mostUsedCategory =
-        Object.keys(categoryCount).reduce((a, b) =>
-          categoryCount[a] > categoryCount[b] ? a : b
-        , 'None');
-
-      return {
-        totalItems: items.length,
-        lowStockCount,
-        expiringSoonCount,
-        categoriesCount: categoriesSnapshot.size,
-        mostUsedCategory,
-      };
-    } catch (error) {
-      console.error('Error getting pantry stats:', error);
-      throw error;
-    }
-  },
-};
+}
