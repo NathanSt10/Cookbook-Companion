@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View, Modal } from "react-native";
-import EditProfileModal from "../../components/profile/EditProfileModal";
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ProfileEditModal from "../../components/profile/ProfileEditModal";
 
 type ProfileHeaderProps = {
   firstName: string;
@@ -46,7 +46,7 @@ export default function ProfileHeaderCard({ firstName, lastName, email, onEditPr
         transparent={false}
         onRequestClose={() => setEditProfileModalVisible(false)}
       >
-        <EditProfileModal onClose={() => setEditProfileModalVisible(false)} />
+        <ProfileEditModal onClose={() => setEditProfileModalVisible(false)} />
       </Modal>
     </>
   );
@@ -112,6 +112,5 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     color: 'black',
-
   },
 });

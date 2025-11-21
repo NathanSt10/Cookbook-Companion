@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from "react-native";
-import { Preferences } from "../../hooks/useUserProfile";
-import PreferencesEditModal from "./PreferencesEditModal";
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { PreferencesItemArray } from "../../hooks/usePreferences";
 import PreferenceCard from "./PreferenceCard";
+import PreferencesEditModal from "./PreferencesEditModal";
 
 type PreferencesViewProps = {
-  preferences: Preferences | null;
+  preferences: PreferencesItemArray;
+  onRefresh?: () => Promise<void>;
 };
 
-export default function PreferencesView({ preferences }: PreferencesViewProps) {
+export default function PreferencesView({ preferences, onRefresh }: PreferencesViewProps) {
   const [editModalVisible, setEditModalVisible] = useState(false);
 
   return (
@@ -55,6 +56,8 @@ export default function PreferencesView({ preferences }: PreferencesViewProps) {
       <PreferencesEditModal
         visible={editModalVisible}
         onClose={() => setEditModalVisible(false)}
+        currentPreferences={preferences}
+        onRefresh={onRefresh}
       />
     </>
   );

@@ -1,101 +1,89 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Modal, ScrollView, TouchableOpacity, Alert,  } from 'react-native';
-import { useAuth } from "../../app/context/AuthContext";
-import { useUserProfile, Preferences } from "../../hooks/useUserProfile";
-import { userProfileServices } from "../../services/userProfileServices";
-import HeaderFormatFor from "../HeaderFormatFor";
+import React, { useEffect, useState } from 'react';
+import { Alert, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { useAuth } from '../../app/context/AuthContext';
+import { PreferencesItemArray } from '../../hooks/usePreferences';
+import { preferenceServices } from '../../services/preferencesServices';
+import ModalHeaderFor from '../../utils/ModalHeaderFor';
 import PreferencesSection from "./PreferencesSection";
 
 interface EditPreferencesModalProps {
     visible: boolean;
     onClose: () => void;
+    currentPreferences: PreferencesItemArray;
+    onRefresh?: () => Promise<void>;
 }
 
-export default function PreferencesEditModal({ visible, onClose } : EditPreferencesModalProps) {
+export default function PreferencesEditModal({ visible, onClose, currentPreferences, onRefresh } : EditPreferencesModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState<boolean>(false);
-    const { preferences: currentPreferences, refresh } = useUserProfile();
-    const [preferences, setPreferences] = useState<Preferences>({
-        dietary: [],
-        allergies: [],
-        cuisines: [],
-        kitchenware: [],
-        dislikes: [],
-        cookingpref: [],
-    });
+    const [preferences, setPreferences] = useState<PreferencesItemArray>(currentPreferences);
 
     useEffect(() => {
-        if (currentPreferences) {
-            setPreferences({
-                dietary: currentPreferences.dietary || [],
-                allergies: currentPreferences.allergies || [],
-                cuisines: currentPreferences.cuisines || [],
-                kitchenware: currentPreferences.kitchenware || [],
-                dislikes: currentPreferences.dislikes || [],
-                cookingpref: currentPreferences.cookingpref || [],
-            });
+        if (visible) { 
+            console.log(`modal opened, setting preferences: ${currentPreferences}`);
+            setPreferences(currentPreferences); 
         }
-    }, [currentPreferences]);
+    }, [visible, currentPreferences]);
 
-    const handleAdd = async (prefType: keyof Preferences, item: string) => {
+    const handleAdd = (prefType: keyof PreferencesItemArray, item: string) => {
+        console.log(`adding ${item} to ${prefType}`);
         setPreferences(prev => ({
-            ...prev,
-            [prefType]: [...(prev[prefType] || []), item]
+            ...prev, 
+            [prefType]: [...prev[prefType], item]
         }));
     };
 
-    const handleRemove = (prefType: keyof Preferences, item: string) => {
+    const handleRemove = (prefType: keyof PreferencesItemArray, item: string) => {
+        console.log(`removing ${item} from ${prefType}`);
         setPreferences(prev => ({
             ...prev,
-            [prefType]: (prev[prefType] || []).filter((x: string) => x !== item),
+            [prefType]: prev[prefType].filter((x: string) => x !== item),
         }));
     };
 
     const handleSave = async () => {
-        if (!user) {
-            Alert.alert("Error", "No user logged in");
-            return;
-        }
+        if (!user) { return; }
 
         try {
             setLoading(true);
-            await userProfileServices.updatePreferences(user.uid, preferences);
-            await refresh();
-            console.log("saved preferences");
+            console.log(`saving preferences: ${preferences}`);
+            
+            await preferenceServices.updatePreferences(user.uid, preferences);
+            console.log('freferences saved to firestore');
+            
+            if (onRefresh) {
+                console.log('refreshing preferences');
+                await onRefresh();
+                console.log('preferences refresheD');
+            }
+            
             onClose();
         }
         catch (e: any) {
-            console.warn("error: ", e.message);
+            console.error(`error saving preference: ${e}`);
+            Alert.alert('Error', 'Failed to save preferences, try again');
         }
         finally {
             setLoading(false);
         }
     };
 
-    const handleCancel = async () => {
-        if (currentPreferences) {
-            setPreferences({
-                dietary: currentPreferences.dietary || [],
-                allergies: currentPreferences.allergies || [],
-                cuisines: currentPreferences.cuisines || [],
-                kitchenware: currentPreferences.kitchenware || [],
-                dislikes: currentPreferences.dislikes || [],
-                cookingpref: currentPreferences.cookingpref || [],
-            });
-        }
+    const handleCancel = () => {
+        console.log('canceling, resetting to:', currentPreferences);
+        setPreferences(currentPreferences);
         onClose();
     };
 
     return (
-        <Modal
-            visible={visible}
-            animationType='slide'
-            transparent={false}
-            onRequestClose={onClose}
-        >
+        <Modal visible={visible} animationType='slide'>
             <View style={styles.container}>
-                <HeaderFormatFor page="Edit Preferences" />
-
+                <ModalHeaderFor
+                    title="Edit Preferences"
+                    onBack={handleCancel}
+                    onSave={handleSave}
+                    loading={loading}
+                />
+                
                 <ScrollView style={styles.scrollView}>
                     <PreferencesSection 
                         title="Dietary Preferences"
@@ -138,7 +126,7 @@ export default function PreferencesEditModal({ visible, onClose } : EditPreferen
                         items={preferences.dislikes || []}
                         onAdd={(item) => handleAdd("dislikes", item)}
                         onRemove={(item) => handleRemove("dislikes", item)}
-                        placeholder="e.g., Mushrooms, Olives, CIlantro"
+                        placeholder="e.g., Mushrooms, Olives, Cilantro"
                         disabled={loading}
                     />
 
@@ -151,27 +139,6 @@ export default function PreferencesEditModal({ visible, onClose } : EditPreferen
                         disabled={loading}
                     />
                 </ScrollView>
-
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        style={[styles.saveButton, loading && { opacity: 0.6 }]}
-                        onPress={handleSave}
-                        disabled={loading}
-                    >
-                        <Text style={styles.saveButtonText}>
-                            {loading ? "Saving... " : "Save Preferences"}
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={handleCancel}
-                        disabled={loading}
-                    >
-                        <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                </View>
-
             </View>
         </Modal>
     );

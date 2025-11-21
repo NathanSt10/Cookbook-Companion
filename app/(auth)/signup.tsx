@@ -25,13 +25,11 @@ export default function SignUp() {
           firstName: firstName,
           lastName: lastName,
           email: user.email,
-          preferences: null,
           createdAt: firestore.FieldValue.serverTimestamp(),
         })
         .then(() => {
           console.log('user created ', firstName, ' ', lastName);
         });
-   
     } catch (e: any) {
       setError(e.message || "Failed to sign up");
       console.error("signup error: ", e);

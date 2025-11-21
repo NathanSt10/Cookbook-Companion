@@ -1,5 +1,5 @@
-import { StyleSheet, View, Text } from 'react-native';
-import FloatingActionButton from '../FloatingActionButton';
+import { StyleSheet, Text, View } from 'react-native';
+import FloatingActionButton from '../../utils/FloatingActionButton';
 
 interface EmptyStateProps {
     tab: string;

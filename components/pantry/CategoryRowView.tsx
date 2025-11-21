@@ -1,16 +1,14 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type CategoryRowViewProps = {
   onViewAll?: () => void;  
   onAddCategory?: () => void; 
-  chips: ReactNode;
 };
 
 export default function CategoryRowView({
   onViewAll,
   onAddCategory,
-  chips
   }: CategoryRowViewProps) {
   
   return (
@@ -29,10 +27,6 @@ export default function CategoryRowView({
             </TouchableOpacity>)
           }
         </View>
-      </View>
-
-      <View style={styles.content}>
-        {chips}
       </View>
     </View>
   );
@@ -81,8 +75,5 @@ const styles = StyleSheet.create({
     fontSize: 13, 
     color: 'white', 
     fontWeight: '600' 
-  },
-  content: {
-    // style for the chip tsx file
   },
 });

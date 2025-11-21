@@ -1,182 +1,130 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import { usePantry, PantryItem } from '../../hooks/usePantry';
-import { useAuth } from '../context/AuthContext';
-import { pantryServices } from '../../services/pantryServices';
-import HeaderFormatFor from '../../components/HeaderFormatFor';
-import FloatingActionButton from '../../components/FloatingActionButton';
-import LoadingViewFor from '../../components/LoadingViewFor';
-import CategoryChips, { Category } from '../../components/pantry/CategoryChips';
-import CategoryRowView from '../../components/pantry/CategoryRowView';
-import ItemList from '../../components/pantry/ItemList';
-import PantryStats from '../../components/pantry/PantryStats';
-import PantryEmptyState from '../../components/pantry/PantryEmptyState';
-import ItemAddModal from '../../components/pantry/ItemAddModal';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CategoryAddModal from '../../components/pantry/CategoryAddModal';
+import CategoryRowView from '../../components/pantry/CategoryRowView';
 import CategoryViewAllModal from '../../components/pantry/CategoryViewAllModal';
+import ItemAddModal from '../../components/pantry/ItemAddModal';
+import ItemEditModal from '../../components/pantry/ItemEditModal';
+import ItemList from '../../components/pantry/ItemList';
+import PantryEmptyState from '../../components/pantry/PantryEmptyState';
+import PantryStats from '../../components/pantry/PantryStats';
+import { useCategory } from '../../hooks/useCategory';
+import { PantryItem, PantryItemInput, usePantry } from '../../hooks/usePantry';
+import { categoryServices } from '../../services/categoryServices';
+import { pantryServices } from '../../services/pantryServices';
+import FloatingActionButton from '../../utils/FloatingActionButton';
+import HeaderFormatFor from '../../utils/HeaderFormatFor';
+import LoadingViewFor from '../../utils/LoadingViewFor';
+import { useAuth } from '../context/AuthContext';
 
 export default function PantryScreen() {
   const { user } = useAuth();
-  const { items, loading, stats, addItem, updateItem, deleteItem } = usePantry();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [itemModalVisible, setItemModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
-  const [viewAllCategoriesVisible, setViewAllCategoriesVisible] = useState(false);
+  const { pantry: items, stats, loading: loadingPantry } = usePantry();
+  const { categories, loading: loadingCategory } = useCategory();
+  const [addPantryItemModalVisible, setAddPantryItemModalVisible] = useState(false);
+  const [editPantryItemModalVisible, setEditPantryItemModalVisible] = useState(false);
+  const [addCategoryModalVisible, setAddCategoryModalVisible] = useState(false);
+  const [viewAllCatModalVisible, setViewAllCatModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<PantryItem | null>(null);
-
-  const categories: Category[] = useMemo(() => {
-    const categoryMap = new Map<string, number>();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]); 
+  
+  const handleViewAllCategoriesEdit = async (categoryId: string, newName: string) => {
+    if (!user?.uid) { return; }
     
-    items.forEach(item => {
-      const count = categoryMap.get(item.category) || 0;
-      categoryMap.set(item.category, count + 1);
-    });
+    await categoryServices.editCategory(user.uid, categoryId, newName);
+  };
 
-    const categoriesArray: Category[] = [
-      { id: 'all', name: 'All Items' }
-    ];
+  const handleViewAllCategoriesDelete = async (categoryId: string, categoryName: string ) => {
+    if (!user?.uid) { return; }
+    
+    await categoryServices.deleteCategory(user.uid, categoryId, categoryName);
+  };
 
-    categoryMap.forEach((count, name) => {
-      categoriesArray.push({
-        id: name,
-        name: name,
-      });
-    });
+  const handleAddCategoryAdd = async (categoryName: string) => {
+    if (!user?.uid) { return; }
 
-    return categoriesArray;
-  }, [items]);
+    await categoryServices.addCategory(user.uid, categoryName);
+    setAddCategoryModalVisible(false);
+  };
+
+  const handlePantryItemAdd = async (itemData: Pick<PantryItemInput, 'name' | 'category' | 'quantity' | 'expireDate'>) => {
+    if (!user?.uid) { return; }
+
+    console.log(`adding pantry item: ${itemData}`);
+    await pantryServices.addItem(user.uid, itemData);
+    console.log('syncing categories');
+    await categoryServices.syncCategoriesFromPantry(user.uid);
+
+    console.log(`item added`)
+    setAddPantryItemModalVisible(false);
+  };
+  
+  const handlePantryItemEdit = async (itemId: string, updates: Partial<PantryItemInput>) => {
+    if (!user?.uid) { return; }
+
+    console.log(`updating pantry item ${itemId} with ${updates}`);
+    await pantryServices.editItem(user.uid, itemId, updates);
+    console.log('syncing categories after edit');
+    await categoryServices.syncCategoriesFromPantry(user.uid);
+
+    console.log('item was updated');
+    setEditingItem(null);
+    setEditPantryItemModalVisible(false);
+  };
+
+  const handlePantryItemEditHelper = (item: PantryItem) => {
+    setEditingItem(item); 
+    setEditPantryItemModalVisible(true);
+  }
+
+  const handlePantryItemDelete = async (itemId: string) => {
+    if (!user?.uid) { return; }
+
+    await pantryServices.deleteItem(user.uid, itemId);
+  };
+
+  const handleSelectCategories = (categoryNames: string[]) => {
+    setSelectedCategories(categoryNames);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedCategories([]);
+  };
 
   const categoryNames = useMemo(() => {
-    return items
-      .map(item => item.category)
-      .filter((cat, index, self) => self.indexOf(cat) === index)
-      .sort();
+    const names = new Set<string>();
+    items.forEach(item => {
+      if (item.category && Array.isArray(item.category)) {
+        item.category.forEach(cat => names.add(cat));
+      }
+    });
+    
+    return Array.from(names).sort();
   }, [items]);
 
   const categoriesWithData = useMemo(() => {
-    const categoryMap = new Map<string, { count: number; isDefault: boolean }>();
-    
-    items.forEach(item => {
-      const existing = categoryMap.get(item.category);
-      categoryMap.set(item.category, {
-        count: (existing?.count || 0) + 1,
-        isDefault: existing?.isDefault || false,
-      });
-    });
+    return categories.map(cat => ({
+      ...cat,
+      fireId: cat.fireId,
+      itemCount: items.filter(item => 
+        item.category && item.category.includes(cat.name)
+      ).length,
+    }));
+  },[categories, items]);
 
-    const allCategories: Category[] = [];
-    categoryMap.forEach((data, name) => {
-      allCategories.push({
-        id: name,
-        name: name,
-      });
-    });
-
-    return allCategories.sort((a, b) => a.name.localeCompare(b.name));
-  }, [items]);
-  
-  const handleAddItem = async (data: {
-    name: string;
-    category: string;
-    quantity?: string;
-    expiryDate?: string;
-  }) => {
-    try {
-      await addItem(data);
-      setItemModalVisible(false);
-    } 
-    catch (error) {
-      console.error('Error adding item:', error);
-      throw error;
-    }
-  };
-
-  const handleEditItem = (item: PantryItem) => {
-    setEditingItem(item);
-    setEditModalVisible(true);
-  };
-
-  const handleUpdateItem = async (
-    itemId: string,
-    updates: {
-      name: string;
-      category: string;
-      quantity?: string;
-      expiryDate?: string;
-    }
-  ) => {
-    try {
-      await updateItem(itemId, updates);
-      setEditModalVisible(false);
-      setEditingItem(null);
-    } catch (error) {
-      console.error('Error updating item:', error);
-      throw error;
-    }
-  };
-
-  const handleDeleteItem = async (id: string, name: string) => {
-    try {
-      await deleteItem(id);
-      console.log('Deleted item:', name);
-    } 
-    catch (error) {
-      console.error('Error deleting item:', error);
-      Alert.alert('Error', 'Failed to delete item');
-    }
-  };
-
-  
-  const handleAddCategory = async (categoryName: string) => {
-    if (!user?.uid) {
-      Alert.alert('Error', 'You must be logged in to add categories');
-      return;
+  const filteredItems = useMemo(() => {
+    if (selectedCategories.length === 0) {
+      return items; 
     }
 
-    try {
-      await pantryServices.addCategory(user.uid, categoryName);
-      setCategoryModalVisible(false);
-    } 
-    catch (error) {
-      console.error('Error adding category:', error);
-      throw error;
-    }
-  };
+    return items.filter(item => 
+      item.category && 
+      Array.isArray(item.category) && 
+      item.category.some(cat => selectedCategories.includes(cat))
+    );
+  }, [items, selectedCategories]);
 
-  const handleDeleteCategory = async (
-    categoryId: string,
-    categoryName: string,
-  ) => {
-    if (!user?.uid) return;
-
-    try {
-      await pantryServices.deleteCategory(user.uid, categoryId, categoryName);
-      
-      if (selectedCategory === categoryName) {
-        setSelectedCategory('all');
-      }
-    } 
-    catch (error) {
-      console.error('Error deleting category:', error);
-      throw error;
-    }
-  };
-
-  const handleRenameCategory = async (categoryId: string, newName: string) => {
-    if (!user?.uid) return;
-
-    try {
-      await pantryServices.renameCategory(user.uid, categoryId, newName);
-    } 
-    catch (error) {
-      console.error('Error renaming category:', error);
-      throw error;
-    }
-  };
-
-  if (loading) { return <LoadingViewFor page="pantry" />; }
-
+  if (loadingCategory || loadingPantry) { return <LoadingViewFor page="pantry" />; }
   return (
     <View style={styles.container}>
       <HeaderFormatFor page="Pantry" />
@@ -184,58 +132,91 @@ export default function PantryScreen() {
       <PantryStats
         totalItems={stats.totalItems}
         lowStockCount={stats.lowStockCount}
+        categoryCount={stats.categoryCount}
       />
 
       <CategoryRowView
-        onViewAll={() => setViewAllCategoriesVisible(true)}
-        onAddCategory={() => setCategoryModalVisible(true)}
-        chips={
-          <CategoryChips
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            onAddCategory={() => setCategoryModalVisible(true)}
-          />
-        }
+        onViewAll={() => setViewAllCatModalVisible(true)}
+        onAddCategory={() => setAddCategoryModalVisible(true)}
       />
+        {selectedCategories.length > 0 && (
+          <View style={styles.filterBanner}>
+            <View style={styles.filterInfo}>
+              <Text style={styles.filterText}>
+                Filtering by {selectedCategories.length} {selectedCategories.length === 1 ? 'category' : 'categories'}
+              </Text>
+              <Text style={styles.filterSubtext}>
+                {selectedCategories.join(', ')}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={handleClearFilters} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>Clear</Text>
+            </TouchableOpacity>
+          </View> )
+        }
 
-      <Text style={styles.itemText}>Items</Text>
+      <Text style={styles.itemText}>
+        Items {selectedCategories.length > 0 && `(${filteredItems.length})`}
+      </Text>
 
       {items.length === 0 ? 
-        (<PantryEmptyState onAddItem={() => setItemModalVisible(true)} />) 
+        (<PantryEmptyState onAddItem={() => setAddPantryItemModalVisible(true)} />) 
+        : filteredItems.length === 0 ? (
+          <View style={styles.emptyFilterContainer}>
+            <Text style={styles.emptyFilterTitle}>No items match your filters</Text>
+            <Text style={styles.emptyFilterSubtitle}>
+              Try selecting different categories or clear your filters
+            </Text>
+            <TouchableOpacity onPress={handleClearFilters} style={styles.emptyFilterButton}>
+              <Text style={styles.emptyFilterButtonText}>Clear Filters</Text>
+            </TouchableOpacity>
+          </View>
+        )
         : 
         (<ItemList
-            items={items}
-            selectedCategory={selectedCategory}
-            onEditItem={handleEditItem}
-            onDeleteItem={handleDeleteItem}
-            onAddItem={() => setItemModalVisible(true)}
+            items={filteredItems}
+            onEditItem={handlePantryItemEditHelper}
+            onDeleteItem={handlePantryItemDelete}
+            onAddItem={() => setAddPantryItemModalVisible(true)}
           />
         )
       }
 
-      <FloatingActionButton onPress={() => setItemModalVisible(true)} />
+      <FloatingActionButton onPress={() => setAddPantryItemModalVisible(true)} />
 
       <ItemAddModal
-        visible={itemModalVisible}
-        onClose={() => setItemModalVisible(false)}
-        onAdd={handleAddItem}
+        visible={addPantryItemModalVisible}
+        onClose={() => setAddPantryItemModalVisible(false)}
+        onAdd={handlePantryItemAdd}
         categories={categoryNames}
       />
 
+      <ItemEditModal
+        visible={editPantryItemModalVisible}
+        onClose={() => {
+          setEditPantryItemModalVisible(false);
+          setEditingItem(null);
+        }}
+        onEdit={handlePantryItemEdit}
+        categories={categoryNames}
+        editingItem={editingItem}
+      />
+
       <CategoryAddModal
-        visible={categoryModalVisible}
-        onClose={() => setCategoryModalVisible(false)}
-        onAdd={handleAddCategory}
+        visible={addCategoryModalVisible}
+        onClose={() => setAddCategoryModalVisible(false)}
+        onAdd={handleAddCategoryAdd}
         existingCategories={categoryNames}
       />
 
       <CategoryViewAllModal
-        visible={viewAllCategoriesVisible}
-        onClose={() => setViewAllCategoriesVisible(false)}
+        visible={viewAllCatModalVisible}
+        onClose={() => setViewAllCatModalVisible(false)}
         categories={categoriesWithData}
-        onDeleteCategory={handleDeleteCategory}
-        onRenameCategory={handleRenameCategory}
+        selectedCategories={selectedCategories}
+        onSelectCategories={handleSelectCategories}
+        onDeleteCategory={handleViewAllCategoriesDelete}
+        onRenameCategory={handleViewAllCategoriesEdit}
       />
     </View>
   );
@@ -252,10 +233,75 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: 'black',
     paddingHorizontal: 12,
-    marginTop: 8,
     marginBottom: 8,
+  },
+  filterBanner: {
+    backgroundColor: 'aliceblue',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: 'royalblue',
+  },
+  filterInfo: {
+    flex: 1,
+  },
+  filterText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'black',
+    marginBottom: 4,
+  },
+  filterSubtext: {
+    fontSize: 12,
+    color: 'royalblue',
+  },
+  clearButton: {
+    backgroundColor: 'white',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'royalblue',
+  },
+  clearButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: 'royalblue',
+  },
+  emptyFilterContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyFilterTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'grey',
+    marginBottom: 8,
+  },
+  emptyFilterSubtitle: {
+    fontSize: 14,
+    color: 'tan',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  emptyFilterButton: {
+    backgroundColor: 'royalblue',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  emptyFilterButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

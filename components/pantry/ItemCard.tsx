@@ -1,7 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PantryItem } from '../../hooks/usePantry';
-import { Ionicons } from '@expo/vector-icons';
+import { capitalizeFirstLetter } from '../../utils/CapitalizeFirstLetter';
 
 interface ItemCardProps {
   item: PantryItem;
@@ -39,8 +40,13 @@ export default function ItemCard({
     >
       <View style={styles.content}>
         <View style={styles.mainInfo}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.category}>{item.category}</Text>
+          <Text style={styles.name}>{capitalizeFirstLetter(item.name)}</Text>
+          <Text style={styles.category}>
+            {Array.isArray(item.category)
+              ? item.category.map(cat => capitalizeFirstLetter(cat)).join(', ')
+              : capitalizeFirstLetter(item.category)
+            }
+          </Text>
         </View>
 
         <View style={styles.details}>
@@ -57,8 +63,8 @@ export default function ItemCard({
                   <Text style={styles.lowStockBadgeText}>Low</Text>
                 </View>
               )}
-            </View>
-          )}
+            </View> )
+          }
 
           <Text style={styles.addedDate}>
             Added: {formatDate(item.addedAt)}
@@ -77,13 +83,12 @@ export default function ItemCard({
               style={styles.actionButton}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text style={styles.actionText}>Edit</Text>
+              <Ionicons name="pencil" size={20} color="royalblue" />
             </TouchableOpacity>
           )}
           {onDelete && (
             <TouchableOpacity 
               onPress={(e) => {
-                e.stopPropagation();
                 onDelete();
               }}
               style={styles.actionButton}

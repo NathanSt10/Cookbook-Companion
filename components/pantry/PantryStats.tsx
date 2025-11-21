@@ -1,21 +1,27 @@
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 interface PantryStatsProps {
     totalItems: number;
     lowStockCount: number;
+    categoryCount: number;
 }
 
-export default function PantryStats({ totalItems, lowStockCount } : PantryStatsProps) {
+export default function PantryStats({ totalItems, lowStockCount, categoryCount } : PantryStatsProps) {
     return (
         <View style={styles.container}>
             <View style={styles.statCard}>
                 <Text style={styles.statNumber}>{totalItems}</Text>
-                <Text style={styles.statLabel}>Pantry Items</Text>
+                <Text style={styles.statLabel}>Pantry Item(s)</Text>
             </View>
 
             <View style={styles.statCard}>
                 <Text style={styles.statNumber}>{lowStockCount}</Text>
                 <Text style={styles.statLabel}>Low Stock</Text>
+            </View>
+
+            <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{categoryCount}</Text>
+                <Text style={styles.statLabel}>Category Item(s)</Text>
             </View>
         </View>
     );

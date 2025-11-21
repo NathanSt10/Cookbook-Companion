@@ -1,4 +1,4 @@
-import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface FloatingActionButtonProps {
     onPress: () => void;
