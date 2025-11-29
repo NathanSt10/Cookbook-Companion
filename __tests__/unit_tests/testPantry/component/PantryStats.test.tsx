@@ -48,7 +48,6 @@ describe('PantryStats', () => {
         <PantryStats totalItems={0} lowStockCount={0} categoryCount={0} />
       );
 
-      // All three stats show 0, so we should find 3 instances
       const zeros = getAllByText('0');
       expect(zeros).toHaveLength(3);
       expect(getByText('Pantry Item(s)')).toBeTruthy();
@@ -116,7 +115,6 @@ describe('PantryStats', () => {
         <PantryStats totalItems={10} lowStockCount={10} categoryCount={3} />
       );
 
-      // Both totalItems and lowStockCount show 10, so we should find 2 instances
       const tens = getAllByText('10');
       expect(tens).toHaveLength(2);
       expect(getByText('Low Stock')).toBeTruthy();
@@ -183,7 +181,6 @@ describe('PantryStats', () => {
         <PantryStats totalItems={10} lowStockCount={3} categoryCount={10} />
       );
 
-      // Both totalItems and categoryCount show 10, so we should find 2 instances
       const tens = getAllByText('10');
       expect(tens).toHaveLength(2);
     });
@@ -213,7 +210,6 @@ describe('PantryStats', () => {
         <PantryStats totalItems={9999} lowStockCount={9999} categoryCount={9999} />
       );
 
-      // All three stats show 9999, so we should find 3 instances
       const maxValues = getAllByText('9999');
       expect(maxValues).toHaveLength(3);
       expect(getByText('Pantry Item(s)')).toBeTruthy();
@@ -420,7 +416,6 @@ describe('PantryStats', () => {
     it('should render readable stat numbers', () => {
       const { getByText } = render(<PantryStats {...defaultProps} />);
 
-      // Numbers should be accessible
       expect(getByText('10')).toBeTruthy();
       expect(getByText('3')).toBeTruthy();
       expect(getByText('5')).toBeTruthy();

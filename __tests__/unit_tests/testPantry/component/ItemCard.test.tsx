@@ -220,22 +220,13 @@ describe('ItemCard', () => {
       expect(UNSAFE_getAllByType).toBeDefined();
     });
 
-    it('should not render action buttons when neither onEdit nor onDelete provided', () => {
-      const { queryByTestId } = render(
-        <ItemCard item={mockItem} />
-      );
-
-      // No action buttons should be rendered
-      // The actions view should not exist
-    });
-
     it('should call onEdit when edit button is pressed', () => {
       const { getByTestId } = render(
         <ItemCard item={mockItem} onEdit={mockOnEdit} />
       );
+      
 
-      // You'll need to add testID="edit-button" to the edit TouchableOpacity
-      // For now, we'll test the callback is defined
+      // testid on itemcard
       expect(mockOnEdit).toBeDefined();
     });
 
@@ -244,7 +235,7 @@ describe('ItemCard', () => {
         <ItemCard item={mockItem} onDelete={mockOnDelete} />
       );
 
-      // You'll need to add testID="delete-button" to the delete TouchableOpacity
+      // did i get setup testId field yet?
       expect(mockOnDelete).toBeDefined();
     });
 

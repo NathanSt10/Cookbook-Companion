@@ -273,7 +273,6 @@ describe('ItemList', () => {
       
       render(<ItemList items={mockItems} />);
 
-      // Check all calls to ensure onPress is undefined
       ItemCardMock.mock.calls.forEach((call: any) => {
         expect(call[0].onPress).toBeUndefined();
       });
@@ -284,7 +283,6 @@ describe('ItemList', () => {
       
       render(<ItemList items={mockItems} />);
 
-      // Check all calls to ensure onEdit is undefined
       ItemCardMock.mock.calls.forEach((call: any) => {
         expect(call[0].onEdit).toBeUndefined();
       });
@@ -295,7 +293,6 @@ describe('ItemList', () => {
       
       render(<ItemList items={mockItems} />);
 
-      // Check all calls to ensure onDelete is undefined
       ItemCardMock.mock.calls.forEach((call: any) => {
         expect(call[0].onDelete).toBeUndefined();
       });
@@ -313,7 +310,6 @@ describe('ItemList', () => {
         />
       );
 
-      // Check all calls to ensure all callbacks are functions
       ItemCardMock.mock.calls.forEach((call: any) => {
         expect(call[0].onPress).toEqual(expect.any(Function));
         expect(call[0].onEdit).toEqual(expect.any(Function));
@@ -371,10 +367,7 @@ describe('ItemList', () => {
         <ItemList items={manyItems} />
       );
 
-      // FlatList uses virtualization, so not all items are rendered in tests
-      // Just verify the list renders and contains the first item
       expect(getByText('item0')).toBeTruthy();
-      // Verify that the list was created with all 100 items
       expect(getByTestId('item-card-0')).toBeTruthy();
     });
 
@@ -526,7 +519,8 @@ describe('ItemList', () => {
 
       const FlatList = require('react-native').FlatList;
       const flatList = UNSAFE_getByType(FlatList);
-      
+      // flatlist vs scrollview?
+
       const keyExtractor = flatList.props.keyExtractor;
       expect(keyExtractor(mockItems[0])).toBe('1');
       expect(keyExtractor(mockItems[1])).toBe('2');
