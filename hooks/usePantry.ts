@@ -7,7 +7,7 @@ export interface PantryItem {
   fireId: string;
   name: string;
   category: string[];
-  quantity?: any;
+  quantity?: string | number;
   unit?: any;
   isPerishabe?: boolean;
   expireDate?: string;
@@ -18,6 +18,7 @@ export interface PantryItemInput {
   name: string;
   category: string[];
   quantity?: string;
+  unit?: string;
   expireDate?: string;
 }
 
@@ -38,6 +39,7 @@ export function usePantry() {
         name: field.name,
         category: field.category,
         quantity: field.quantity,
+        unit: field.unit,
         expireDate: field.expireDate,
         addedAt: field.addedAt?.toDate?.() || new Date(field.addedAt),
       });

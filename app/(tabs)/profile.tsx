@@ -21,7 +21,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileViewType>("liked");
   const [editProfileModalVisible, setEditProfileModalVisible] = useState<boolean>(true);
   const { firstName, lastName, email } = useProfile();
-  const { preferences, refresh } = usePreferences();
+  const { item: preferences, refresh } = usePreferences();
 
   if (loading) { return (<LoadingViewFor page={"profile"} />); }
 

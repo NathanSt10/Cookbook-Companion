@@ -11,7 +11,10 @@ export default function PantryStats({ totalItems, lowStockCount, categoryCount }
         <View style={styles.container}>
             <View style={styles.statCard}>
                 <Text style={styles.statNumber}>{totalItems}</Text>
-                <Text style={styles.statLabel}>Pantry Item(s)</Text>
+                {(totalItems === 1)
+                   ? <Text style={styles.statLabel}>Pantry Item</Text> 
+                   : <Text style={styles.statLabel}>Pantry Items</Text>
+                }
             </View>
 
             <View style={styles.statCard}>
@@ -21,7 +24,10 @@ export default function PantryStats({ totalItems, lowStockCount, categoryCount }
 
             <View style={styles.statCard}>
                 <Text style={styles.statNumber}>{categoryCount}</Text>
-                <Text style={styles.statLabel}>Category Item(s)</Text>
+                {(categoryCount === 1)
+                  ? <Text style={styles.statLabel}>Category Item</Text>
+                  : <Text style={styles.statLabel}>Category Items</Text>
+                }
             </View>
         </View>
     );

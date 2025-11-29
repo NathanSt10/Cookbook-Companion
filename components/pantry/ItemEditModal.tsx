@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { PantryItem } from '../../hooks/usePantry';
+import { PantryItem, PantryItemInput } from '../../hooks/usePantry';
 import ModalHeaderFor from '../../utils/ModalHeaderFor';
+import UnitSelector from '../../utils/UnitSelectorModal';
 
 interface ItemEditModalProps {
   visible: boolean;
   onClose: () => void;
-  onEdit: (itemId: string, data: { name: string; category: string[]; quantity?: string; expireDate?: string }) => Promise<void>;
+  onEdit: (itemId: string, data: PantryItemInput) => Promise<void>;
   categories: string[];
   editingItem: PantryItem | null;
 }
@@ -22,26 +23,34 @@ export default function ItemEditModal({
   const [name, setName] = useState<string>('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [quantity, setQuantity] = useState<string>('');
-  const [expireDate, setExpireDate] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [newCategoryInput, setNewCategoryInput] = useState<string>('');
+  const [unit, setUnit] = useState<string>('');
 
   const allCategories = [...new Set([...categories, ...selectedCategories])];
 
   useEffect(() => {
-    if (editingItem) {
-      setName(editingItem.name);
-      setSelectedCategories(Array.isArray(editingItem.category) ? editingItem.category : [editingItem.category]);
-      setQuantity(editingItem.quantity || '');
-      setExpireDate(editingItem.expireDate || '');
-    }
-  }, [editingItem]);
+    if (!visible) { return; }
 
+    if (!editingItem) {
+      setName('');
+      setSelectedCategories([]);
+      setQuantity('');
+      setUnit('');
+      return;
+    }
+
+   setName(editingItem.name);
+   setSelectedCategories(Array.isArray(editingItem.category) ? editingItem.category : [editingItem.category]);
+   setQuantity('');
+   setUnit('');
+  }, [visible, editingItem]);
+  
   const resetForm = () => {
     setName('');
     setSelectedCategories([]);
     setQuantity('');
-    setExpireDate('');
+    setUnit('');
     setNewCategoryInput('');
   };
 
@@ -51,6 +60,11 @@ export default function ItemEditModal({
   };
 
   const handleSave = async () => {
+    if (!editingItem) {
+      Alert.alert('Error', 'No item selected for editing');
+      return;
+    }
+
     if (!name.trim()) {
       Alert.alert('Error', 'Please enter an item name');
       return;
@@ -61,8 +75,8 @@ export default function ItemEditModal({
       return;
     }
 
-    if (!editingItem) {
-      Alert.alert('Error', 'No item selected for editing');
+    if (quantity.trim() && !unit.trim()) {
+      Alert.alert('Missing Unit', 'Please select a unit for the quantity');
       return;
     }
 
@@ -70,9 +84,9 @@ export default function ItemEditModal({
     try {
       await onEdit(editingItem.fireId, {
         name: name.trim(),
-        category: selectedCategories,
+        category: selectedCategories.length > 0 ? selectedCategories : ['other'],
         quantity: quantity.trim() || undefined,
-        expireDate: expireDate.trim() || undefined,
+        unit: unit.trim() || undefined,
       });
       
       console.log("edited item in pantry");
@@ -129,6 +143,8 @@ export default function ItemEditModal({
         onSave={handleSave}
         rightText='Save'
         loading={loading}
+        backButtonTestId='back-button-test'
+        rightButtonTestId='save-button-test'
       />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -159,16 +175,26 @@ export default function ItemEditModal({
               returnKeyType="done"
             />
             <TouchableOpacity
-              style={styles.addButton}
+              style={[
+                styles.addButton,
+                (!newCategoryInput.trim() || loading) && styles.addButtonDisabled,
+              ]}
               onPress={handleAddNewCategory}
-              disabled={!newCategoryInput.trim() || loading}
+              disabled={loading}
             >
               <Ionicons 
                 name="add-circle" 
                 size={24} 
-                color='black'
+                color={(!newCategoryInput.trim() || loading) ? 'gainsboro' : 'black'}
               />
-              <Text style={styles.addButtonText}>Add</Text>
+              <Text 
+                style={[
+                  styles.addButtonText,
+                  (!newCategoryInput.trim() || loading) && styles.addButtonTextDisabled,
+                ]}
+              >
+                Add
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -189,6 +215,7 @@ export default function ItemEditModal({
                       styles.categoryChipText,
                       selectedCategories.includes(cat) && styles.categoryChipTextSelected,
                     ]}
+                    accessibilityState={{ disabled: loading }}
                   >
                     {cat}
                   </Text>
@@ -212,24 +239,24 @@ export default function ItemEditModal({
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Quantity (Optional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 2, 500g, 1L"
-            value={quantity}
-            onChangeText={setQuantity}
-            editable={!loading}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Expire Date (Optional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 2024-12-31"
-            value={expireDate}
-            onChangeText={setExpireDate}
-            editable={!loading}
-          />
+          <View style={styles.quantityRow}>  
+            <TextInput
+              style={[styles.input, styles.quantityInput]}
+              placeholder="e.g., 2, 500g, 1L"
+              value={quantity}
+              onChangeText={setQuantity}
+              keyboardType='decimal-pad'
+              editable={!loading}
+            />
+            <UnitSelector
+              selectedUnit={unit}
+              onSelectUnit={setUnit}
+              disabled={loading}
+            />
+          </View>
+            <Text style={styles.hint}>
+              Enter amount and select a unit (e.g., "500" + "g" for 500 grams)
+            </Text>
         </View>
       </ScrollView>
     </Modal>
@@ -291,10 +318,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
   },
+  addButtonDisabled: {
+    borderColor: 'gainsboro',
+    backgroundColor: 'whitesmoke',
+  },
   addButtonText: {
     fontSize: 14,
     fontWeight: 'bold',
     color: 'black',
+  },
+  addButtonTextDisabled: {
+    color: 'gainsboro',
   },
   categoryChips: {
     flexDirection: 'row',
@@ -333,5 +367,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'aliceblue',
     padding: 10,
     borderRadius: 8,
+  },
+  quantityRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  quantityInput: {
+    flex: 1,
   },
 });

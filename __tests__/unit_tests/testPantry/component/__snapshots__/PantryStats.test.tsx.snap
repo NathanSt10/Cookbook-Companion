@@ -1,0 +1,418 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PantryStats Snapshot should match snapshot 1`] = `
+<View
+  style={
+    {
+      "flexDirection": "row",
+      "gap": 12,
+      "marginBottom": 16,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      10
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Pantry Item(s)
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      3
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Low Stock
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      5
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Category Item(s)
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`PantryStats Snapshot should match snapshot with large values 1`] = `
+<View
+  style={
+    {
+      "flexDirection": "row",
+      "gap": 12,
+      "marginBottom": 16,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      9999
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Pantry Item(s)
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      9999
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Low Stock
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      9999
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Category Item(s)
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`PantryStats Snapshot should match snapshot with zero values 1`] = `
+<View
+  style={
+    {
+      "flexDirection": "row",
+      "gap": 12,
+      "marginBottom": 16,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      0
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Pantry Item(s)
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      0
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Low Stock
+    </Text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "ghostwhite",
+        "borderRadius": 8,
+        "elevation": 3,
+        "flex": 1,
+        "padding": 16,
+        "shadowColor": "black",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 32,
+          "fontWeight": "bold",
+          "marginBottom": 4,
+        }
+      }
+    >
+      0
+    </Text>
+    <Text
+      style={
+        {
+          "color": "black",
+          "fontSize": 14,
+        }
+      }
+    >
+      Category Item(s)
+    </Text>
+  </View>
+</View>
+`;

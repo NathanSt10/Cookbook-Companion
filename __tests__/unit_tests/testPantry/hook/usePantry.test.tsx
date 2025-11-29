@@ -8,7 +8,6 @@ jest.mock('../../../../app/context/AuthContext', () => ({
 
 const mockOnSnapshot = jest.fn();
 const mockGet = jest.fn();
-
 const mockFirestore = {
     collection: jest.fn().mockReturnThis(),
     doc: jest.fn().mockReturnThis(),

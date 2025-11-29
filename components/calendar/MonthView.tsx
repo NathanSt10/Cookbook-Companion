@@ -40,23 +40,26 @@ export default function MonthView({
         onDayPress={(day) => onDateSelect(day.dateString)}
         markedDates={markedDates}
         theme={{
-          selectedDayBackgroundColor: '#4A90E2',
-          todayTextColor: '#4A90E2',
-          dotColor: '#FF6B6B',
-          arrowColor: '#000',
+          selectedDayBackgroundColor: 'royalblue',
+          todayTextColor: 'royalblue',
+          dotColor: 'firebrick',
+          arrowColor: 'black',
         }}
       />
 
       <View style={styles.recipesSection}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{formattedDate}</Text>
-          <Text style={styles.headerCount}>{recipes.length} meal(s)</Text>
+          {(recipes.length === 1) 
+            ? <Text style={styles.headerCount}>{recipes.length} meal</Text>
+            : <Text style={styles.headerCount}>{recipes.length} meals</Text>
+          }
         </View>
 
-        {recipes.length === 0 ? (
-          <EmptyMealState />
-        ) : (
-          <FlatList
+        {recipes.length === 0 ?
+          (<EmptyMealState />)
+          :
+          (<FlatList
             data={recipes}
             keyExtractor={(item) => item.fireId}
             renderItem={({ item }) => (
@@ -66,9 +69,9 @@ export default function MonthView({
                 onRemove={() => onRemoveRecipe(item.fireId, item.date)}
               />
             )}
-            contentContainerStyle={styles.list}
-          />
-        )}
+            contentContainerStyle={styles.list} />
+          )
+        }
       </View>
     </>
   );
@@ -77,7 +80,7 @@ export default function MonthView({
 const styles = StyleSheet.create({
   recipesSection: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: 'ghostwhite',
   },
   header: {
     flexDirection: 'row',
@@ -85,9 +88,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'ghostwhite',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: 'black',
   },
   headerTitle: {
     fontSize: 18,
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
   },
   headerCount: {
     fontSize: 14,
-    color: '#666',
+    color: 'black',
   },
   list: {
     padding: 20,

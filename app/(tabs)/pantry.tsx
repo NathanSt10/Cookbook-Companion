@@ -47,7 +47,7 @@ export default function PantryScreen() {
     setAddCategoryModalVisible(false);
   };
 
-  const handlePantryItemAdd = async (itemData: Pick<PantryItemInput, 'name' | 'category' | 'quantity' | 'expireDate'>) => {
+  const handlePantryItemAdd = async (itemData: PantryItemInput) => {
     if (!user?.uid) { return; }
 
     console.log(`adding pantry item: ${itemData}`);
@@ -139,21 +139,22 @@ export default function PantryScreen() {
         onViewAll={() => setViewAllCatModalVisible(true)}
         onAddCategory={() => setAddCategoryModalVisible(true)}
       />
-        {selectedCategories.length > 0 && (
-          <View style={styles.filterBanner}>
-            <View style={styles.filterInfo}>
-              <Text style={styles.filterText}>
-                Filtering by {selectedCategories.length} {selectedCategories.length === 1 ? 'category' : 'categories'}
-              </Text>
-              <Text style={styles.filterSubtext}>
-                {selectedCategories.join(', ')}
-              </Text>
-            </View>
-            <TouchableOpacity onPress={handleClearFilters} style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>Clear</Text>
-            </TouchableOpacity>
-          </View> )
-        }
+        
+      {selectedCategories.length > 0 && (
+        <View style={styles.filterBanner}>
+          <View style={styles.filterInfo}>
+            <Text style={styles.filterText}>
+              Filtering by {selectedCategories.length} {selectedCategories.length === 1 ? 'category' : 'categories'}
+            </Text>
+            <Text style={styles.filterSubtext}>
+              {selectedCategories.join(', ')}
+            </Text>
+          </View>
+          <TouchableOpacity onPress={handleClearFilters} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Clear</Text>
+          </TouchableOpacity>
+        </View> )
+      }
 
       <Text style={styles.itemText}>
         Items {selectedCategories.length > 0 && `(${filteredItems.length})`}

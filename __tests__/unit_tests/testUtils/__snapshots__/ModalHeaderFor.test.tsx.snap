@@ -1,0 +1,533 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModalHeaderFor Snapshot should match snapshot in loading state 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "white",
+      "borderBottomColor": "gainsboro",
+      "borderBottomWidth": 1,
+      "flexDirection": "row",
+      "justifyContent": "space-between",
+      "paddingBottom": 20,
+      "paddingHorizontal": 16,
+      "paddingTop": 40,
+    }
+  }
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": true,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-back-button"
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "black",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "ionicons",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+  </View>
+  <Text
+    style={
+      {
+        "color": "black",
+        "flex": 1,
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "textAlign": "center",
+      }
+    }
+  >
+    Test Modal
+  </Text>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": true,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "flex-end",
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-save-button"
+  >
+    <Text
+      style={
+        [
+          {
+            "color": "royalblue",
+            "fontSize": 16,
+            "fontWeight": "bold",
+          },
+          {
+            "color": "black",
+          },
+        ]
+      }
+    >
+      Standby
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`ModalHeaderFor Snapshot should match snapshot with custom right text 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "white",
+      "borderBottomColor": "gainsboro",
+      "borderBottomWidth": 1,
+      "flexDirection": "row",
+      "justifyContent": "space-between",
+      "paddingBottom": 20,
+      "paddingHorizontal": 16,
+      "paddingTop": 40,
+    }
+  }
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-back-button"
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "black",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "ionicons",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+  </View>
+  <Text
+    style={
+      {
+        "color": "black",
+        "flex": 1,
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "textAlign": "center",
+      }
+    }
+  >
+    Test Modal
+  </Text>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "flex-end",
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-save-button"
+  >
+    <Text
+      style={
+        [
+          {
+            "color": "royalblue",
+            "fontSize": 16,
+            "fontWeight": "bold",
+          },
+          false,
+        ]
+      }
+    >
+      Apply
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`ModalHeaderFor Snapshot should match snapshot with save button 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "white",
+      "borderBottomColor": "gainsboro",
+      "borderBottomWidth": 1,
+      "flexDirection": "row",
+      "justifyContent": "space-between",
+      "paddingBottom": 20,
+      "paddingHorizontal": 16,
+      "paddingTop": 40,
+    }
+  }
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-back-button"
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "black",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "ionicons",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+  </View>
+  <Text
+    style={
+      {
+        "color": "black",
+        "flex": 1,
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "textAlign": "center",
+      }
+    }
+  >
+    Test Modal
+  </Text>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "flex-end",
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-save-button"
+  >
+    <Text
+      style={
+        [
+          {
+            "color": "royalblue",
+            "fontSize": 16,
+            "fontWeight": "bold",
+          },
+          false,
+        ]
+      }
+    >
+      Save
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`ModalHeaderFor Snapshot should match snapshot without save button 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "white",
+      "borderBottomColor": "gainsboro",
+      "borderBottomWidth": 1,
+      "flexDirection": "row",
+      "justifyContent": "space-between",
+      "paddingBottom": 20,
+      "paddingHorizontal": 16,
+      "paddingTop": 40,
+    }
+  }
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": false,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+        "padding": 8,
+        "width": 60,
+      }
+    }
+    testID="modal-back-button"
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "black",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "ionicons",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+  </View>
+  <Text
+    style={
+      {
+        "color": "black",
+        "flex": 1,
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "textAlign": "center",
+      }
+    }
+  >
+    Test Modal
+  </Text>
+  <View
+    style={
+      {
+        "width": 60,
+      }
+    }
+  />
+</View>
+`;

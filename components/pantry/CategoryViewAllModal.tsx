@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
-import { capitalizeFirstLetter } from '../../utils/CapitalizeFirstLetter';
+import { Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { capitalizeEachFirstLetter } from '../../utils/CapitalizeFirstLetter';
 import ModalHeaderFor from '../../utils/ModalHeaderFor';
 
 export interface Category {
@@ -14,8 +14,8 @@ interface CategoryViewAllModalProps {
   visible: boolean;
   onClose: () => void;
   categories: Category[];
-  selectedCategories?: string[]; 
-  onSelectCategories?: (categoryNames: string[]) => void; 
+  selectedCategories?: string[];
+  onSelectCategories?: (categoryNames: string[]) => void;
   onDeleteCategory: (categoryId: string, categoryName: string) => Promise<void>;
   onRenameCategory: (categoryId: string, newCategoryName: string) => Promise<void>;
 }
@@ -32,11 +32,19 @@ export default function CategoryViewAllModal({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const [localSelectedCategories, setLocalSelectedCategories] = useState<string[]>(selectedCategories);
+  const [localSelectedCategories, setLocalSelectedCategories] =
+    useState<string[]>(selectedCategories);
 
   React.useEffect(() => {
     if (visible) {
       setLocalSelectedCategories(selectedCategories);
+    }
+  }, [visible]);
+
+  React.useEffect(() => {
+    if (!visible) {
+      setEditingId(null);
+      setEditValue('');
     }
   }, [visible]);
 
@@ -52,14 +60,16 @@ export default function CategoryViewAllModal({
 
   const handleSaveEdit = async (categoryId: string) => {
     const trimmedName = editValue.trim();
-    
+
     if (!trimmedName) {
       Alert.alert('Error', 'Category name cannot be empty');
       return;
     }
 
     const isDuplicate = categories.some(
-      cat => cat.fireId !== categoryId && cat.name.toLowerCase() === trimmedName.toLowerCase()
+      (cat) =>
+        cat.fireId !== categoryId &&
+        cat.name.toLowerCase() === trimmedName.toLowerCase()
     );
 
     if (isDuplicate) {
@@ -73,7 +83,7 @@ export default function CategoryViewAllModal({
       setEditingId(null);
       setEditValue('');
     } catch (error) {
-      console.error(`error saving edit: ${error}`)
+      console.error(`error saving edit: ${error}`);
       Alert.alert('Error', 'Failed to rename category');
     } finally {
       setLoading(false);
@@ -93,28 +103,30 @@ export default function CategoryViewAllModal({
             setLoading(true);
             try {
               await onDeleteCategory(category.fireId, category.name);
-              
-              const updatedSelection = localSelectedCategories.filter(cat => cat !== category.name);
+
+              const updatedSelection = localSelectedCategories.filter(
+                (cat) => cat !== category.name
+              );
               setLocalSelectedCategories(updatedSelection);
               if (onSelectCategories) {
                 onSelectCategories(updatedSelection);
               }
             } catch (e: any) {
-              Alert.alert("Error", "Failed to delete category");
+              Alert.alert('Error', 'Failed to delete category');
             } finally {
               setLoading(false);
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
 
   const toggleCategorySelection = (categoryName: string) => {
     const newSelection = localSelectedCategories.includes(categoryName)
-      ? localSelectedCategories.filter(cat => cat !== categoryName)
+      ? localSelectedCategories.filter((cat) => cat !== categoryName)
       : [...localSelectedCategories, categoryName];
-    
+
     setLocalSelectedCategories(newSelection);
   };
 
@@ -131,8 +143,8 @@ export default function CategoryViewAllModal({
 
   const handleSelectAll = () => {
     const allCategoryNames = categories
-      .filter(cat => cat.fireId !== 'all')
-      .map(cat => cat.name);
+      .filter((cat) => cat.fireId !== 'all')
+      .map((cat) => cat.name);
     setLocalSelectedCategories(allCategoryNames);
   };
 
@@ -141,51 +153,54 @@ export default function CategoryViewAllModal({
     const isSelected = localSelectedCategories.includes(item.name);
 
     return (
-      <View style={[
-        styles.categoryItem,
-        isSelected && styles.categoryItemSelected
-      ]}>
-        {isEditing ? 
-          (<View style={styles.editContainer}>
-              <TextInput
-                style={styles.editInput}
-                value={editValue}
-                onChangeText={setEditValue}
-                autoFocus
-                maxLength={30}
-              />
+      <View
+        style={[styles.categoryItem, isSelected && styles.categoryItemSelected]}
+      >
+        {isEditing ? (
+          <View style={styles.editContainer}>
+            <TextInput
+              style={styles.editInput}
+              value={editValue}
+              onChangeText={setEditValue}
+              autoFocus
+              maxLength={30}
+              testID={`edit-input-${item.fireId}`}
+            />
 
-              <View style={styles.editActions}>
-                <TouchableOpacity
-                  onPress={() => handleSaveEdit(item.fireId)}
-                  style={styles.editButton}
-                  disabled={loading}
-                >
-                  <Ionicons name="checkmark-circle" size={28} color="black" />
-                </TouchableOpacity>
+            <View style={styles.editActions}>
+              <TouchableOpacity
+                onPress={() => handleSaveEdit(item.fireId)}
+                style={styles.editButton}
+                disabled={loading}
+                testID={`save-edit-button-${item.fireId}`}
+              >
+                <Ionicons name="checkmark-circle" size={28} color="black" />
+              </TouchableOpacity>
 
-                <TouchableOpacity
-                  onPress={handleCancelEdit}
-                  style={styles.editButton}
-                  disabled={loading}
-                >
-                  <Ionicons name="close-circle" size={28} color="black" />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                onPress={handleCancelEdit}
+                style={styles.editButton}
+                disabled={loading}
+                testID={`cancel-edit-button-${item.fireId}`}
+              >
+                <Ionicons name="close-circle" size={28} color="black" />
+              </TouchableOpacity>
             </View>
-          ) 
-          : 
-          (<>
+          </View>
+        )
+        : 
+        (
+          <>
             {onSelectCategories && (
               <TouchableOpacity
                 onPress={() => toggleCategorySelection(item.name)}
                 style={styles.checkboxContainer}
                 disabled={loading}
+                testID="edit-category-button"
               >
-                <View style={[
-                  styles.checkbox,
-                  isSelected && styles.checkboxSelected
-                ]}>
+                <View
+                  style={[styles.checkbox, isSelected && styles.checkboxSelected]}
+                >
                   {isSelected && (
                     <Ionicons name="checkmark" size={18} color="white" />
                   )}
@@ -195,15 +210,20 @@ export default function CategoryViewAllModal({
 
             <TouchableOpacity
               style={styles.categoryInfo}
-              onPress={() => onSelectCategories && toggleCategorySelection(item.name)}
+              onPress={() =>
+                onSelectCategories && toggleCategorySelection(item.name)
+              }
               activeOpacity={0.7}
               disabled={loading}
             >
-              <Text style={styles.categoryName}>{capitalizeFirstLetter(item.name)}</Text>
+              <Text style={styles.categoryName}>
+                {capitalizeEachFirstLetter(item.name)}
+              </Text>
               {item.itemCount !== undefined && (
                 <View style={styles.categoryMeta}>
                   <Text style={styles.itemCount}>
-                    {item.itemCount} {item.itemCount === 1 ? 'item' : 'items'}
+                    {item.itemCount}{' '}
+                    {item.itemCount === 1 ? 'item' : 'items'}
                   </Text>
                 </View>
               )}
@@ -214,6 +234,7 @@ export default function CategoryViewAllModal({
                 onPress={() => handleStartEdit(item)}
                 style={styles.actionButton}
                 disabled={loading}
+                testID="edit-category-button"
               >
                 <Ionicons name="pencil" size={20} color="royalblue" />
               </TouchableOpacity>
@@ -222,8 +243,9 @@ export default function CategoryViewAllModal({
                 onPress={() => handleDelete(item)}
                 style={styles.actionButton}
                 disabled={loading}
+                testID={`delete-category-${item.fireId}`}
               >
-                <Ionicons name="close-circle" size={20} color="b" />
+                <Ionicons name="close-circle" size={20} color="red" />
               </TouchableOpacity>
             </View>
           </>
@@ -232,7 +254,7 @@ export default function CategoryViewAllModal({
     );
   };
 
-  const filteredCategories = categories.filter(cat => cat.fireId !== 'all');
+  const filteredCategories = categories.filter((cat) => cat.fireId !== 'all');
 
   return (
     <Modal
@@ -242,11 +264,13 @@ export default function CategoryViewAllModal({
       onRequestClose={onClose}
     >
       <ModalHeaderFor
-        title='All Categories'
+        title="All Categories"
         onBack={onClose}
         onSave={onSelectCategories && handleApplyFilters}
-        rightText='Apply'
+        rightText="Apply"
         loading={loading}
+        backButtonTestId="back-button"
+        rightButtonTestId="apply-filters-button"
       />
 
       {onSelectCategories && (
@@ -256,8 +280,11 @@ export default function CategoryViewAllModal({
             <Text style={styles.selectionText}>
               {localSelectedCategories.length === 0
                 ? 'No filters applied'
-                : `${localSelectedCategories.length} ${localSelectedCategories.length === 1 ? 'category' : 'categories'} selected`
-              }
+                : `${localSelectedCategories.length} ${
+                    localSelectedCategories.length === 1
+                      ? 'category'
+                      : 'categories'
+                  } selected`}
             </Text>
           </View>
 
@@ -275,10 +302,17 @@ export default function CategoryViewAllModal({
               onPress={handleClearAll}
               disabled={loading || localSelectedCategories.length === 0}
             >
-              <Text style={[
-                styles.filterButtonText,
-                localSelectedCategories.length === 0 && styles.disabledText
-              ]}>
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  localSelectedCategories.length === 0 &&
+                    styles.disabledText,
+                ]}
+                accessibilityState={{
+                  disabled:
+                    loading || localSelectedCategories.length === 0,
+                }}
+              >
                 Clear All
               </Text>
             </TouchableOpacity>

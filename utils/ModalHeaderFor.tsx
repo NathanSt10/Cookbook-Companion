@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface ModalHeaderProps {
@@ -9,6 +8,8 @@ interface ModalHeaderProps {
     rightText?: string;
     loading?: boolean;
     showSave?: boolean;
+    backButtonTestId: string;
+    rightButtonTestId: string;
 }
 
 export default function ModalHeaderFor({
@@ -18,6 +19,8 @@ export default function ModalHeaderFor({
     rightText = 'Save',
     loading = false,
     showSave = true,
+    backButtonTestId = 'modal-back-button',
+    rightButtonTestId = 'modal-save-button',
 }: ModalHeaderProps) {
     return (
         <View style={styles.header}>
@@ -25,6 +28,7 @@ export default function ModalHeaderFor({
                 onPress={onBack}
                 style={styles.backButton}
                 disabled={loading}
+                testID={backButtonTestId}
             >
                 <Ionicons name='chevron-back-outline' size={24} color='black' />
             </TouchableOpacity>
@@ -35,7 +39,8 @@ export default function ModalHeaderFor({
                 (<TouchableOpacity 
                     onPress={onSave}
                     disabled={loading}
-                    style={styles.actionButton}    
+                    style={styles.actionButton}
+                    testID={rightButtonTestId}    
                 >
                     <Text style={[styles.actionText, loading && styles.disabledText]}>
                         {loading ? 'Standby' : rightText}
