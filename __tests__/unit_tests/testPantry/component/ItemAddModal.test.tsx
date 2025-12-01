@@ -97,9 +97,7 @@ describe('ItemAddModal', () => {
       expect(getByPlaceholderText('e.g., Tomatoes, Milk, Rice')).toBeTruthy();
       expect(getByPlaceholderText('Create new category...')).toBeTruthy();
       expect(getByPlaceholderText('e.g., 2, 500, 1.5')).toBeTruthy();
-      expect(getByPlaceholderText('e.g., 2024-12-31')).toBeTruthy();
       expect(getByText('Quantity (Optional)')).toBeTruthy();
-      expect(getByText('Expire Date (Optional)')).toBeTruthy();
     });
 
     it('should show hint text for quantity', () => {
@@ -770,95 +768,6 @@ describe('ItemAddModal', () => {
     });
   });
 
-  describe('Expiry Date Input', () => {
-    it('should accept expiry date', async () => {
-      const { getByText, getByPlaceholderText } = render(
-        <ItemAddModal
-          visible={true}
-          onClose={mockOnClose}
-          onAdd={mockOnAdd}
-          categories={existingCategories}
-        />
-      );
-
-      const nameInput = getByPlaceholderText('e.g., Tomatoes, Milk, Rice');
-      fireEvent.changeText(nameInput, 'Milk');
-
-      const expiryInput = getByPlaceholderText('e.g., 2024-12-31');
-      fireEvent.changeText(expiryInput, '2024-12-31');
-
-      fireEvent.press(getByText('dairy'));
-
-      const saveButton = getByText('Save');
-      fireEvent.press(saveButton);
-
-      await waitFor(() => {
-        expect(mockOnAdd).toHaveBeenCalledWith(
-          expect.objectContaining({
-            expireDate: '2024-12-31',
-          })
-        );
-      });
-    });
-
-    it('should allow saving without expiry date', async () => {
-      const { getByText, getByPlaceholderText } = render(
-        <ItemAddModal
-          visible={true}
-          onClose={mockOnClose}
-          onAdd={mockOnAdd}
-          categories={existingCategories}
-        />
-      );
-
-      const nameInput = getByPlaceholderText('e.g., Tomatoes, Milk, Rice');
-      fireEvent.changeText(nameInput, 'Milk');
-
-      fireEvent.press(getByText('dairy'));
-
-      const saveButton = getByText('Save');
-      fireEvent.press(saveButton);
-
-      await waitFor(() => {
-        expect(mockOnAdd).toHaveBeenCalledWith(
-          expect.objectContaining({
-            expireDate: undefined,
-          })
-        );
-      });
-    });
-
-    it('should trim whitespace from expiry date', async () => {
-      const { getByText, getByPlaceholderText } = render(
-        <ItemAddModal
-          visible={true}
-          onClose={mockOnClose}
-          onAdd={mockOnAdd}
-          categories={existingCategories}
-        />
-      );
-
-      const nameInput = getByPlaceholderText('e.g., Tomatoes, Milk, Rice');
-      fireEvent.changeText(nameInput, 'Milk');
-
-      const expiryInput = getByPlaceholderText('e.g., 2024-12-31');
-      fireEvent.changeText(expiryInput, '  2024-12-31  ');
-
-      fireEvent.press(getByText('dairy'));
-
-      const saveButton = getByText('Save');
-      fireEvent.press(saveButton);
-
-      await waitFor(() => {
-        expect(mockOnAdd).toHaveBeenCalledWith(
-          expect.objectContaining({
-            expireDate: '2024-12-31',
-          })
-        );
-      });
-    });
-  });
-
   describe('Complete Item Submission', () => {
     it('should submit item with all fields filled', async () => {
       const { getByText, getByPlaceholderText } = render(
@@ -875,9 +784,6 @@ describe('ItemAddModal', () => {
 
       fireEvent.press(getByText('dairy'));
 
-      const expiryInput = getByPlaceholderText('e.g., 2024-12-31');
-      fireEvent.changeText(expiryInput, '2024-12-31');
-
       const saveButton = getByText('Save');
       fireEvent.press(saveButton);
 
@@ -887,7 +793,6 @@ describe('ItemAddModal', () => {
           category: ['dairy'],
           quantity: undefined,
           unit: undefined,
-          expireDate: '2024-12-31',
         });
       });
     });
@@ -1203,8 +1108,7 @@ describe('ItemAddModal', () => {
           categories={existingCategories}
         />
       );
-
-      // This would need testID in ModalHeaderFor component
+        // testid here yet?
     });
   });
 

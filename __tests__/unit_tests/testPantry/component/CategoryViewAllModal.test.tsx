@@ -1,8 +1,6 @@
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
-import CategoryViewAllModal, {
-  Category,
-} from '../../../../components/pantry/CategoryViewAllModal';
+import CategoryViewAllModal, { Category } from '../../../../components/pantry/CategoryViewAllModal';
 import { capitalizeFirstLetter } from '../../../../utils/CapitalizeFirstLetter';
 
 jest.spyOn(Alert, 'alert');

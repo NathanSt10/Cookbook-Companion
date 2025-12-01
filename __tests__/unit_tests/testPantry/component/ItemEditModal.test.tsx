@@ -38,7 +38,6 @@ describe('ItemEditModal', () => {
     quantity: 2,
     unit: 'L',
     addedAt: new Date('2024-01-15'),
-    expireDate: '2024-02-01',
   };
 
   beforeEach(() => {
@@ -87,7 +86,6 @@ describe('ItemEditModal', () => {
       );
 
       expect(getByDisplayValue('milk')).toBeTruthy();
-      expect(getByDisplayValue('2024-02-01')).toBeTruthy();
     });
 
     it('should pre-select editing item categories', () => {
@@ -137,7 +135,6 @@ describe('ItemEditModal', () => {
       expect(getByPlaceholderText('e.g., Tomatoes, Milk, Rice')).toBeTruthy();
       expect(getByPlaceholderText('Create new category...')).toBeTruthy();
       expect(getByPlaceholderText('e.g., 2, 500g, 1L')).toBeTruthy();
-      expect(getByPlaceholderText('e.g., 2024-12-31')).toBeTruthy();
     });
   });
 
@@ -528,82 +525,6 @@ describe('ItemEditModal', () => {
     });
   });
 
-  describe('Expiry Date', () => {
-    it('should allow updating expiry date', async () => {
-      const { getByText, getByDisplayValue } = render(
-        <ItemEditModal
-          visible={true}
-          onClose={mockOnClose}
-          onEdit={mockOnEdit}
-          categories={existingCategories}
-          editingItem={mockEditingItem}
-        />
-      );
-
-      const expiryInput = getByDisplayValue('2024-02-01');
-      fireEvent.changeText(expiryInput, '2024-03-01');
-
-      const saveButton = getByText('Save');
-      fireEvent.press(saveButton);
-
-      await waitFor(() => {
-        expect(mockOnEdit).toHaveBeenCalledWith(
-          '123',
-          expect.objectContaining({
-            expireDate: '2024-03-01',
-          })
-        );
-      });
-    });
-
-    it('should allow removing expiry date', async () => {
-      const { getByText, getByDisplayValue } = render(
-        <ItemEditModal
-          visible={true}
-          onClose={mockOnClose}
-          onEdit={mockOnEdit}
-          categories={existingCategories}
-          editingItem={mockEditingItem}
-        />
-      );
-
-      const expiryInput = getByDisplayValue('2024-02-01');
-      fireEvent.changeText(expiryInput, '');
-
-      const saveButton = getByText('Save');
-      fireEvent.press(saveButton);
-
-      await waitFor(() => {
-        expect(mockOnEdit).toHaveBeenCalledWith(
-          '123',
-          expect.objectContaining({
-            expireDate: undefined,
-          })
-        );
-      });
-    });
-
-    it('should handle item without expiry date', () => {
-      const itemNoExpiry: PantryItem = {
-        ...mockEditingItem,
-        expireDate: undefined,
-      };
-
-      const { getByPlaceholderText } = render(
-        <ItemEditModal
-          visible={true}
-          onClose={mockOnClose}
-          onEdit={mockOnEdit}
-          categories={existingCategories}
-          editingItem={itemNoExpiry}
-        />
-      );
-
-      const expiryInput = getByPlaceholderText('e.g., 2024-12-31');
-      expect(expiryInput.props.value).toBe('');
-    });
-  });
-
   describe('Form Submission', () => {
     it('should submit all changes successfully', async () => {
       const { getByText, getByDisplayValue } = render(
@@ -928,26 +849,6 @@ describe('ItemEditModal', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should handle item with empty expire date', () => {
-      const itemEmptyExpire: PantryItem = {
-        ...mockEditingItem,
-        expireDate: '',
-      };
-
-      const { getByPlaceholderText } = render(
-        <ItemEditModal
-          visible={true}
-          onClose={mockOnClose}
-          onEdit={mockOnEdit}
-          categories={existingCategories}
-          editingItem={itemEmptyExpire}
-        />
-      );
-
-      const expiryInput = getByPlaceholderText('e.g., 2024-12-31');
-      expect(expiryInput.props.value).toBe('');
-    });
-
     it('should handle item with single category string', () => {
       const singleCatItem: PantryItem = {
         ...mockEditingItem,

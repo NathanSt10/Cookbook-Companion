@@ -35,19 +35,19 @@ export default function ModalHeaderFor({
 
             <Text style={styles.title}>{title}</Text>
 
-            {showSave && onSave ? 
-                (<TouchableOpacity 
+            {showSave && onSave 
+              ? (<TouchableOpacity 
                     onPress={onSave}
                     disabled={loading}
                     style={styles.actionButton}
                     testID={rightButtonTestId}    
-                >
+                 >
                     <Text style={[styles.actionText, loading && styles.disabledText]}>
                         {loading ? 'Standby' : rightText}
                     </Text>
-                </TouchableOpacity>)
-                : 
-                (<View style={{ width: 60 }} />)
+                 </TouchableOpacity>
+                )
+              : <View style={{ width: 60 }} />
             }
         </View>
     );
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     },
     actionButton: {
         padding: 8,
-        width: 60,
+        width: 80,
         alignItems: 'flex-end',
     },
     actionText: {

@@ -160,27 +160,26 @@ export default function PantryScreen() {
         Items {selectedCategories.length > 0 && `(${filteredItems.length})`}
       </Text>
 
-      {items.length === 0 ? 
-        (<PantryEmptyState onAddItem={() => setAddPantryItemModalVisible(true)} />) 
-        : filteredItems.length === 0 ? (
-          <View style={styles.emptyFilterContainer}>
-            <Text style={styles.emptyFilterTitle}>No items match your filters</Text>
-            <Text style={styles.emptyFilterSubtitle}>
-              Try selecting different categories or clear your filters
-            </Text>
-            <TouchableOpacity onPress={handleClearFilters} style={styles.emptyFilterButton}>
-              <Text style={styles.emptyFilterButtonText}>Clear Filters</Text>
-            </TouchableOpacity>
-          </View>
-        )
-        : 
-        (<ItemList
-            items={filteredItems}
-            onEditItem={handlePantryItemEditHelper}
-            onDeleteItem={handlePantryItemDelete}
-            onAddItem={() => setAddPantryItemModalVisible(true)}
-          />
-        )
+      {items.length === 0 
+        ? <PantryEmptyState onAddItem={() => setAddPantryItemModalVisible(true)} />
+        : filteredItems.length === 0 
+            ? (<View style={styles.emptyFilterContainer}>
+                 <Text style={styles.emptyFilterTitle}>No items match your filters</Text>
+                 <Text style={styles.emptyFilterSubtitle}>
+                   Try selecting different categories or clear your filters
+                 </Text>
+                 <TouchableOpacity onPress={handleClearFilters} style={styles.emptyFilterButton}>
+                   <Text style={styles.emptyFilterButtonText}>Clear Filters</Text>
+                 </TouchableOpacity>
+               </View>
+              )
+            : (<ItemList
+                 items={filteredItems}
+                 onEditItem={handlePantryItemEditHelper}
+                 onDeleteItem={handlePantryItemDelete}
+                 onAddItem={() => setAddPantryItemModalVisible(true)}
+               />
+              )
       }
 
       <FloatingActionButton onPress={() => setAddPantryItemModalVisible(true)} />

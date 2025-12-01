@@ -58,22 +58,22 @@ export default function WeekView({
         <Text style={[
           styles.dayName, 
           isSelected && styles.dayNameSelected,
-          isToday && !isSelected && styles.dayNameToday,
-        ]}>
+          isToday && !isSelected && styles.dayNameToday]}
+        >
           {dayName}
         </Text>
         <Text style={[
           styles.dayNumber, 
           isSelected && styles.dayNumberSelected,
-          isToday && !isSelected && styles.dayNumberToday,
-        ]}>
+          isToday && !isSelected && styles.dayNumberToday,]}
+        >
           {dayNumber}
         </Text>
         {recipesForDay.length > 0 && (
           <View style={[styles.dayBadge, isSelected && styles.dayBadgeSelected]}>
             <Text style={styles.dayBadgeText}>{recipesForDay.length}</Text>
-          </View>
-        )}
+          </View>)
+        }
       </TouchableOpacity>
     );
   };
@@ -102,7 +102,7 @@ export default function WeekView({
             style={styles.navButton}
             onPress={() => navigateWeek('prev')}
           >
-            <Ionicons name="chevron-back" size={24} color="#4A90E2" />
+            <Ionicons name="chevron-back" size={24} color="royalblue" />
           </TouchableOpacity>
           
           <Text style={styles.weekTitle}>
@@ -113,7 +113,7 @@ export default function WeekView({
             style={styles.navButton}
             onPress={() => navigateWeek('next')}
           >
-            <Ionicons name="chevron-forward" size={24} color="#4A90E2" />
+            <Ionicons name="chevron-forward" size={24} color="royalblue" />
           </TouchableOpacity>
         </View>
         
@@ -128,22 +128,22 @@ export default function WeekView({
           <Text style={styles.headerCount}>{recipes.length} meal(s)</Text>
         </View>
 
-        {recipes.length === 0 ? (
-          <EmptyMealState />
-        ) : (
-          <FlatList
-            data={recipes}
-            keyExtractor={(item) => item.fireId}
-            renderItem={({ item }) => (
-              <RecipeCard
-                title={item.title}
-                image={item.image}
-                onRemove={() => onRemoveRecipe(item.fireId, item.date)}
-              />
-            )}
-            contentContainerStyle={styles.list}
-          />
-        )}
+        {recipes.length === 0 
+          ? (<EmptyMealState />) 
+          : (<FlatList
+                data={recipes}
+                keyExtractor={(item) => item.fireId}
+                renderItem={({ item }) => (
+                  <RecipeCard
+                    title={item.title}
+                    image={item.image}
+                    onRemove={() => onRemoveRecipe(item.fireId, item.date)}
+                  />)
+                }
+                contentContainerStyle={styles.list}
+             />
+            )
+        }
       </View>
     </>
   );
@@ -151,10 +151,10 @@ export default function WeekView({
 
 const styles = StyleSheet.create({
   weekContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: 'whitesmoke',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: 'gainsboro',
   },
   weekHeader: {
     flexDirection: 'row',
@@ -167,14 +167,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f8ff',
+    backgroundColor: 'ghostwhite',
     alignItems: 'center',
     justifyContent: 'center',
   },
   weekTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: 'black',
     letterSpacing: 0.5,
   },
   weekDaysRow: {
@@ -188,42 +188,42 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderRadius: 12,
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'ghostwhite',
     borderWidth: 2,
     borderColor: 'transparent',
   },
   daySelected: {
-    backgroundColor: '#4A90E2',
-    borderColor: '#4A90E2',
+    backgroundColor: 'royalblue',
+    borderColor: 'royalblue',
   },
   dayToday: {
-    borderColor: '#4A90E2',
-    backgroundColor: '#f0f8ff',
+    borderColor: 'royalblue',
+    backgroundColor: 'ghostwhite',
   },
   dayName: {
     fontSize: 11,
-    color: '#6b7280',
+    color: 'grey',
     marginBottom: 4,
     fontWeight: '600',
   },
   dayNameSelected: {
-    color: '#fff',
+    color: 'whitesmoke',
     fontWeight: '700',
   },
   dayNameToday: {
-    color: '#4A90E2',
+    color: 'royalblue',
     fontWeight: '700',
   },
   dayNumber: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: 'black',
   },
   dayNumberSelected: {
-    color: '#fff',
+    color: 'ghostwhite',
   },
   dayNumberToday: {
-    color: '#4A90E2',
+    color: 'royalblue',
   },
   dayBadge: {
     marginTop: 6,
@@ -231,21 +231,21 @@ const styles = StyleSheet.create({
     height: 20,
     paddingHorizontal: 6,
     borderRadius: 10,
-    backgroundColor: '#ef4444',
+    backgroundColor: 'firebrick',
     justifyContent: 'center',
     alignItems: 'center',
   },
   dayBadgeSelected: {
-    backgroundColor: '#fff',
+    backgroundColor: 'ghostwhite',
   },
   dayBadgeText: {
     fontSize: 10,
-    color: '#fff',
+    color: 'ghostwhite',
     fontWeight: '700',
   },
   recipesSection: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'whitesmoke',
   },
   header: {
     flexDirection: 'row',
@@ -253,18 +253,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'whitesmoke',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: 'gainsboro',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: 'black',
   },
   headerCount: {
     fontSize: 14,
-    color: '#6b7280',
+    color: 'grey',
     fontWeight: '500',
   },
   list: {

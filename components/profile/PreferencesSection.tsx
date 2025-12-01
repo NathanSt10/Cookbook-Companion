@@ -1,5 +1,5 @@
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface PreferenceSectionProps {
   title: string;
@@ -73,19 +73,18 @@ export default function PreferenceSection({
       </View>
 
       <View style={styles.chipContainer}>
-        {items.length === 0 ? 
-          (<Text style={styles.emptyText}>
-            No {title.toLowerCase()} added yet
-          </Text>)
-          :
-          (items.map((item, index) => (
-            <PreferenceChip
-              key={index}
-              label={item}
-              onRemove={() => onRemove(item)}
-              disabled={disabled}
-            />))
-          )
+        {items.length === 0 
+          ?  (<Text style={styles.emptyText}>
+               No {title.toLowerCase()} added yet
+             </Text>)
+          :  (items.map((item, index) => (
+               <PreferenceChip
+                 key={index}
+                 label={item}
+                 onRemove={() => onRemove(item)}
+                 disabled={disabled}
+               /> ))
+             )
         }
       </View>
     </View>
