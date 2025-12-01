@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { formatQuantityWithUnit } from '../../constants/pantryUnits';
 import { PantryItem } from '../../hooks/usePantry';
 import { capitalizeFirstLetter } from '../../utils/CapitalizeFirstLetter';
+import { getItemAge, getItemStatus, getStatusBadgeText, getStatusColor } from '../../utils/PantryAgeUtils';
 
 interface ItemCardProps {
   item: PantryItem;
@@ -17,18 +19,110 @@ export default function ItemCard({
   onEdit,
   onDelete,
 }: ItemCardProps) {
-  const isLowStock = item.quantity && parseFloat(item.quantity) > 0 && parseFloat(item.quantity) <= 2;
   
+  const getNumericQuantity = () => {
+    if (!item.quantity) { return null; }
+
+    const qty = typeof item.quantity === 'string'
+      ? parseFloat(item.quantity)
+      : item.quantity;
+    return isNaN(qty) ? null : qty;
+  };
+  const numericQty = getNumericQuantity();
+  const isLowStock = numericQty !== null && numericQty > 0 && numericQty <= 2;
+
+  const itemAge = getItemAge(item.addedAt);
+  const itemStatus = getItemStatus(item.addedAt);
+  const statusBadgeText = getStatusBadgeText(itemStatus);
+  const statusColor = getStatusColor(itemStatus);
+
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const day = date.getUTCDate();
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    return `${month} ${day}, ${year}`;
   };
 
-  const isExpiringSoon = (expiryDate?: string) => {
-    return "need a system for this";
+  const renderPrimaryInfo = () => {
+    return (
+      <View style={styles.mainInfo}>
+        <View style={styles.nameRow}>
+          <Text style={styles.name}>{capitalizeFirstLetter(item.name)}</Text>
+          
+          {isLowStock && (
+            <View style={styles.lowStockBadge}>
+              <Text style={styles.badgeText}>Low</Text>
+            </View>
+          )}
+          
+          {statusBadgeText && (
+            <View style={[styles.ageBadge, { backgroundColor: statusColor }]}>
+              <Text style={styles.badgeText}>{statusBadgeText}</Text>
+            </View>
+          )}
+        </View>
+
+        <Text style={styles.category}>
+          {Array.isArray(item.category)
+            ? item.category.map(cat => capitalizeFirstLetter(cat)).join(', ')
+            : capitalizeFirstLetter(item.category)
+          }
+        </Text>
+      </View>
+    );
+  };
+
+  const hasQuantity = 
+    item.quantity !== undefined &&
+    item.quantity !== null &&
+    item.quantity !== '';
+    
+  const renderSecondaryInfo = () => {
+    return (
+      <View style={styles.details}>
+        {hasQuantity && (
+          <Text style={styles.detailText}>
+            Qty: {formatQuantityWithUnit(item.quantity, item.unit)}
+          </Text>
+        )}
+
+        <Text style={styles.detailText}>
+          Pantry Age: {itemAge} {itemAge === 1 ? 'day' : 'days'}
+        </Text>
+      </View>
+    );
+  };
+
+  const renderClickableActions = () => {
+    if (!onEdit && !onDelete) { return null; }
+
+    return (
+      <View style={styles.actions}> 
+        {onEdit && (
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            style={styles.actionButton}
+          >
+            <Ionicons name='pencil' size={20} color='royalblue' />
+          </TouchableOpacity>
+        )}
+        
+        {onDelete && (
+          <TouchableOpacity
+            onPress={() => {
+              onDelete();
+            }}
+            style={styles.actionButton}
+          >
+            <Ionicons name='close-circle' size={24} color='black' />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
   return (
@@ -39,66 +133,11 @@ export default function ItemCard({
       disabled={!onPress}
     >
       <View style={styles.content}>
-        <View style={styles.mainInfo}>
-          <Text style={styles.name}>{capitalizeFirstLetter(item.name)}</Text>
-          <Text style={styles.category}>
-            {Array.isArray(item.category)
-              ? item.category.map(cat => capitalizeFirstLetter(cat)).join(', ')
-              : capitalizeFirstLetter(item.category)
-            }
-          </Text>
-        </View>
-
-        <View style={styles.details}>
-          {item.quantity && (
-            <View style={styles.detailItem}>
-              <Text style={[
-                styles.quantity,
-                isLowStock && styles.lowStockText
-              ]}>
-                Qty: {item.quantity}
-              </Text>
-              {isLowStock && (
-                <View style={styles.lowStockBadge}>
-                  <Text style={styles.lowStockBadgeText}>Low</Text>
-                </View>
-              )}
-            </View> )
-          }
-
-          <Text style={styles.addedDate}>
-            Added: {formatDate(item.addedAt)}
-          </Text>
-        </View>
+        {renderPrimaryInfo()}
+        {renderSecondaryInfo()}
       </View>
       
-      {(onEdit || onDelete) && (
-        <View style={styles.actions}>
-          {onEdit && (
-            <TouchableOpacity 
-              onPress={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              style={styles.actionButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="pencil" size={20} color="royalblue" />
-            </TouchableOpacity>
-          )}
-          {onDelete && (
-            <TouchableOpacity 
-              onPress={(e) => {
-                onDelete();
-              }}
-              style={styles.actionButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close-circle" size={24} color="black" />
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
+      {renderClickableActions()}
     </TouchableOpacity>
   );
 }
@@ -124,11 +163,34 @@ const styles = StyleSheet.create({
   mainInfo: {
     marginBottom: 8,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+    flexWrap: 'wrap',
+  },
   name: {
     fontSize: 18,
     fontWeight: '600',
     color: 'black',
-    marginBottom: 4,
+  },
+  lowStockBadge: {
+    backgroundColor: 'goldenrod',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  ageBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   category: {
     fontSize: 14,
@@ -138,50 +200,8 @@ const styles = StyleSheet.create({
   details: {
     gap: 4,
   },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  quantity: {
+  detailText: {
     fontSize: 14,
-    color: 'tan',
-  },
-  lowStockText: {
-    color: 'goldenrod',
-    fontWeight: '600',
-  },
-  lowStockBadge: {
-    backgroundColor: 'goldenrod',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  lowStockBadgeText: {
-    color: 'ghostwhite',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  expiryContainer: {
-    paddingVertical: 2,
-  },
-  expiringSoonContainer: {
-    backgroundColor: 'goldenrod',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-  },
-  expiryText: {
-    fontSize: 14,
-    color: 'black',
-  },
-  expiringSoonText: {
-    color: 'firebrick',
-    fontWeight: '600',
-  },
-  addedDate: {
-    fontSize: 12,
     color: 'black',
   },
   actions: {
@@ -192,10 +212,5 @@ const styles = StyleSheet.create({
   actionButton: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'black',
   },
 });

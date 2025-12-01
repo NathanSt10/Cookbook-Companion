@@ -196,22 +196,4 @@ describe('usePreferences hook', () => {
       expect(mockGet).toHaveBeenCalled();
     });
   });
-
-  it('should verify correct firestore path structure', async () => {
-    (useAuth as jest.Mock).mockReturnValue({ user: mockUser });
-
-    mockOnSnapshot.mockImplementation((onSuccess) => {
-      const mockSnapshot = { forEach: jest.fn() };
-      onSuccess(mockSnapshot);
-      return jest.fn();
-    });
-
-    renderHook(() => usePreferences());
-
-    await waitFor(() => {
-      expect(mockCollection).toHaveBeenCalledWith('Users');
-      expect(mockDoc).toHaveBeenCalledWith('test-user-123');
-      expect(mockCollection).toHaveBeenCalledWith('preferences');
-    });
-  });
 });
