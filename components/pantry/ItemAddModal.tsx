@@ -1,12 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import ModalHeaderFor from '../../utils/ModalHeaderFor';
+import UnitSelector from '../../utils/UnitSelectorModal';
 
 interface ItemAddModalProps {
   visible: boolean;
   onClose: () => void;
-  onAdd: (data: { name: string; category: string[]; quantity?: string; expireDate?: string }) => Promise<void>;
+  onAdd: (data: { 
+    name: string; 
+    category: string[]; 
+    quantity?: string | number;
+    unit?: string; 
+  }) => Promise<void>;
   categories: string[];
 }
 
@@ -19,17 +25,23 @@ export default function ItemAddModal({
   const [name, setName] = useState<string>('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [quantity, setQuantity] = useState<string>('');
-  const [expireDate, setExpireDate] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [newCategoryInput, setNewCategoryInput] = useState<string>('');
+  const [unit, setUnit] = useState<string>('');
 
   const allCategories = [...new Set([...categories, ...selectedCategories])];
+
+  useEffect(() => {
+    if (!visible) {
+      resetForm();
+    }
+  }, [visible]);
 
   const resetForm = () => {
     setName('');
     setSelectedCategories([]);
     setQuantity('');
-    setExpireDate('');
+    setUnit('');
     setNewCategoryInput('');
   };
 
@@ -45,7 +57,11 @@ export default function ItemAddModal({
     }
 
     if (selectedCategories.length === 0) {
-      Alert.alert('Error', 'No category was selected');
+      Alert.alert('Warning', 'No category selected, defaulting to Other');
+    }
+
+    if (quantity.trim() && !unit.trim()) {
+      Alert.alert('Missing Unit', 'Please select a unit for the quantity');
       return;
     }
 
@@ -59,7 +75,7 @@ export default function ItemAddModal({
         name: name.trim(),
         category: selectedCategories.length > 0 ? selectedCategories : ['other'],
         quantity: quantity.trim() || undefined,
-        expireDate: expireDate.trim() || undefined,
+        unit: unit.trim() || undefined,
       });
         
       console.log("added item to pantry");
@@ -119,6 +135,8 @@ export default function ItemAddModal({
         onSave={handleAdd}
         rightText='Save'
         loading={loading}
+        backButtonTestId='modal-back-button'
+        rightButtonTestId='modal-save-button'
       />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -149,16 +167,24 @@ export default function ItemAddModal({
               returnKeyType="done"
             />
             <TouchableOpacity
-              style={styles.addButton}
+              style={[
+                styles.addButton, 
+                (!newCategoryInput.trim() || loading) && styles.addButtonDisabled,
+              ]}
               onPress={handleAddNewCategory}
-              disabled={!newCategoryInput.trim() || loading}
+              disabled={loading}
             >
-              <Ionicons 
-                name="add-circle" 
-                size={24} 
-                color='black'
-              />
-              <Text style={styles.addButtonText}>Add</Text>
+              <Ionicons name="add-circle" size={24} color='black'/>
+              <Text 
+                style={[
+                  styles.addButtonText,
+                  (!newCategoryInput.trim() || loading) && styles.addButtonTextDisabled,
+                ]}
+
+                accessibilityState={{ disabled: !newCategoryInput.trim() || loading }}
+                >
+                  Add
+                </Text>
             </TouchableOpacity>
           </View>
 
@@ -179,6 +205,7 @@ export default function ItemAddModal({
                       styles.categoryChipText,
                       selectedCategories.includes(cat) && styles.categoryChipTextSelected,
                     ]}
+                    accessibilityState={{ disabled: loading }}
                   >
                     {cat}
                   </Text>
@@ -202,24 +229,25 @@ export default function ItemAddModal({
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Quantity (Optional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 2, 500g, 1L"
-            value={quantity}
-            onChangeText={setQuantity}
-            editable={!loading}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Expire Date (Optional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 2024-12-31"
-            value={expireDate}
-            onChangeText={setExpireDate}
-            editable={!loading}
-          />
+          <View style={styles.quantityRow}>
+            <TextInput
+              style={[styles.input, styles.quantityInput]}
+              placeholder="e.g., 2, 500, 1.5"
+              value={quantity}
+              onChangeText={setQuantity}
+              keyboardType='decimal-pad'
+              editable={!loading}
+            />
+            <UnitSelector
+              selectedUnit={unit}
+              onSelectUnit={setUnit}
+              disabled={loading}
+              testID="unit-selector"
+            />
+          </View>
+            <Text style={styles.hint}>
+              Enter amount and select a unit (e.g., "500" + "g" for 500 grams)
+            </Text>
         </View>
       </ScrollView>
     </Modal>
@@ -330,5 +358,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'aliceblue',
     padding: 10,
     borderRadius: 8,
+  },
+  quantityRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  quantityInput: {
+    flex: 1,
   },
 });

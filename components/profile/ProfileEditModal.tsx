@@ -98,6 +98,8 @@ export default function EditProfile( { onClose }: EditProfileModalProps) {
         onBack={handleCancel}
         onSave={handleSave}
         loading={loading}
+        backButtonTestId="back-button-test"
+        rightButtonTestId="save-button-test"
       />
 
       <ScrollView style={styles.scrollView}>
@@ -147,8 +149,8 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "black",
-    borderRadius: 10,
+    borderColor: 'gainsboro',
+    borderRadius: 8,
     padding: 12,
     marginBottom: 15,
     fontSize: 16,

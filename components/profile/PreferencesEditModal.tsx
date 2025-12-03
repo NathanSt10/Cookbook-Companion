@@ -82,6 +82,8 @@ export default function PreferencesEditModal({ visible, onClose, currentPreferen
                     onBack={handleCancel}
                     onSave={handleSave}
                     loading={loading}
+                    backButtonTestId='back-button-id'
+                    rightButtonTestId='save-button-id'
                 />
                 
                 <ScrollView style={styles.scrollView}>

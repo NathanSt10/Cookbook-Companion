@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
 import ModalHeaderFor from '../../utils/ModalHeaderFor';
 
@@ -21,6 +21,12 @@ export default function CategoryAddModal({
   const resetForm = () => {
     setCategoryName('');
   };
+
+  useEffect(() => {
+    if (visible) {
+      resetForm();
+    }
+  }, [visible]);
 
   const handleClose = () => {
     resetForm();
@@ -67,6 +73,8 @@ export default function CategoryAddModal({
         onSave={handleAdd}
         rightText='Add'
         loading={loading}
+        backButtonTestId='back-button-test'
+        rightButtonTestId='add-button-test'
       />
 
       <View style={styles.content}>
@@ -110,7 +118,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: 'grey',
     marginBottom: 8,
   },
   input: {
@@ -141,7 +149,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: 'grey',
     marginBottom: 4,
   },
 });

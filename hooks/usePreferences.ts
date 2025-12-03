@@ -121,7 +121,7 @@ export function usePreferences() {
     }, [user]);
 
     return { 
-        preferences, 
+        item: preferences, 
         loading, 
         error, 
         refresh 
