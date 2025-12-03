@@ -82,10 +82,12 @@ export default function CategoryViewAllModal({
       await onRenameCategory(categoryId, trimmedName);
       setEditingId(null);
       setEditValue('');
-    } catch (error) {
+    }
+    catch (error: any) {
       console.error(`error saving edit: ${error}`);
       Alert.alert('Error', 'Failed to rename category');
-    } finally {
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -111,9 +113,12 @@ export default function CategoryViewAllModal({
               if (onSelectCategories) {
                 onSelectCategories(updatedSelection);
               }
-            } catch (e: any) {
+            } 
+            catch (e: any) {
+              console.error(`failed to delete category: ${e}`);
               Alert.alert('Error', 'Failed to delete category');
-            } finally {
+            } 
+            finally {
               setLoading(false);
             }
           },
@@ -156,100 +161,98 @@ export default function CategoryViewAllModal({
       <View
         style={[styles.categoryItem, isSelected && styles.categoryItemSelected]}
       >
-        {isEditing ? (
-          <View style={styles.editContainer}>
-            <TextInput
-              style={styles.editInput}
-              value={editValue}
-              onChangeText={setEditValue}
-              autoFocus
-              maxLength={30}
-              testID={`edit-input-${item.fireId}`}
-            />
+        {isEditing 
+          ? ( <View style={styles.editContainer}>
+                <TextInput
+                  style={styles.editInput}
+                  value={editValue}
+                  onChangeText={setEditValue}
+                  autoFocus
+                  maxLength={30}
+                  testID={`edit-input-${item.fireId}`}
+                />
 
-            <View style={styles.editActions}>
-              <TouchableOpacity
-                onPress={() => handleSaveEdit(item.fireId)}
-                style={styles.editButton}
-                disabled={loading}
-                testID={`save-edit-button-${item.fireId}`}
-              >
-                <Ionicons name="checkmark-circle" size={28} color="black" />
-              </TouchableOpacity>
+                <View style={styles.editActions}>
+                  <TouchableOpacity
+                    onPress={() => handleSaveEdit(item.fireId)}
+                    style={styles.editButton}
+                    disabled={loading}
+                    testID={`save-edit-button-${item.fireId}`}
+                  >
+                    <Ionicons name="checkmark-circle" size={28} color="black" />
+                  </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={handleCancelEdit}
-                style={styles.editButton}
-                disabled={loading}
-                testID={`cancel-edit-button-${item.fireId}`}
-              >
-                <Ionicons name="close-circle" size={28} color="black" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )
-        : 
-        (
-          <>
-            {onSelectCategories && (
-              <TouchableOpacity
-                onPress={() => toggleCategorySelection(item.name)}
-                style={styles.checkboxContainer}
-                disabled={loading}
-                testID="edit-category-button"
-              >
-                <View
-                  style={[styles.checkbox, isSelected && styles.checkboxSelected]}
-                >
-                  {isSelected && (
-                    <Ionicons name="checkmark" size={18} color="white" />
-                  )}
+                  <TouchableOpacity
+                    onPress={handleCancelEdit}
+                    style={styles.editButton}
+                    disabled={loading}
+                    testID={`cancel-edit-button-${item.fireId}`}
+                  >
+                    <Ionicons name="close-circle" size={28} color="black" />
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-              style={styles.categoryInfo}
-              onPress={() =>
-                onSelectCategories && toggleCategorySelection(item.name)
+              </View>)
+          : ( <>
+              {onSelectCategories && 
+                (<TouchableOpacity
+                   onPress={() => toggleCategorySelection(item.name)}
+                   style={styles.checkboxContainer}
+                   disabled={loading}
+                   testID="edit-category-button"
+                 >
+                 <View
+                   style={[styles.checkbox, isSelected && styles.checkboxSelected]}
+                 >
+                   {isSelected && (
+                     <Ionicons name="checkmark" size={18} color="white" /> )
+                   }
+                 </View>
+                </TouchableOpacity>)
               }
-              activeOpacity={0.7}
-              disabled={loading}
-            >
-              <Text style={styles.categoryName}>
-                {capitalizeEachFirstLetter(item.name)}
-              </Text>
-              {item.itemCount !== undefined && (
-                <View style={styles.categoryMeta}>
-                  <Text style={styles.itemCount}>
-                    {item.itemCount}{' '}
-                    {item.itemCount === 1 ? 'item' : 'items'}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-
-            <View style={styles.actions}>
-              <TouchableOpacity
-                onPress={() => handleStartEdit(item)}
-                style={styles.actionButton}
-                disabled={loading}
-                testID="edit-category-button"
-              >
-                <Ionicons name="pencil" size={20} color="royalblue" />
-              </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => handleDelete(item)}
-                style={styles.actionButton}
+                style={styles.categoryInfo}
+                onPress={() =>
+                  onSelectCategories && toggleCategorySelection(item.name)
+                }
+                activeOpacity={0.7}
                 disabled={loading}
-                testID={`delete-category-${item.fireId}`}
               >
-                <Ionicons name="close-circle" size={20} color="red" />
+                <Text style={styles.categoryName}>
+                  {capitalizeEachFirstLetter(item.name)}
+                </Text>
+                {item.itemCount !== undefined && (
+                  <View style={styles.categoryMeta}>
+                    <Text style={styles.itemCount}>
+                      {item.itemCount}{' '}
+                      {item.itemCount === 1 ? 'item' : 'items'}
+                    </Text>
+                  </View> )
+                }
               </TouchableOpacity>
-            </View>
-          </>
-        )}
+
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  onPress={() => handleStartEdit(item)}
+                  style={styles.actionButton}
+                  disabled={loading}
+                  testID="edit-category-button"
+                >
+                  <Ionicons name="pencil" size={20} color="royalblue" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleDelete(item)}
+                  style={styles.actionButton}
+                  disabled={loading}
+                  testID={`delete-category-${item.fireId}`}
+                >
+                  <Ionicons name="close-circle" size={20} color="red" />
+                </TouchableOpacity>
+              </View>
+            </>
+          )
+        }
       </View>
     );
   };
@@ -284,7 +287,8 @@ export default function CategoryViewAllModal({
                     localSelectedCategories.length === 1
                       ? 'category'
                       : 'categories'
-                  } selected`}
+                  } selected`
+              }
             </Text>
           </View>
 

@@ -17,15 +17,14 @@ export default function PreferenceCard({
         <View style={styles.card}>
             <Text style={styles.title}>{title}</Text>
 
-            {items && items.length > 0 ?
-                (<View style={styles.itemsContainer}>
+            {items && items.length > 0 
+              ?  (<View style={styles.itemsContainer}>
                     {items.map((item: string, index: number) => (
-                        <View key={index} style={styles.item}>
-                            <Text style={styles.itemText}>{item}</Text>
-                        </View>))}
-                </View>)
-                :
-                ( <Text style={styles.emptyText}>{emptyMessage}</Text> )
+                       <View key={index} style={styles.item}>
+                          <Text style={styles.itemText}>{item}</Text>
+                       </View>))}
+                  </View>)
+              :  ( <Text style={styles.emptyText}>{emptyMessage}</Text> )
             }
         </View>
     );

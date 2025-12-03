@@ -431,9 +431,7 @@ describe('UnitSelector', () => {
       );
 
       fireEvent.press(getByText('Select unit'));
-
-      // The hierarchy is TouchableOpacity > View > Text
-      // So we need to go up two levels: text.parent.parent
+    
       const addButtonText = getByText('Add');
       const addButton = addButtonText.parent?.parent;
       expect(addButton?.props.accessibilityState?.disabled).toBe(true);
@@ -451,7 +449,6 @@ describe('UnitSelector', () => {
       const customInput = getByPlaceholderText('e.g., pinch, dash, handful');
       fireEvent.changeText(customInput, 'pinch');
 
-      // The hierarchy is TouchableOpacity > View > Text
       const addButtonText = getByText('Add');
       const addButton = addButtonText.parent?.parent;
       expect(addButton?.props.accessibilityState?.disabled).toBe(false);

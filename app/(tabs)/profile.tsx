@@ -30,14 +30,13 @@ export default function ProfilePage() {
       case "liked": 
         return (
           <View style={styles.tabContent}>
-            {useLikedRecipes.length === 0 ? 
-              (<EmptyStateFor 
-                  tab="liked"
-                  onAddItem={() => router.push('/(tabs)/cookbook')}
-                />
-              )
-              :
-              (<LikedView/>)
+            {useLikedRecipes.length === 0 
+              ? (<EmptyStateFor 
+                    tab="liked"
+                    onAddItem={() => router.push('/(tabs)/cookbook')}
+                 />
+                )
+              :  <LikedView/>
             }
           </View>
         );
@@ -45,14 +44,13 @@ export default function ProfilePage() {
       case "saved":
         return (
           <View style={styles.tabContent}>
-            {useSavedRecipes.length === 0 ? 
-              (<EmptyStateFor
-                  tab="saved"
-                  onAddItem={() => router.push('/(tabs)/cookbook')}
-                />
-              )
-              :
-              (<SavedView/>)
+            {useSavedRecipes.length === 0 
+              ? (<EmptyStateFor
+                    tab="saved"
+                    onAddItem={() => router.push('/(tabs)/cookbook')}
+                 />
+                )
+              :  <SavedView/>
             }
           </View>
         );

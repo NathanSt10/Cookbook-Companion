@@ -28,9 +28,9 @@ export default function ItemCard({
       : item.quantity;
     return isNaN(qty) ? null : qty;
   };
+ 
   const numericQty = getNumericQuantity();
   const isLowStock = numericQty !== null && numericQty > 0 && numericQty <= 2;
-
   const itemAge = getItemAge(item.addedAt);
   const itemStatus = getItemStatus(item.addedAt);
   const statusBadgeText = getStatusBadgeText(itemStatus);
@@ -53,14 +53,14 @@ export default function ItemCard({
           {isLowStock && (
             <View style={styles.lowStockBadge}>
               <Text style={styles.badgeText}>Low</Text>
-            </View>
-          )}
+            </View>)
+          }
           
           {statusBadgeText && (
             <View style={[styles.ageBadge, { backgroundColor: statusColor }]}>
               <Text style={styles.badgeText}>{statusBadgeText}</Text>
-            </View>
-          )}
+            </View>)
+          }
         </View>
 
         <Text style={styles.category}>
@@ -84,8 +84,8 @@ export default function ItemCard({
         {hasQuantity && (
           <Text style={styles.detailText}>
             Qty: {formatQuantityWithUnit(item.quantity, item.unit)}
-          </Text>
-        )}
+          </Text>)
+        }
 
         <Text style={styles.detailText}>
           Pantry Age: {itemAge} {itemAge === 1 ? 'day' : 'days'}
@@ -108,8 +108,8 @@ export default function ItemCard({
             style={styles.actionButton}
           >
             <Ionicons name='pencil' size={20} color='royalblue' />
-          </TouchableOpacity>
-        )}
+          </TouchableOpacity>)
+        }
         
         {onDelete && (
           <TouchableOpacity
@@ -119,8 +119,8 @@ export default function ItemCard({
             style={styles.actionButton}
           >
             <Ionicons name='close-circle' size={24} color='black' />
-          </TouchableOpacity>
-        )}
+          </TouchableOpacity>)
+        }
       </View>
     );
   };

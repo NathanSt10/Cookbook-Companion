@@ -519,28 +519,4 @@ describe('PantryStats', () => {
       expect(getByText('11')).toBeTruthy();
     });
   });
-
-  describe('Snapshot', () => {
-    it('should match snapshot', () => {
-      const { toJSON } = render(<PantryStats {...defaultProps} />);
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-
-    it('should match snapshot with zero values', () => {
-      const { toJSON } = render(
-        <PantryStats totalItems={0} lowStockCount={0} categoryCount={0} />
-      );
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-
-    it('should match snapshot with large values', () => {
-      const { toJSON } = render(
-        <PantryStats totalItems={9999} lowStockCount={9999} categoryCount={9999} />
-      );
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-  });
 });

@@ -16,13 +16,13 @@ export default function RecipeCard({
 }: RecipeCardProps) {
   return (
     <View style={styles.card}>
-      {image ? (
-        <Image source={{ uri: image }} style={styles.image} />
-      ) : (
-        <View style={[styles.image, styles.placeholder]}>
-          <Text style={styles.placeholderText}>🍽️</Text>
-        </View>
-      )}
+      {image 
+        ? (<Image source={{ uri: image }} style={styles.image} />) 
+        : (<View style={[styles.image, styles.placeholder]}>
+            <Text style={styles.placeholderText}>🍽️</Text>
+           </View>
+          )
+      }
       
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={2}>
@@ -33,8 +33,8 @@ export default function RecipeCard({
       {showRemoveButton && onRemove && (
         <TouchableOpacity style={styles.removeButton} onPress={onRemove}>
           <Text style={styles.removeButtonText}>✕</Text>
-        </TouchableOpacity>
-      )}
+        </TouchableOpacity>)
+      }
     </View>
   );
 }
@@ -42,12 +42,12 @@ export default function RecipeCard({
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: 'whitesmoke',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   placeholder: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'ghostwhite',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -73,19 +73,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: 'black',
   },
   removeButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#fee',
+    backgroundColor: 'whitesmoke',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
   },
   removeButtonText: {
     fontSize: 18,
-    color: '#f44',
+    color: 'firebrick',
   },
 });

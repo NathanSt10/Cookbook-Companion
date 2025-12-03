@@ -56,21 +56,20 @@ export default function MonthView({
           }
         </View>
 
-        {recipes.length === 0 ?
-          (<EmptyMealState />)
-          :
-          (<FlatList
-            data={recipes}
-            keyExtractor={(item) => item.fireId}
-            renderItem={({ item }) => (
-              <RecipeCard
-                title={item.title}
-                image={item.image}
-                onRemove={() => onRemoveRecipe(item.fireId, item.date)}
-              />
-            )}
-            contentContainerStyle={styles.list} />
-          )
+        {recipes.length === 0 
+          ?  <EmptyMealState />
+          : (<FlatList
+              data={recipes}
+              keyExtractor={(item) => item.fireId}
+              renderItem={({ item }) => (
+                <RecipeCard
+                  title={item.title}
+                  image={item.image}
+                  onRemove={() => onRemoveRecipe(item.fireId, item.date)}
+                />
+              )}
+              contentContainerStyle={styles.list} />
+            )
         }
       </View>
     </>
