@@ -4,7 +4,7 @@ import { getFirestore } from "@react-native-firebase/firestore";
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import HeaderFormatFor from "../../components/HeaderFormatFor";
+import HeaderFormatFor from "../../utils/HeaderFormatFor";
 import { searchRecipes } from "../api/spoonacular";
 
 type Recipe = {
