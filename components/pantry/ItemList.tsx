@@ -34,8 +34,8 @@ export default function ItemList({
           onPress={onItemPress ? () => onItemPress(item) : undefined}
           onEdit={onEditItem ? () => onEditItem(item) : undefined}
           onDelete={onDeleteItem ? () => onDeleteItem(item.fireId, item.name) : undefined}
-        />
-      )}
+        />)
+      }
       contentContainerStyle={styles.listContent}
       showsVerticalScrollIndicator={false}
     />

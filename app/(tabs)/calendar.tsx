@@ -41,7 +41,6 @@ export default function CalendarPage() {
     setModalVisible(true);
   };
 
-  // Handle recipe selection from modal
   const handleRecipeSelected = async (recipe: Recipe) => {
     await addRecipeToDate({
       fireId: recipe.fireId,
@@ -236,25 +235,24 @@ export default function CalendarPage() {
       
       <CalendarViewToggle active={calendarView} onChange={setCalendarView} />
 
-      {calendarView === "month" ? 
-        (<MonthView  
+      {calendarView === "month" 
+        ? (<MonthView  
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
             markedDates={getMarkedDates()}
             recipes={getRecipesForDate(selectedDate)}
             onRemoveRecipe={removeRecipeFromDate}
-          />
-        ) 
-        : 
-        (<WeekView
+           />
+          ) 
+        : (<WeekView
             selectedDate={selectedDate}
             weekDates={getWeekDates(selectedDate)}
             onDateSelect={setSelectedDate}
             recipes={getRecipesForDate(selectedDate)}
             onRemoveRecipe={removeRecipeFromDate}
             getRecipesForDate={getRecipesForDate}
-          /> 
-        )
+           /> 
+          )
       }
 
       <FloatingActionButton onPress={() => openRecipePicker(selectedDate)}/>

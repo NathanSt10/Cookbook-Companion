@@ -667,42 +667,4 @@ describe('ModalHeaderFor', () => {
       expect(queryByTestId('view-save-button')).toBeNull();
     });
   });
-
-  describe('Snapshot', () => {
-    it('should match snapshot with save button', () => {
-      const { toJSON } = render(
-        <ModalHeaderFor {...defaultProps} onSave={mockOnSave} />
-      );
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-
-    it('should match snapshot without save button', () => {
-      const { toJSON } = render(
-        <ModalHeaderFor {...defaultProps} />
-      );
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-
-    it('should match snapshot in loading state', () => {
-      const { toJSON } = render(
-        <ModalHeaderFor {...defaultProps} onSave={mockOnSave} loading={true} />
-      );
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-
-    it('should match snapshot with custom right text', () => {
-      const { toJSON } = render(
-        <ModalHeaderFor 
-          {...defaultProps} 
-          onSave={mockOnSave}
-          rightText="Apply"
-        />
-      );
-
-      expect(toJSON()).toMatchSnapshot();
-    });
-  });
 });

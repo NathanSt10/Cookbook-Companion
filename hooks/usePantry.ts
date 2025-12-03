@@ -10,7 +10,6 @@ export interface PantryItem {
   quantity?: string | number;
   unit?: any;
   isPerishabe?: boolean;
-  expireDate?: string;
   addedAt: Date;
 }
 
@@ -19,7 +18,6 @@ export interface PantryItemInput {
   category: string[];
   quantity?: string;
   unit?: string;
-  expireDate?: string;
 }
 
 export function usePantry() {
@@ -40,7 +38,6 @@ export function usePantry() {
         category: field.category,
         quantity: field.quantity,
         unit: field.unit,
-        expireDate: field.expireDate,
         addedAt: field.addedAt?.toDate?.() || new Date(field.addedAt),
       });
     });

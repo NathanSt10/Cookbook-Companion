@@ -500,7 +500,6 @@ describe('ItemCard', () => {
         quantity: 2,
         unit: 'L',
         addedAt: new Date('2024-01-15'),
-        expireDate: '2024-01-30',
       };
 
       const { getByText } = render(

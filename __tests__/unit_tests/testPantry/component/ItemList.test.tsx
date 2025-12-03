@@ -140,7 +140,6 @@ describe('ItemList', () => {
       
       render(<ItemList items={mockItems} />);
 
-      // Check the first call (index 0)
       expect(ItemCardMock.mock.calls[0][0]).toMatchObject({
         item: expect.objectContaining({
           fireId: '1',
