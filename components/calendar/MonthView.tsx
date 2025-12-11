@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -27,7 +28,10 @@ export default function MonthView({
   recipes,
   onRemoveRecipe,
 }: MonthViewProps) {
-  const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+  const [year, month, day] = selectedDate.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day); // Creates date in local timezone
+
+  const formattedDate = dateObj.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -65,6 +69,7 @@ export default function MonthView({
                 <RecipeCard
                   title={item.title}
                   image={item.image}
+                  onPress={() => router.push(`/recipe/${item.recipeId}`)}
                   onRemove={() => onRemoveRecipe(item.fireId, item.date)}
                 />
               )}

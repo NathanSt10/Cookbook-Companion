@@ -33,6 +33,26 @@ export function useLikedRecipes() {
     return items;
   }, []);
 
+  const removeLikedRecipe = useCallback(async (fireId: string) => {
+    if (!user) {
+      console.error('No user logged in');
+      return;
+    }
+
+    try {
+      await firestore()
+        .collection('Users')
+        .doc(user.uid)
+        .collection('likedRecipes')
+        .doc(fireId)
+        .delete();
+      
+      console.log(`Successfully removed liked recipe: ${fireId}`);
+    } catch (e: any) {
+      console.error(`Error removing liked recipe: ${e}`);
+      throw e;
+    }
+  }, [user]);
 
   const refresh = useCallback(async () => {
     if (!user) { return; }
@@ -92,5 +112,6 @@ export function useLikedRecipes() {
       loading,
       error,
       refresh,
+      removeLikedRecipe,
   };      
 }

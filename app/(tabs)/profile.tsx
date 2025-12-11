@@ -22,6 +22,8 @@ export default function ProfilePage() {
   const [editProfileModalVisible, setEditProfileModalVisible] = useState<boolean>(true);
   const { firstName, lastName, email } = useProfile();
   const { item: preferences, refresh } = usePreferences();
+  const { likedRecipes } = useLikedRecipes();
+  const { savedRecipes } = useSavedRecipes();
 
   if (loading) { return (<LoadingViewFor page={"profile"} />); }
 
@@ -30,7 +32,7 @@ export default function ProfilePage() {
       case "liked": 
         return (
           <View style={styles.tabContent}>
-            {useLikedRecipes.length === 0 
+            {likedRecipes.length === 0 
               ? (<EmptyStateFor 
                     tab="liked"
                     onAddItem={() => router.push('/(tabs)/cookbook')}
@@ -44,7 +46,7 @@ export default function ProfilePage() {
       case "saved":
         return (
           <View style={styles.tabContent}>
-            {useSavedRecipes.length === 0 
+            {savedRecipes.length === 0 
               ? (<EmptyStateFor
                     tab="saved"
                     onAddItem={() => router.push('/(tabs)/cookbook')}
