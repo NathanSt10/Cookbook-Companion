@@ -33,6 +33,26 @@ export function useSavedRecipes() {
     return items;
   }, []);
 
+  const removeSavedRecipes = useCallback(async (fireId: string) => {
+    if (!user) {
+      console.error('No user logged in');
+      return;
+    }
+
+    try {
+      await firestore()
+        .collection('Users')
+        .doc(user.uid)
+        .collection('savedRecipes')
+        .doc(fireId)
+        .delete();
+      
+      console.log(`Successfully removed saved recipe: ${fireId}`);
+    } catch (e: any) {
+      console.error(`Error removing saved recipe: ${e}`);
+      throw e;
+    }
+  }, [user]);
 
   const refresh = useCallback(async () => {
     if (!user) { return; }
@@ -92,5 +112,6 @@ export function useSavedRecipes() {
       loading,
       error,
       refresh,
+      removeSavedRecipes,
   };      
 }

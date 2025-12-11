@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -65,6 +66,7 @@ export default function MonthView({
                 <RecipeCard
                   title={item.title}
                   image={item.image}
+                  onPress={() => router.push(`/recipe/${item.recipeId}`)}
                   onRemove={() => onRemoveRecipe(item.fireId, item.date)}
                 />
               )}

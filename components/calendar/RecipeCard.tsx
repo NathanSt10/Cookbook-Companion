@@ -5,6 +5,7 @@ interface RecipeCardProps {
   title: string;
   image?: string;
   onRemove?: () => void;
+  onPress?: () => void;
   showRemoveButton?: boolean;
 }
 
@@ -12,10 +13,15 @@ export default function RecipeCard({
   title, 
   image, 
   onRemove,
+  onPress,
   showRemoveButton = true 
 }: RecipeCardProps) {
   return (
-    <View style={styles.card}>
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       {image 
         ? (<Image source={{ uri: image }} style={styles.image} />) 
         : (<View style={[styles.image, styles.placeholder]}>
@@ -31,11 +37,17 @@ export default function RecipeCard({
       </View>
 
       {showRemoveButton && onRemove && (
-        <TouchableOpacity style={styles.removeButton} onPress={onRemove}>
+        <TouchableOpacity 
+          style={styles.removeButton} 
+          onPress={(e) => {
+            e.stopPropagation(); // Prevents card press when clicking remove
+            onRemove();
+          }}
+        >
           <Text style={styles.removeButtonText}>✕</Text>
-        </TouchableOpacity>)
-      }
-    </View>
+        </TouchableOpacity>
+      )}
+    </TouchableOpacity>
   );
 }
 
