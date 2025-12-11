@@ -4,16 +4,16 @@
     "slug": "my-cookbook-companion",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/cookbook-companion.png",
     "scheme": "mycookbookcompanion",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/cookbook-companion.png",
+        "backgroundImage": "./assets/images/cookbook-companion.png",
+        "monochromeImage": "./assets/images/cookbook-companion.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -52,7 +52,11 @@
       "eas": {
         "projectId": "ef456893-463b-4b48-936a-4098d57be1d7"
       },
-      "spoonacularApiKey": "YOUR_KEY_HERE"
+      "spoonacularApiKey": "7a57ca1c0df04f84b61c31fabc928935"
+    },
+    "ios": {
+      "bundleIdentifier": "com.capstone.mycookbookcompanion",
+      "googleServicesFile": "./ios/GoogleService-Info.plist"
     }
   }
 }
