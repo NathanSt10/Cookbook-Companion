@@ -10,6 +10,8 @@ interface Recipe {
   cookTime?: number;
   usedIngredientCount?: number;
   missedIngredientCount?: number;
+  isLiked?: boolean;
+  isSaved?: boolean;
 }
 
 interface RecipeSectionProps {
@@ -21,6 +23,7 @@ interface RecipeSectionProps {
   emptyMessage?: string;
   showViewAll?: boolean;
   onViewAll?: () => void;
+  
   onLike?: (recipeId: number, title: string, image: string) => void;
   onSave?: (recipeId: number, title: string, image: string) => void;
   testID?: string;
@@ -82,6 +85,8 @@ export default function RecipeSection({
             usedIngredientCount={item.usedIngredientCount}
             missedIngredientCount={item.missedIngredientCount}
             showIngredientMatch={title === "Finish It"}
+            isLiked={item.isLiked}
+            isSaved={item.isSaved}
             onLike={() => onLike?.(item.id, item.title, item.image)}
             onSave={() => onSave?.(item.id, item.title, item.image)}
             onPress={() => handleRecipePress(item.id)}

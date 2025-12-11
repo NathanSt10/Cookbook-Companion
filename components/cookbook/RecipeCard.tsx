@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface RecipeCardProps {
@@ -33,18 +32,6 @@ export default function RecipeCard({
   missedIngredientCount,
   showIngredientMatch = false,
 }: RecipeCardProps) {
-  const [liked, setLiked] = useState(isLiked);
-  const [saved, setSaved] = useState(isSaved);
-
-  const handleLike = () => {
-    setLiked(!liked);
-    onLike?.();
-  };
-
-  const handleSave = () => {
-    setSaved(!saved);
-    onSave?.();
-  };
 
   const totalIngredients = (usedIngredientCount || 0) + (missedIngredientCount || 0);
   const matchPercentage = totalIngredients > 0
@@ -62,28 +49,28 @@ export default function RecipeCard({
         <TouchableOpacity 
           onPress={(e) => {
             e.stopPropagation();
-            handleLike();
+            onLike?.();
           }}
           style={styles.iconButton}
         >
           <Ionicons 
-            name={liked ? "heart" : "heart-outline"} 
+            name={isLiked ? "heart" : "heart-outline"} 
             size={24} 
-            color={liked ? "red" : "white"} 
+            color={isLiked ? "red" : "white"} 
           />
         </TouchableOpacity>
 
         <TouchableOpacity 
           onPress={(e) => {
             e.stopPropagation();
-            handleSave();
+            onSave?.();
           }}
           style={styles.iconButton}
         >
           <Ionicons 
-            name={saved ? "bookmark" : "bookmark-outline"} 
+            name={isSaved ? "bookmark" : "bookmark-outline"} 
             size={24} 
-            color={saved ? "royalblue" : "white"} 
+            color={isSaved ? "royalblue" : "white"} 
           />
         </TouchableOpacity>
       </View>

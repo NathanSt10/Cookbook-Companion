@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import BrowseModal from "../../components/cookbook/BrowseModal";
 import RecipeSection from "../../components/cookbook/RecipeSection";
 import SearchBar from "../../components/cookbook/SearchBar";
 import { useCookbook } from "../../hooks/useCookbook";
+import { useLikedRecipes } from '../../hooks/useLikedRecipes';
+import { useSavedRecipes } from '../../hooks/useSavedRecipes';
 import { likedRecipeServices } from "../../services/likedRecipesServices";
 import { savedRecipeServices } from "../../services/savedRecipesServices";
 import HeaderFormatFor from "../../utils/HeaderFormatFor";
@@ -16,59 +18,136 @@ export default function CookbookPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [browseModalVisible, setBrowseModalVisible] = useState(false);
+  const [likedRecipes, setLikedRecipes] = useState<Set<number>>(new Set());
+  const [savedRecipes, setSavedRecipes] = useState<Set<number>>(new Set());
+  const { likedRecipes: likedRecipesList } = useLikedRecipes();
+  const { savedRecipes: savedRecipesList } = useSavedRecipes();
   const [browseResults, setBrowseResults] = useState<any[]>([]);
   const isFirstRender = useRef(true);
   const { user } = useAuth();
   const { recipes, loading, error } = useCookbook();
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      setSearchTerm(searchQuery);
-    }
-  };
+  const [optimisticLiked, setOptimisticLiked] = useState<Set<number>>(new Set());
+  const [optimisticSaved, setOptimisticSaved] = useState<Set<number>>(new Set());
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    (async () => {
-      if (searchTerm.trim()) {
-        const data = await searchRecipes(searchTerm);
-        setSearchResults(data.results || []);
+  // Merge hook data with optimistic updates
+  const likedRecipeIds = useMemo(() => {
+    const ids = new Set(likedRecipesList.map(r => parseInt(r.recipeId)));
+    // Merge with optimistic updates
+    optimisticLiked.forEach(id => ids.add(id));
+    return ids;
+  }, [likedRecipesList, optimisticLiked]);
+
+  const savedRecipeIds = useMemo(() => {
+    const ids = new Set(savedRecipesList.map(r => parseInt(r.recipeId)));
+    // Merge with optimistic updates
+    optimisticSaved.forEach(id => ids.add(id));
+    return ids;
+  }, [savedRecipesList, optimisticSaved]);
+
+  const isRecipeLiked = (recipeId: number) => likedRecipeIds.has(recipeId);
+  const isRecipeSaved = (recipeId: number) => savedRecipeIds.has(recipeId);
+
+    const handleSearch = () => {
+      if (searchQuery.trim()) {
+        setSearchTerm(searchQuery);
       }
-    })();
-  }, [searchTerm]);
+    };
 
-  const handleLikedRecipe = async (recipeId: number, title: string, image: string) => {
-    console.log('handling liked recipe: ', recipeId, title);
+    useEffect(() => {
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+      }
+      (async () => {
+        if (searchTerm.trim()) {
+          const data = await searchRecipes(searchTerm);
+          setSearchResults(data.results || []);
+        }
+      })();
+    }, [searchTerm]);
+
+    const handleLikedRecipe = async (recipeId: number, title: string, image: string) => {
+    console.log('handleLikedRecipe called:', recipeId, title);
     if (!user?.uid) { return; }
     
+    // Optimistically update
+    setOptimisticLiked(prev => {
+      const newSet = new Set(prev);
+      if (likedRecipeIds.has(recipeId)) {
+        newSet.delete(recipeId);
+      } else {
+        newSet.add(recipeId);
+      }
+      return newSet;
+    });
+    
     try {
-      await likedRecipeServices.toggleLikedRecipe(user.uid, {
+      const result = await likedRecipeServices.toggleLikedRecipe(user.uid, {
         recipeId: recipeId.toString(),
         title,
         image,
       });
-      console.log(`recipe liked from cookbook card: ${title}`);  
+      console.log('toggleLikedRecipe result:', result);
+      
+      // Clear optimistic update once Firestore updates (the hook will have the real data)
+      setTimeout(() => {
+        setOptimisticLiked(new Set());
+      }, 1000);
     } 
     catch (error) {
+      // Revert optimistic update on error
+      setOptimisticLiked(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(recipeId)) {
+          newSet.delete(recipeId);
+        } else {
+          newSet.add(recipeId);
+        }
+        return newSet;
+      });
       console.error('Error toggling liked recipe:', error);
     }
   };
 
   const handleSavedRecipe = async (recipeId: number, title: string, image: string) => {
-    console.log('handling saved recipe: ', recipeId, title);
+    console.log('handleSavedRecipe called:', recipeId, title);
     if (!user?.uid) { return; }
     
+    // Optimistically update
+    setOptimisticSaved(prev => {
+      const newSet = new Set(prev);
+      if (savedRecipeIds.has(recipeId)) {
+        newSet.delete(recipeId);
+      } else {
+        newSet.add(recipeId);
+      }
+      return newSet;
+    });
+    
     try {
-      await savedRecipeServices.toggleSavedRecipe(user.uid, {
+      const result = await savedRecipeServices.toggleSavedRecipe(user.uid, {
         recipeId: recipeId.toString(),
         title,
         image,
       });
-      console.log(`recipe saved from cookbook card: ${title}`);
+      console.log('toggleSavedRecipe result:', result);
+      
+      // Clear optimistic update once Firestore updates
+      setTimeout(() => {
+        setOptimisticSaved(new Set());
+      }, 1000);
     } catch (error) {
+      // Revert optimistic update on error
+      setOptimisticSaved(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(recipeId)) {
+          newSet.delete(recipeId);
+        } else {
+          newSet.add(recipeId);
+        }
+        return newSet;
+      });
       console.error('Error toggling saved recipe:', error);
     }
   };
@@ -105,6 +184,8 @@ export default function CookbookPage() {
               cookTime: r.cookTime ?? 0,
               usedIngredientCount: r.usedIngredientCount,
               missedIngredientCount: r.missedIngredientCount,
+              isLiked: isRecipeLiked(r.recipeId),
+              isSaved: isRecipeSaved(r.recipeId),
             }))}
             showViewAll={browseResults.length > 5}
             onLike={handleLikedRecipe}
@@ -121,6 +202,8 @@ export default function CookbookPage() {
               title: r.title,
               image: r.image,
               cookTime: r.readyInMinutes ?? 0,
+              isLiked: isRecipeLiked(r.recipeId),
+              isSaved: isRecipeSaved(r.recipeId),
             }))}
             onLike={handleLikedRecipe}
             onSave={handleSavedRecipe}
@@ -150,8 +233,8 @@ export default function CookbookPage() {
           title="Similar Recipes"
           subtitle="More like what you viewed"
           recipes={recipes.similar}
-          onLike={handleLikedRecipe}
-          onSave={handleSavedRecipe}
+          onLike={(recipeId, title, image) => handleLikedRecipe(recipeId, title, image)}
+          onSave={(recipeId, title, image) => handleSavedRecipe(recipeId, title, image)}
           testID="similar-section"
         />
 
@@ -159,8 +242,8 @@ export default function CookbookPage() {
           title="Recently Viewed"
           subtitle="Pick up where you left off"
           recipes={recipes.recentlyViewed}
-          onLike={handleLikedRecipe}
-          onSave={handleSavedRecipe}
+          onLike={(recipeId, title, image) => handleLikedRecipe(recipeId, title, image)}
+          onSave={(recipeId, title, image) => handleSavedRecipe(recipeId, title, image)}
           testID="recently-viewed-section"
         />
 
@@ -168,8 +251,8 @@ export default function CookbookPage() {
           title="Random Picks"
           subtitle="A little surprise"
           recipes={recipes.random}
-          onLike={handleLikedRecipe}
-          onSave={handleSavedRecipe}
+          onLike={(recipeId, title, image) => handleLikedRecipe(recipeId, title, image)}
+          onSave={(recipeId, title, image) => handleSavedRecipe(recipeId, title, image)}
           testID="random-section"
         />
       </ScrollView>
