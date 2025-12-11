@@ -1,18 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { PantryItemInput } from '../../hooks/usePantry';
 import ModalHeaderFor from '../../utils/ModalHeaderFor';
 import UnitSelector from '../../utils/UnitSelectorModal';
 
 interface ItemAddModalProps {
   visible: boolean;
   onClose: () => void;
-  onAdd: (data: { 
-    name: string; 
-    category: string[]; 
-    quantity?: string | number;
-    unit?: string; 
-  }) => Promise<void>;
+  onAdd: (data: PantryItemInput) => Promise<void>;
   categories: string[];
 }
 
@@ -28,6 +25,8 @@ export default function ItemAddModal({
   const [loading, setLoading] = useState<boolean>(false);
   const [newCategoryInput, setNewCategoryInput] = useState<string>('');
   const [unit, setUnit] = useState<string>('');
+  const [reminderDate, setReminderDate] = useState<Date | undefined>(undefined);
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
   const allCategories = [...new Set([...categories, ...selectedCategories])];
 
@@ -43,6 +42,8 @@ export default function ItemAddModal({
     setQuantity('');
     setUnit('');
     setNewCategoryInput('');
+    setReminderDate(undefined);
+    setShowDatePicker(false);
   };
 
   const handleClose = () => {
@@ -61,8 +62,26 @@ export default function ItemAddModal({
     }
 
     if (quantity.trim() && !unit.trim()) {
-      Alert.alert('Missing Unit', 'Please select a unit for the quantity');
-      return;
+      const validQuantityInput = /^[0-9]*\.?[0-9]+$/;
+
+      if(!validQuantityInput.test(quantity)) {
+        Alert.alert(
+          'Invalid Quantity', 'Please enter a valid number'
+        );
+
+        return;
+      }
+
+      const numericQty = parseFloat(quantity);
+      if (isNaN(numericQty) || numericQty <= 0) {
+        Alert.alert('Invalid Quantity', 'Please enter a positive number');
+        return;
+      }
+
+      if (numericQty > 1_000_000) {
+        Alert.alert('Invalid Quantity', 'Quantity is too large');
+        return;
+      }
     }
 
     await submitItem();
@@ -76,6 +95,7 @@ export default function ItemAddModal({
         category: selectedCategories.length > 0 ? selectedCategories : ['other'],
         quantity: quantity.trim() || undefined,
         unit: unit.trim() || undefined,
+        reminderDate: reminderDate,
       });
         
       console.log("added item to pantry");
@@ -122,6 +142,26 @@ export default function ItemAddModal({
     );
   };
 
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    
+    if (event.type === 'set' && selectedDate) {
+      setReminderDate(selectedDate);
+    }
+  };
+
+  const formatDate = (date: Date) => {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  };
+
+  const clearReminderDate = () => {
+    setReminderDate(undefined);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -153,7 +193,7 @@ export default function ItemAddModal({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Category *</Text>
+          <Text style={styles.label}>Category</Text>
           
           <View style={styles.newCategoryContainer}>
             <TextInput
@@ -248,6 +288,44 @@ export default function ItemAddModal({
             <Text style={styles.hint}>
               Enter amount and select a unit (e.g., "500" + "g" for 500 grams)
             </Text>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Reminder Date (Optional)</Text>
+          
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+            disabled={loading}
+          >
+            <Ionicons name="calendar-outline" size={20} color="royalblue" />
+            <Text style={styles.datePickerButtonText}>
+              {reminderDate ? formatDate(reminderDate) : 'Set a reminder date'}
+            </Text>
+            {reminderDate && (
+              <TouchableOpacity
+                onPress={clearReminderDate}
+                style={styles.clearDateButton}
+                disabled={loading}
+              >
+                <Ionicons name="close-circle" size={20} color="grey" />
+              </TouchableOpacity>
+            )}
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={reminderDate || new Date()}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+              minimumDate={new Date()}
+            />
+          )}
+
+          <Text style={styles.hint}>
+            Set a date to remind you about this item (e.g., expiration date)
+          </Text>
         </View>
       </ScrollView>
     </Modal>
@@ -366,5 +444,23 @@ const styles = StyleSheet.create({
   },
   quantityInput: {
     flex: 1,
+  },
+  datePickerButton: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'gainsboro',
+  },
+  datePickerButtonText: {
+    flex: 1,
+    fontSize: 16,
+    color: 'black',
+  },
+  clearDateButton: {
+    padding: 4,
   },
 });

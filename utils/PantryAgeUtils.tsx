@@ -6,10 +6,13 @@ export const getItemAge = (addedAt: Date): number => {
 
 export type ItemStatus = 'fresh' | 'warning' | 'critical';
 
+export const DEFAULT_AGING_DAYS = 7;
+export const DEFAULT_URGENT_DAYS = 14;
+
 export const getItemStatus = (
   addedAt: Date,
-  warningDays: number = 7,
-  criticalDays: number = 14
+  warningDays: number = DEFAULT_AGING_DAYS,
+  criticalDays: number = DEFAULT_URGENT_DAYS 
 ): ItemStatus => {
   const age = getItemAge(addedAt);
   if (age >= criticalDays) return 'critical';
@@ -27,7 +30,7 @@ export const getStatusColor = (status: ItemStatus): string => {
 
 export const getStatusBadgeText = (status: ItemStatus): string => {
   switch (status) {
-    case 'critical': return 'Soon';
+    case 'critical': return 'Urgent';
     case 'warning': return 'Aging';
     case 'fresh': return 'Good';
   }

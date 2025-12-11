@@ -6,6 +6,8 @@ export interface Category {
   fireId: string;
   name: string;
   addedAt: Date;
+  agingDays?: number;
+  urgentDays?: number;
 }
 
 export function useCategory() {
@@ -23,6 +25,8 @@ export function useCategory() {
         fireId: categoryDocument.id,
         name: field.name,
         addedAt: field.addedAt?.toDate?.() || new Date(field.addedAt),
+        agingDays: field.agingDays,
+        urgentDays: field.urgentDays,
       });
     });
 

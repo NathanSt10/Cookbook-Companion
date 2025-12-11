@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
 import ModalHeaderFor from '../../utils/ModalHeaderFor';
+import { DEFAULT_AGING_DAYS, DEFAULT_URGENT_DAYS } from '../../utils/PantryAgeUtils';
 
 interface CategoryAddModalProps {
   visible: boolean;
   onClose: () => void;
-  onAdd: (categoryName: string) => Promise<void>;
+  onAdd: (categoryName: string, agingDays?: number, urgentDays?: number) => Promise<void>;
   existingCategories: string[];
 }
 
@@ -48,7 +49,7 @@ export default function CategoryAddModal({
 
     setLoading(true);
     try {
-      await onAdd(trimmedName);
+      await onAdd(trimmedName, DEFAULT_AGING_DAYS, DEFAULT_URGENT_DAYS);
       resetForm();
     }
     catch (e: any) {
@@ -95,12 +96,20 @@ export default function CategoryAddModal({
           </Text>
         </View>
 
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>Default Settings</Text>
+          <Text style={styles.infoText}>
+            - Items will show "aging" after {DEFAULT_AGING_DAYS} days{'\n'}
+            - Items will show "urgent" after {DEFAULT_URGENT_DAYS} days{'\n'}
+            - You can customize these settings later by editing the category
+          </Text>
+        </View>
+
         {existingCategories.length > 0 && (
-          <View style={styles.infoBox}>
+          <View style={styles.existingBox}>
             <Text style={styles.infoTitle}>Existing Categories</Text>
             <Text style={styles.infoText}>{existingCategories.join(', ')}</Text>
-          </View>
-          )
+          </View>)
         }
       </View>
     </Modal>
@@ -135,6 +144,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   infoBox: {
+    backgroundColor: 'aliceblue',
+    borderRadius: 8,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: 'royalblue',
+    marginBottom: 16,
+  },
+  existingBox: {
     backgroundColor: 'white',
     borderRadius: 8,
     padding: 16,
@@ -150,6 +167,6 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 14,
     color: 'grey',
-    marginBottom: 4,
+    lineHeight: 20,
   },
 });

@@ -15,6 +15,7 @@ import { pantryServices } from '../../services/pantryServices';
 import FloatingActionButton from '../../utils/FloatingActionButton';
 import HeaderFormatFor from '../../utils/HeaderFormatFor';
 import LoadingViewFor from '../../utils/LoadingViewFor';
+import { getItemStatus } from '../../utils/PantryAgeUtils';
 import { useAuth } from '../context/AuthContext';
 
 export default function PantryScreen() {
@@ -27,11 +28,17 @@ export default function PantryScreen() {
   const [viewAllCatModalVisible, setViewAllCatModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<PantryItem | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]); 
+  const [selectedStatus, setSelectedStatus] = useState<'all' | 'lowStock' | 'aging' | 'urgent'>('all');
   
-  const handleViewAllCategoriesEdit = async (categoryId: string, newName: string) => {
+  const handleViewAllCategoriesEdit = async (
+    categoryId: string,
+    newName: string,
+    agingDays: number,
+    urgentDays: number
+  ) => {
     if (!user?.uid) { return; }
     
-    await categoryServices.editCategory(user.uid, categoryId, newName);
+    await categoryServices.editCategory(user.uid, categoryId, newName, agingDays, urgentDays);
   };
 
   const handleViewAllCategoriesDelete = async (categoryId: string, categoryName: string ) => {
@@ -40,10 +47,10 @@ export default function PantryScreen() {
     await categoryServices.deleteCategory(user.uid, categoryId, categoryName);
   };
 
-  const handleAddCategoryAdd = async (categoryName: string) => {
+  const handleAddCategoryAdd = async (categoryName: string, agingDays?: number, urgentDays?: number) => {
     if (!user?.uid) { return; }
 
-    await categoryServices.addCategory(user.uid, categoryName);
+    await categoryServices.addCategory(user.uid, categoryName, agingDays, urgentDays);
     setAddCategoryModalVisible(false);
   };
 
@@ -89,9 +96,14 @@ export default function PantryScreen() {
 
   const handleClearFilters = () => {
     setSelectedCategories([]);
+    setSelectedStatus('all');
   };
 
-  const categoryNames = useMemo(() => {
+  const handleStatusFilter = (status: 'all' | 'lowStock' | 'aging' | 'urgent') => {
+    setSelectedStatus(status);
+  };
+
+  const updateItemCardCategories = useMemo(() => {
     const names = new Set<string>();
     items.forEach(item => {
       if (item.category && Array.isArray(item.category)) {
@@ -101,6 +113,10 @@ export default function PantryScreen() {
     
     return Array.from(names).sort();
   }, [items]);
+
+  const updateModalCategories = useMemo(() => {
+    return categories.map(cat => cat.name).sort();
+  }, [categories])
 
   const categoriesWithData = useMemo(() => {
     return categories.map(cat => ({
@@ -112,27 +128,59 @@ export default function PantryScreen() {
     }));
   },[categories, items]);
 
-  const filteredItems = useMemo(() => {
-    if (selectedCategories.length === 0) {
-      return items; 
-    }
+const filteredItems = useMemo(() => {
+  let filtered = items;
 
-    return items.filter(item => 
+  if (selectedCategories.length > 0) {
+    filtered = filtered.filter(item => 
       item.category && 
       Array.isArray(item.category) && 
-      item.category.some(cat => selectedCategories.includes(cat))
+      selectedCategories.every(selectedCat => 
+        item.category.includes(selectedCat)
+      )
     );
-  }, [items, selectedCategories]);
+  }
+
+  if (selectedStatus !== 'all') {
+    filtered = filtered.filter(item => {
+      if (selectedStatus === 'lowStock') {
+        if (!item.quantity) { return false; }
+        const quantity = typeof item.quantity === 'string'
+          ? parseFloat(item.quantity)
+          : item.quantity;
+        return !isNaN(quantity) && quantity > 0 && quantity <= 2;
+      }
+
+      if (selectedStatus === 'aging') {
+        const status = getItemStatus(item.addedAt);
+        return status === 'warning';
+      }
+
+      if (selectedStatus === 'urgent') {
+        const status = getItemStatus(item.addedAt);
+        return status === 'critical';
+      }
+
+      return true;
+    });
+  }
+
+  return filtered;
+}, [items, selectedCategories, selectedStatus]);
 
   if (loadingCategory || loadingPantry) { return <LoadingViewFor page="pantry" />; }
   return (
     <View style={styles.container}>
       <HeaderFormatFor page="Pantry" />
-
+                      
       <PantryStats
         totalItems={stats.totalItems}
         lowStockCount={stats.lowStockCount}
         categoryCount={stats.categoryCount}
+        agingCount={stats.agingCount}
+        urgentCount={stats.urgentCount}
+        onFilterByStatus={handleStatusFilter}
+        selectedStatus={selectedStatus}
       />
 
       <CategoryRowView
@@ -161,7 +209,10 @@ export default function PantryScreen() {
       </Text>
 
       {items.length === 0 
-        ? <PantryEmptyState onAddItem={() => setAddPantryItemModalVisible(true)} />
+        ? ( <View style={styles.emptyStateWrapper}>
+              <PantryEmptyState onAddItem={() => setAddPantryItemModalVisible(true)} />
+            </View>
+          )
         : filteredItems.length === 0 
             ? (<View style={styles.emptyFilterContainer}>
                  <Text style={styles.emptyFilterTitle}>No items match your filters</Text>
@@ -175,6 +226,7 @@ export default function PantryScreen() {
               )
             : (<ItemList
                  items={filteredItems}
+                 categories={categories}
                  onEditItem={handlePantryItemEditHelper}
                  onDeleteItem={handlePantryItemDelete}
                  onAddItem={() => setAddPantryItemModalVisible(true)}
@@ -188,7 +240,7 @@ export default function PantryScreen() {
         visible={addPantryItemModalVisible}
         onClose={() => setAddPantryItemModalVisible(false)}
         onAdd={handlePantryItemAdd}
-        categories={categoryNames}
+        categories={updateModalCategories}
       />
 
       <ItemEditModal
@@ -198,7 +250,7 @@ export default function PantryScreen() {
           setEditingItem(null);
         }}
         onEdit={handlePantryItemEdit}
-        categories={categoryNames}
+        categories={updateModalCategories}
         editingItem={editingItem}
       />
 
@@ -206,7 +258,7 @@ export default function PantryScreen() {
         visible={addCategoryModalVisible}
         onClose={() => setAddCategoryModalVisible(false)}
         onAdd={handleAddCategoryAdd}
-        existingCategories={categoryNames}
+        existingCategories={updateModalCategories}
       />
 
       <CategoryViewAllModal
@@ -230,6 +282,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  emptyStateWrapper: {
+    flex: 1,
+    marginTop: 40,
   },
   itemText: {
     fontSize: 18,
@@ -294,7 +350,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyFilterButton: {
-    backgroundColor: 'royalblue',
+    backgroundColor: 'black',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,

@@ -1,5 +1,6 @@
 import firestore from '@react-native-firebase/firestore';
 import { PantryItemInput } from '../hooks/usePantry';
+import { DEFAULT_AGING_DAYS, DEFAULT_URGENT_DAYS, getItemStatus } from '../utils/PantryAgeUtils';
 
 export const pantryServices = {
   async addItem(userId: string, itemData: PantryItemInput): Promise<void> {
@@ -28,7 +29,9 @@ export const pantryServices = {
       itemToAdd.unit = itemData.unit.trim();
     }
 
-    // when expiration is implemented, add here
+    if (itemData.reminderDate !== undefined) {
+      itemToAdd.reminderDate = firestore.Timestamp.fromDate(itemData.reminderDate);
+    }
 
     try {
       await firestore()
@@ -63,11 +66,11 @@ export const pantryServices = {
         : [updates.category];
 
       if (categories.length === 0 || !categories[0].trim()) {
-        updates.category = ['other'];
+        updateData.category = ['other'];
         console.log('updated pantry item with no category, setting to other');
       }
       else {
-        updates.category = categories.map(cat => cat.trim().toLowerCase()) as any;
+        updateData.category = categories.map(cat => cat.trim().toLowerCase()) as any;
       }
     }
 
@@ -89,7 +92,14 @@ export const pantryServices = {
       }
     }
 
-    // use this part to do expiration dates
+    if (updates.reminderDate !== undefined) {
+      if (updates.reminderDate === null) {
+        updateData.reminderDate = firestore.FieldValue.delete();
+      }
+      else {
+        updateData.reminderDate = firestore.Timestamp.fromDate(updates.reminderDate);
+      }
+    }
 
     try {
       await firestore()
@@ -100,10 +110,9 @@ export const pantryServices = {
         .update(updateData);
         
       console.log(`updated pantry item successfully for: ${itemId}`);
-     } 
+    } 
     catch (e: any) {
       console.error('error updating pantry item: ', e);
-      console.error(`error updating pantry: ${e}`);
       throw e;
     }
   },
@@ -145,16 +154,39 @@ export const pantryServices = {
     }
   },
 
-  async getPantryStats(userId: string): Promise<{totalItems: number, categoryCount: number, lowStockCount: number}> {
+  async getPantryStats(userId: string): Promise<{
+    totalItems: number, 
+    categoryCount: number, 
+    lowStockCount: number,
+    agingCount: number,
+    urgentCount: number
+  }> {
     try {
       const pantrySnapshot = await firestore()
         .collection('Users')
         .doc(userId)
         .collection('pantry')
         .get();
+      
+      const categoriesSnapshot = await firestore()
+        .collection('Users')
+        .doc(userId)
+        .collection('categories')
+        .get();
+      
+      const categoryMap = new Map<string, { agingDays?: number; urgentDays?: number }>();
+      categoriesSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        categoryMap.set(data.name, {
+          agingDays: data.agingDays,
+          urgentDays: data.urgentDays,
+        });
+      });
 
       const categories = new Set<string>();
       let lowStockCount = 0;
+      let agingCount = 0;
+      let urgentCount = 0;
 
       pantrySnapshot.docs.forEach((pantryDoc) => {
         const item = pantryDoc.data();
@@ -170,15 +202,47 @@ export const pantryServices = {
           if (!isNaN(quantity) && quantity > 0 && quantity <= 2) {
             lowStockCount++;
           }
+
+        if (item.addedAt) {
+          const addedAtDate = item.addedAt.toDate?.() || new Date(item.addedAt);
+
+          let minAgingDays = DEFAULT_AGING_DAYS;
+          let minUrgentDays = DEFAULT_URGENT_DAYS;
+
+          if (item.category && Array.isArray(item.category)) {
+            item.category.forEach((catName: string) => {
+              const catData = categoryMap.get(catName);
+              if (catData) {
+                if (catData.agingDays !== undefined && catData.agingDays < minAgingDays) {
+                  minAgingDays = catData.agingDays;                  
+                }
+                if (catData.urgentDays !== undefined && catData.urgentDays < minUrgentDays) {
+                  minUrgentDays = catData.urgentDays;
+                }
+              }
+            });
+          }
+
+          const status = getItemStatus(addedAtDate, minAgingDays, minUrgentDays);
+
+          if (status === 'warning') {
+            agingCount++;
+          }
+          else if (status === 'critical') {
+            urgentCount++;
+          }
+        }
       });
 
       const stats = {
         totalItems: pantrySnapshot.size,
         categoryCount: categories.size,
         lowStockCount,
+        agingCount,
+        urgentCount,
       };
 
-      console.log(`pantry stats: ${stats}`);
+      console.log(`pantry stats: ${JSON.stringify(stats)}`); 
       return stats;
     }
     catch (e: any) {
@@ -220,10 +284,6 @@ export const pantryServices = {
       console.error(`unable to get pantry item with ${categoryName} from pantry`)
       throw e;
     }
-  },
-
-  async getPantryLowStockAlert(userId: string): Promise<void> {
-    // Todo, find a low stock system
   },
 
   async addCategoryToItem(userId: string, itemId: string, categoryName: string): Promise<void> {

@@ -1,9 +1,15 @@
 import firestore from '@react-native-firebase/firestore';
 import { Category } from '../hooks/useCategory';
+import { DEFAULT_AGING_DAYS, DEFAULT_URGENT_DAYS } from '../utils/PantryAgeUtils';
 
 export const categoryServices = {
-    async addCategory(userId: string, categoryName: string): Promise<void> {
-        if (!categoryName.trim()) { throw new Error('cateogyr name cannot be empty'); }
+    async addCategory(
+        userId: string, 
+        categoryName: string,
+        agingDays: number = DEFAULT_AGING_DAYS,
+        urgentDays: number = DEFAULT_URGENT_DAYS
+    ): Promise<void> {
+        if (!categoryName.trim()) { throw new Error('category name cannot be empty'); }
 
         try {
             await firestore()
@@ -12,9 +18,11 @@ export const categoryServices = {
               .collection('categories')
               .add({
                 name: categoryName.trim().toLowerCase(),
+                agingDays,
+                urgentDays,
                 createdAt: firestore.FieldValue.serverTimestamp(),
               });
-            console.log(`added category ${categoryName}`);
+            console.log(`added category ${categoryName} with aging: ${agingDays}, urgent: ${urgentDays}`);
         }
         catch (e: any) {
             console.error(`error adding category: ${e}`)
@@ -62,7 +70,13 @@ export const categoryServices = {
         }
     },
 
-    async editCategory(userId: string, categoryId: string, newCategoryName: string): Promise<void> {
+    async editCategory(
+        userId: string, 
+        categoryId: string, 
+        newCategoryName: string,
+        agingDays: number,
+        urgentDays: number
+    ): Promise<void> {
         try {
             const trimmedName = newCategoryName.trim().toLowerCase();
             if (!trimmedName) { throw new Error('category name cannot be empty'); }
@@ -84,7 +98,7 @@ export const categoryServices = {
                 .doc(categoryId)
                 .get();
 
-            if (!categoryDoc) { throw new Error('category not found'); }
+            if (!categoryDoc.exists) { throw new Error('category not found'); }
             const oldCategoryName = categoryDoc.data()?.name;
 
             await firestore()
@@ -94,6 +108,8 @@ export const categoryServices = {
                 .doc(categoryId)
                 .update({
                     name: trimmedName,
+                    agingDays,
+                    urgentDays,
                     updatedAt: firestore.FieldValue.serverTimestamp(),
                 });
             
@@ -120,10 +136,10 @@ export const categoryServices = {
                 });
 
                 await batch.commit();
-                console.log(`updated ${pantrySnapshot.size} items from ${oldCategoryName}`);
+                console.log(`updated ${pantrySnapshot.size} items from ${oldCategoryName} to ${trimmedName}`);
             }
             
-            console.log(`renamed category from ${oldCategoryName} to ${trimmedName}`);
+            console.log(`renamed category from ${oldCategoryName} to ${trimmedName} with aging: ${agingDays}, urgent: ${urgentDays}`);
         }
         catch (e: any) {
             console.error(`unable to edit the category: ${e}`);
@@ -155,7 +171,10 @@ export const categoryServices = {
                 }
             });
 
-            if (pantryCategories.size === 0) { console.log('no categories found in pantry'); }
+            if (pantryCategories.size === 0) { 
+                console.log('no categories found in pantry'); 
+                return;
+            }
 
             const categoriesSnapshot = await firestore()
                 .collection('Users')
@@ -189,6 +208,8 @@ export const categoryServices = {
                     const newCategoryDoc = categoriesColl.doc();
                     batch.set(newCategoryDoc, {
                         name: categoryName,
+                        agingDays: DEFAULT_AGING_DAYS,
+                        urgentDays: DEFAULT_URGENT_DAYS,
                         addedAt: firestore.FieldValue.serverTimestamp(),
                     });
                 });
@@ -240,6 +261,8 @@ export const categoryServices = {
                     fireId: categoriesDoc.id,
                     name: field.name,
                     addedAt: field.addedAt,
+                    agingDays: field.agingDays,
+                    urgentDays: field.urgentDays,
                     itemCount: categoryCountMap.get(field.name) || 0,
                 };
             });
