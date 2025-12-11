@@ -36,7 +36,8 @@ export default function ProfilePage() {
                     onAddItem={() => router.push('/(tabs)/cookbook')}
                  />
                 )
-              :  <LikedView/>
+              :  <LikedView
+                    />
             }
           </View>
         );
