@@ -31,7 +31,9 @@ type PlannedRecipes = Record<string, PlannedRecipe[]>;
 export default function CalendarPage() {
   const { user } = useAuth();
   const [calendarView, setCalendarView] = useState<CalendarView>("month");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const today = new Date();
+  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const [selectedDate, setSelectedDate] = useState(todayString);
   const [plannedRecipes, setPlannedRecipes] = useState<PlannedRecipes>({});
   const [loading, setLoading] = useState(false); 
   const [modalVisible, setModalVisible] = useState(false);
@@ -200,7 +202,8 @@ export default function CalendarPage() {
   };
 
   const getWeekDates = (date: string) => {
-    const currentDate = new Date(date);
+    const [year, month, day] = date.split('-').map(Number);
+    const currentDate = new Date(year, month - 1, day);
     const dayOfWeek = currentDate.getDay();
     const startOfWeek = new Date(currentDate);
     
@@ -210,7 +213,8 @@ export default function CalendarPage() {
     for (let i = 0; i < 7; i++) {
       const weekDate = new Date(startOfWeek);
       weekDate.setDate(startOfWeek.getDate() + i);
-      weekDates.push(weekDate.toISOString().split("T")[0]);
+      const dateString = `${weekDate.getFullYear()}-${String(weekDate.getMonth() + 1).padStart(2, '0')}-${String(weekDate.getDate()).padStart(2, '0')}`;
+      weekDates.push(dateString);
     }
 
     return weekDates;

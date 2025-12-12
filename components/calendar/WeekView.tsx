@@ -31,19 +31,24 @@ export default function WeekView({
 }: WeekViewProps) {
   
   const navigateWeek = (direction: 'prev' | 'next') => {
-    const currentDate = new Date(selectedDate);
+    const [year, month, day] = selectedDate.split('-').map(Number);
+    const currentDate = new Date(year, month - 1, day);
     const daysToAdd = direction === 'next' ? 7 : -7;
     currentDate.setDate(currentDate.getDate() + daysToAdd);
-    onDateSelect(currentDate.toISOString().split('T')[0]);
+    const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+    onDateSelect(dateString);
   };
 
   const renderWeekDay = (date: string) => {
     const recipesForDay = getRecipesForDate(date);
-    const dateObj = new Date(date);
-    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
     const dayNumber = dateObj.getDate();
     const isSelected = date === selectedDate;
-    const isToday = date === new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const isToday = date === todayString;
 
     return (
       <TouchableOpacity
@@ -77,22 +82,27 @@ export default function WeekView({
       </TouchableOpacity>
     );
   };
+  const [year, month, day] = selectedDate.split('-').map(Number);
+  const selectedDateObj = new Date(year, month - 1, day);
+  const formattedDate = selectedDateObj.toLocaleDateString('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+});
 
-  const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
+  const [startYear, startMonth, startDay] = weekDates[0].split('-').map(Number);
+  const weekStartDateObj = new Date(startYear, startMonth - 1, startDay);
+  const weekStartDate = weekStartDateObj.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+});
 
-  const weekStartDate = new Date(weekDates[0]).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-
-  const weekEndDate = new Date(weekDates[6]).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
+  const [endYear, endMonth, endDay] = weekDates[6].split('-').map(Number);
+  const weekEndDateObj = new Date(endYear, endMonth - 1, endDay);
+  const weekEndDate = weekEndDateObj.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+});
 
   return (
     <>
