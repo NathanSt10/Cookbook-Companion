@@ -49,7 +49,6 @@ export default function CategoryAddModal({
 
     setLoading(true);
     try {
-      // Use default values for aging and urgent days
       await onAdd(trimmedName, DEFAULT_AGING_DAYS, DEFAULT_URGENT_DAYS);
       resetForm();
     }
@@ -100,9 +99,9 @@ export default function CategoryAddModal({
         <View style={styles.infoBox}>
           <Text style={styles.infoTitle}>Default Settings</Text>
           <Text style={styles.infoText}>
-            â€¢ Items will show "aging" after {DEFAULT_AGING_DAYS} days{'\n'}
-            â€¢ Items will show "urgent" after {DEFAULT_URGENT_DAYS} days{'\n'}
-            â€¢ You can customize these settings later by editing the category
+            - Items will show "aging" after {DEFAULT_AGING_DAYS} days{'\n'}
+            - Items will show "urgent" after {DEFAULT_URGENT_DAYS} days{'\n'}
+            - You can customize these settings later by editing the category
           </Text>
         </View>
 
@@ -146,7 +145,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   infoBox: {
-    backgroundColor: 'aliceblue',
+    backgroundColor: 'white',
     borderRadius: 8,
     padding: 16,
     borderLeftWidth: 4,

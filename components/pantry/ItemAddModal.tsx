@@ -289,34 +289,6 @@ export default function ItemAddModal({
               Enter amount and select a unit (e.g., "500" + "g" for 500 grams)
             </Text>
         </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Reminder Date (Optional)</Text>
-          
-          <TouchableOpacity
-            style={styles.datePickerButton}
-            onPress={() => setShowDatePicker(true)}
-            disabled={loading}
-          >
-            <Ionicons name="calendar-outline" size={20} color="royalblue" />
-            <Text style={styles.datePickerButtonText}>
-              {reminderDate ? formatDate(reminderDate) : 'Set a reminder date'}
-            </Text>
-            {reminderDate && (
-              <TouchableOpacity
-                onPress={clearReminderDate}
-                style={styles.clearDateButton}
-                disabled={loading}
-              >
-                <Ionicons name="close-circle" size={20} color="grey" />
-              </TouchableOpacity>
-            )}
-          </TouchableOpacity>
-
-          <Text style={styles.hint}>
-            Set a date to remind you about this item (e.g., expiration date)
-          </Text>
-        </View>
       </ScrollView>
     </Modal>
   );

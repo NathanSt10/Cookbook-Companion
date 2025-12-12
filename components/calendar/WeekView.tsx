@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import EmptyMealState from './EmptyMealState';
@@ -137,6 +138,7 @@ export default function WeekView({
                   <RecipeCard
                     title={item.title}
                     image={item.image}
+                    onPress={() => router.push(`/recipe/${item.recipeId}`)}
                     onRemove={() => onRemoveRecipe(item.fireId, item.date)}
                   />)
                 }

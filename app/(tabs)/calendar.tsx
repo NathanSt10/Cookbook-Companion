@@ -1,10 +1,11 @@
 import firestore from "@react-native-firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import CalendarViewToggle from "../../components/calendar/CalendarViewToggle";
 import MonthView from "../../components/calendar/MonthView";
 import { default as Recipe, default as RecipePickerModal } from "../../components/calendar/RecipePicker";
 import WeekView from "../../components/calendar/WeekView";
+import { getLocalDateString } from "../../utils/DateUtils";
 import FloatingActionButton from "../../utils/FloatingActionButton";
 import HeaderFormatFor from "../../utils/HeaderFormatFor";
 import { useAuth } from "../context/AuthContext";
@@ -31,7 +32,7 @@ type PlannedRecipes = Record<string, PlannedRecipe[]>;
 export default function CalendarPage() {
   const { user } = useAuth();
   const [calendarView, setCalendarView] = useState<CalendarView>("month");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [plannedRecipes, setPlannedRecipes] = useState<PlannedRecipes>({});
   const [loading, setLoading] = useState(false); 
   const [modalVisible, setModalVisible] = useState(false);
@@ -181,7 +182,7 @@ export default function CalendarPage() {
     }
   };
 
-  const getMarkedDates = () => {
+  const getMarkedDates = useMemo(() => {
     const marked: any = {
       [selectedDate]: { selected: true, selectedColor: "black" },
     };
@@ -197,7 +198,7 @@ export default function CalendarPage() {
     });
 
     return marked;
-  };
+  }, [plannedRecipes, selectedDate]);
 
   const getWeekDates = (date: string) => {
     const currentDate = new Date(date);
@@ -239,7 +240,7 @@ export default function CalendarPage() {
         ? (<MonthView  
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
-            markedDates={getMarkedDates()}
+            markedDates={getMarkedDates}
             recipes={getRecipesForDate(selectedDate)}
             onRemoveRecipe={removeRecipeFromDate}
            />

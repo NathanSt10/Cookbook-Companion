@@ -79,9 +79,13 @@ export default function PantryScreen() {
     setEditPantryItemModalVisible(false);
   };
 
-  const handlePantryItemEditHelper = (item: PantryItem) => {
+  const handlePantryItemEditHelper = async (item: PantryItem) => {
     setEditingItem(item); 
     setEditPantryItemModalVisible(true);
+
+    if (user?.uid) {
+      await categoryServices.syncCategoriesFromPantry(user.uid);
+    }
   }
 
   const handlePantryItemDelete = async (itemId: string) => {

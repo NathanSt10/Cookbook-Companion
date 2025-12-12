@@ -1,37 +1,67 @@
-export const getItemAge = (addedAt: Date): number => {
-  const now = new Date();
-  const ageInMs = now.getTime() - addedAt.getTime();
-  return Math.floor(ageInMs / (1000 * 60 * 60 * 24));
-};
-
-export type ItemStatus = 'fresh' | 'warning' | 'critical';
+import { getDaysBetween, parseFirestoreDate } from './DateUtils';
 
 export const DEFAULT_AGING_DAYS = 7;
 export const DEFAULT_URGENT_DAYS = 14;
 
+export type ItemStatus = 'fresh' | 'warning' | 'critical';
+
+export const getItemAge = (addedAt: Date | any): number => {
+  const addedDate = parseFirestoreDate(addedAt);
+  const days = getDaysBetween(addedDate);
+  
+  return Math.max(0, days);
+};
+
 export const getItemStatus = (
-  addedAt: Date,
-  warningDays: number = DEFAULT_AGING_DAYS,
-  criticalDays: number = DEFAULT_URGENT_DAYS 
+  addedAt: Date | any,
+  agingDays: number = DEFAULT_AGING_DAYS,
+  urgentDays: number = DEFAULT_URGENT_DAYS
 ): ItemStatus => {
   const age = getItemAge(addedAt);
-  if (age >= criticalDays) return 'critical';
-  if (age >= warningDays) return 'warning';
+
+  if (age >= urgentDays) {
+    return 'critical';
+  }
+  
+  if (age >= agingDays) {
+    return 'warning';
+  }
+  
   return 'fresh';
+};
+
+export const getStatusBadgeText = (status: ItemStatus): string | null => {
+  switch (status) {
+    case 'warning':
+      return 'Aging';
+    case 'critical':
+      return 'Urgent';
+    case 'fresh':
+    default:
+      return null;
+  }
 };
 
 export const getStatusColor = (status: ItemStatus): string => {
   switch (status) {
-    case 'critical': return 'firebrick';  
-    case 'warning': return 'goldenrod';     
-    case 'fresh': return 'forestgreen';      
+    case 'warning':
+      return 'darkorange';
+    case 'critical':
+      return 'firebrick';
+    case 'fresh':
+    default:
+      return 'green';
   }
 };
 
-export const getStatusBadgeText = (status: ItemStatus): string => {
-  switch (status) {
-    case 'critical': return 'Urgent';
-    case 'warning': return 'Aging';
-    case 'fresh': return 'Good';
-  }
+export const getStatusDate = (addedAt: Date | any, targetDays: number): Date => {
+  const addedDate = parseFirestoreDate(addedAt);
+  const targetDate = new Date(addedDate);
+  targetDate.setDate(targetDate.getDate() + targetDays);
+  return targetDate;
+};
+
+export const getDaysUntilStatus = (addedAt: Date | any, targetDays: number): number => {
+  const age = getItemAge(addedAt);
+  return targetDays - age;
 };
