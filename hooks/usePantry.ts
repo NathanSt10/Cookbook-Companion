@@ -9,8 +9,8 @@ export interface PantryItem {
   category: string[];
   quantity?: string | number;
   unit?: any;
-  isPerishabe?: boolean;
   addedAt: Date;
+  reminderDate?: Date;
 }
 
 export interface PantryItemInput {
@@ -18,6 +18,7 @@ export interface PantryItemInput {
   category: string[];
   quantity?: string;
   unit?: string;
+  reminderDate?: Date;
 }
 
 export function usePantry() {
@@ -25,8 +26,15 @@ export function usePantry() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [pantry, setPantry] = useState<PantryItem[]>([]);
-  const [stats, setStats] = useState({totalItems: 0, categoryCount: 0, lowStockCount: 0});
   const [statsLoading, setStatsLoading] = useState<Boolean>(true);
+  const [stats, setStats] = useState({
+    totalItems: 0, 
+    categoryCount: 0,
+    lowStockCount: 0,
+    agingCount: 0,
+    urgentCount: 0
+  });
+
 
   const handleItemsFromSnap = useCallback((snapshot: any) => {
     const items: PantryItem[] = [];
@@ -39,6 +47,7 @@ export function usePantry() {
         quantity: field.quantity,
         unit: field.unit,
         addedAt: field.addedAt?.toDate?.() || new Date(field.addedAt),
+        reminderDate: field.reminderDate?.toDate?.() || (field.reminderDate ? new Date(field.reminderDate) : undefined),
       });
     });
     return items;
@@ -99,7 +108,7 @@ export function usePantry() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) { return; }
+    if (!user || pantry.length === 0) { return; }
 
     const fetchStats = async () => {
       try {
@@ -116,7 +125,7 @@ export function usePantry() {
     };
 
     fetchStats();
-  }, [user]);
+  }, [user, pantry]);
 
   return {
       pantry,

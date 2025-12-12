@@ -2,12 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { formatQuantityWithUnit } from '../../constants/pantryUnits';
+import { Category } from '../../hooks/useCategory';
 import { PantryItem } from '../../hooks/usePantry';
 import { capitalizeFirstLetter } from '../../utils/CapitalizeFirstLetter';
-import { getItemAge, getItemStatus, getStatusBadgeText, getStatusColor } from '../../utils/PantryAgeUtils';
+import { DEFAULT_AGING_DAYS, DEFAULT_URGENT_DAYS, getItemAge, getItemStatus, getStatusBadgeText, getStatusColor } from '../../utils/PantryAgeUtils';
 
 interface ItemCardProps {
   item: PantryItem;
+  categories: Category[];
   onPress?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -15,11 +17,34 @@ interface ItemCardProps {
 
 export default function ItemCard({
   item,
+  categories,
   onPress,
   onEdit,
   onDelete,
 }: ItemCardProps) {
+  console.log('ItemCard category: ', item.category);
   
+  const getItemThresholds = () => {
+    let minAgingDays = DEFAULT_AGING_DAYS;
+    let minUrgentDays = DEFAULT_URGENT_DAYS;
+
+    if (item.category && Array.isArray(item.category)) {
+      item.category.forEach(catName => {
+        const category = categories.find(cat => cat.name === catName);
+        if (category) {
+          if (category.agingDays !== undefined && category.agingDays < minAgingDays) {
+            minAgingDays = category.agingDays;
+          }
+          if (category.urgentDays !== undefined && category.urgentDays < minUrgentDays) {
+            minUrgentDays = category.urgentDays;
+          }
+        }
+      });
+    }
+
+    return { agingDays: minAgingDays, urgentDays: minUrgentDays };
+  }
+
   const getNumericQuantity = () => {
     if (!item.quantity) { return null; }
 
@@ -32,15 +57,17 @@ export default function ItemCard({
   const numericQty = getNumericQuantity();
   const isLowStock = numericQty !== null && numericQty > 0 && numericQty <= 2;
   const itemAge = getItemAge(item.addedAt);
-  const itemStatus = getItemStatus(item.addedAt);
+
+  const { agingDays, urgentDays } = getItemThresholds();
+  const itemStatus = getItemStatus(item.addedAt, agingDays, urgentDays);
   const statusBadgeText = getStatusBadgeText(itemStatus);
   const statusColor = getStatusColor(itemStatus);
 
   const formatDate = (date: Date) => {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const day = date.getUTCDate();
-    const month = months[date.getUTCMonth()];
-    const year = date.getUTCFullYear();
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
     return `${month} ${day}, ${year}`;
   };
 
@@ -90,6 +117,15 @@ export default function ItemCard({
         <Text style={styles.detailText}>
           Pantry Age: {itemAge} {itemAge === 1 ? 'day' : 'days'}
         </Text>
+
+        {item.reminderDate && (
+          <View style={styles.reminderContainer}>
+            <Ionicons name="calendar-outline" size={14} color="royalblue" />
+            <Text style={styles.reminderText}>
+              Reminder: {formatDate(item.reminderDate)}
+            </Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -203,6 +239,17 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 14,
     color: 'black',
+  },
+  reminderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  reminderText: {
+    fontSize: 13,
+    color: 'royalblue',
+    fontWeight: '500',
   },
   actions: {
     flexDirection: 'column',

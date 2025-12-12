@@ -26,6 +26,8 @@ export default function ItemEditModal({
   const [loading, setLoading] = useState<boolean>(false);
   const [newCategoryInput, setNewCategoryInput] = useState<string>('');
   const [unit, setUnit] = useState<string>('');
+  const [reminderDate, setReminderDate] = useState<Date | undefined>(undefined);
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
   const allCategories = [...new Set([...categories, ...selectedCategories])];
 
@@ -37,6 +39,7 @@ export default function ItemEditModal({
       setSelectedCategories([]);
       setQuantity('');
       setUnit('');
+      setReminderDate(undefined);
       return;
     }
 
@@ -44,6 +47,7 @@ export default function ItemEditModal({
    setSelectedCategories(Array.isArray(editingItem.category) ? editingItem.category : [editingItem.category]);
    setQuantity('');
    setUnit('');
+   setReminderDate(editingItem.reminderDate);
   }, [visible, editingItem]);
   
   const resetForm = () => {
@@ -52,6 +56,8 @@ export default function ItemEditModal({
     setQuantity('');
     setUnit('');
     setNewCategoryInput('');
+    setReminderDate(undefined);
+    setShowDatePicker(false);
   };
 
   const handleClose = () => {
@@ -60,46 +66,70 @@ export default function ItemEditModal({
   };
 
   const handleSave = async () => {
-    if (!editingItem) {
-      Alert.alert('Error', 'No item selected for editing');
+  if (!editingItem) {
+    Alert.alert('Error', 'No item selected for editing');
+    return;
+  }
+
+  if (!name.trim()) {
+    Alert.alert('Error', 'Please enter an item name');
+    return;
+  }
+
+  if (selectedCategories.length === 0) {
+    Alert.alert('Error', 'Please select at least one category');
+    return;
+  }
+
+  // Validate quantity if it exists
+  if (quantity.trim()) {
+    // First check if it's a valid number
+    const validQuantityInput = /^[0-9]*\.?[0-9]+$/;
+    
+    if (!validQuantityInput.test(quantity)) {
+      Alert.alert('Invalid Quantity', 'Please enter a valid number');
       return;
     }
 
-    if (!name.trim()) {
-      Alert.alert('Error', 'Please enter an item name');
+    const numericQty = parseFloat(quantity);
+    if (isNaN(numericQty) || numericQty <= 0) {
+      Alert.alert('Invalid Quantity', 'Please enter a positive number');
       return;
     }
 
-    if (selectedCategories.length === 0) {
-      Alert.alert('Error', 'Please select at least one category');
+    if (numericQty > 1_000_000) {
+      Alert.alert('Invalid Quantity', 'Quantity is too large');
       return;
     }
 
-    if (quantity.trim() && !unit.trim()) {
+    // Then check if unit is required
+    if (!unit.trim()) {
       Alert.alert('Missing Unit', 'Please select a unit for the quantity');
       return;
     }
+  }
 
-    setLoading(true);
-    try {
-      await onEdit(editingItem.fireId, {
-        name: name.trim(),
-        category: selectedCategories.length > 0 ? selectedCategories : ['other'],
-        quantity: quantity.trim() || undefined,
-        unit: unit.trim() || undefined,
-      });
-      
-      console.log("edited item in pantry");
-      resetForm();
-      onClose();
-    } 
-    catch (error) {
-      Alert.alert('Error', 'Failed to edit item. Please try again.');
-    } 
-    finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    await onEdit(editingItem.fireId, {
+      name: name.trim(),
+      category: selectedCategories.length > 0 ? selectedCategories : ['other'],
+      quantity: quantity.trim() || undefined,
+      unit: unit.trim() || undefined,
+      reminderDate: reminderDate,
+    });
+    
+    console.log("edited item in pantry");
+    resetForm();
+    onClose();
+  } 
+  catch (error) {
+    Alert.alert('Error', 'Failed to edit item. Please try again.');
+  } 
+  finally {
+    setLoading(false);
+  }
+};
 
   const handleAddNewCategory = () => {
     const trimmedCategory = newCategoryInput.trim().toLowerCase();
@@ -128,6 +158,27 @@ export default function ItemEditModal({
         ? prev.filter(c => c !== cat)
         : [...prev, cat]
     );
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    // Android automatically closes the picker after selection
+    setShowDatePicker(false);
+    
+    if (event.type === 'set' && selectedDate) {
+      setReminderDate(selectedDate);
+    }
+  };
+
+  const formatDate = (date: Date) => {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  };
+
+  const clearReminderDate = () => {
+    setReminderDate(undefined);
   };
 
   return (
@@ -258,6 +309,34 @@ export default function ItemEditModal({
               Enter amount and select a unit (e.g., "500" + "g" for 500 grams)
             </Text>
         </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Reminder Date (Optional)</Text>
+          
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+            disabled={loading}
+          >
+            <Ionicons name="calendar-outline" size={20} color="royalblue" />
+            <Text style={styles.datePickerButtonText}>
+              {reminderDate ? formatDate(reminderDate) : 'Set a reminder date'}
+            </Text>
+            {reminderDate && (
+              <TouchableOpacity
+                onPress={clearReminderDate}
+                style={styles.clearDateButton}
+                disabled={loading}
+              >
+                <Ionicons name="close-circle" size={20} color="grey" />
+              </TouchableOpacity>
+            )}
+          </TouchableOpacity>
+
+          <Text style={styles.hint}>
+            Set a date to remind you about this item (e.g., expiration date)
+          </Text>
+        </View>
       </ScrollView>
     </Modal>
   );
@@ -375,5 +454,23 @@ const styles = StyleSheet.create({
   },
   quantityInput: {
     flex: 1,
+  },
+  datePickerButton: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'gainsboro',
+  },
+  datePickerButtonText: {
+    flex: 1,
+    fontSize: 16,
+    color: 'black',
+  },
+  clearDateButton: {
+    padding: 4,
   },
 });

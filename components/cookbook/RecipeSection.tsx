@@ -24,6 +24,8 @@ interface RecipeSectionProps {
   onLike?: (recipeId: number, title: string, image: string) => void;
   onSave?: (recipeId: number, title: string, image: string) => void;
   testID?: string;
+  alwaysShow?: boolean;
+  hideWhenEmpty?: boolean;
 }
 
 export default function RecipeSection({
@@ -38,6 +40,8 @@ export default function RecipeSection({
   onLike,
   onSave,
   testID,
+  alwaysShow = false,
+  hideWhenEmpty = false,
 }: RecipeSectionProps) {
   const handleRecipePress = (recipeId: number) => {
     router.push({
@@ -46,7 +50,7 @@ export default function RecipeSection({
     });
   };
 
-  if (recipes.length === 0) { return null; }
+  if (hideWhenEmpty && recipes.length === 0) { return null; }
 
   return (
     <View style={styles.container} testID={testID}>
@@ -61,38 +65,46 @@ export default function RecipeSection({
           </View>
         </View>
         
-        {showViewAll && (
+        {showViewAll && recipes.length > 0 && (
           <TouchableOpacity onPress={onViewAll} style={styles.viewAllButton}>
             <Text style={styles.viewAllText}>View All</Text>
             <Ionicons name="chevron-forward" size={16} color="royalblue" />
           </TouchableOpacity> )
         }
       </View>
-
-      <FlatList
-        data={recipes}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <RecipeCard
-            recipeId={item.id}
-            title={item.title}
-            image={item.image}
-            cookTime={item.cookTime || 30}
-            usedIngredientCount={item.usedIngredientCount}
-            missedIngredientCount={item.missedIngredientCount}
-            showIngredientMatch={title === "Finish It"}
-            onLike={() => onLike?.(item.id, item.title, item.image)}
-            onSave={() => onSave?.(item.id, item.title, item.image)}
-            onPress={() => handleRecipePress(item.id)}
-          />
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContainer}
-      />
+      
+      {recipes.length === 0
+        ? (<View style={styles.emptyContainer}>
+            <Text style={styles.emptyMessage}>{emptyMessage}</Text>
+          </View>
+          )
+        : (<FlatList  
+            data={recipes}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <RecipeCard
+                recipeId={item.id}
+                title={item.title}
+                image={item.image}
+                cookTime={item.cookTime || 30}
+                usedIngredientCount={item.usedIngredientCount}
+                missedIngredientCount={item.missedIngredientCount}
+                showIngredientMatch={title === "Finish It"}
+                onLike={() => onLike?.(item.id, item.title, item.image)}
+                onSave={() => onSave?.(item.id, item.title, item.image)}
+                onPress={() => handleRecipePress(item.id)}
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.listContainer}
+           />
+          )
+      }
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -140,5 +152,25 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 20,
+  },
+  emptyContainer: {
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    padding: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 100,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  emptyMessage: {
+    fontSize: 14,
+    color: 'grey',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

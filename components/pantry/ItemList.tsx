@@ -1,11 +1,13 @@
 import React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
+import { Category } from '../../hooks/useCategory';
 import { PantryItem } from '../../hooks/usePantry';
 import ItemCard from './ItemCard';
 import PantryEmptyState from './PantryEmptyState';
 
 interface ItemListProps {
   items: PantryItem[];
+  categories: Category[];
   onEditItem?: (item: PantryItem) => void;
   onDeleteItem?: (id: string, name: string) => void;
   onItemPress?: (item: PantryItem) => void;
@@ -14,6 +16,7 @@ interface ItemListProps {
 
 export default function ItemList({
   items,
+  categories,
   onEditItem,
   onDeleteItem,
   onItemPress,
@@ -31,6 +34,7 @@ export default function ItemList({
       renderItem={({ item }) => (
         <ItemCard
           item={item}
+          categories={categories}
           onPress={onItemPress ? () => onItemPress(item) : undefined}
           onEdit={onEditItem ? () => onEditItem(item) : undefined}
           onDelete={onDeleteItem ? () => onDeleteItem(item.fireId, item.name) : undefined}
