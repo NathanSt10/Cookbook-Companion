@@ -1,5 +1,5 @@
-import { StyleSheet, View, Text } from 'react-native';
 import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 interface PantryEmptyStateProps {
     onAddItem: () => void;
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: -300,
+        paddingVertical: 60,
     },
     title: {
         fontSize: 18,

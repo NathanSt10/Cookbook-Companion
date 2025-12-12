@@ -1,12 +1,6 @@
 import firestore from '@react-native-firebase/firestore';
 import { useEffect, useState } from 'react';
-import {
-  getFinishItRecipes,
-  getForYouRecipes,
-  getRandomRecipes,
-  getSimilarRecipes,
-  SpoonacularRecipe,
-} from '../app/api/spoonacular';
+import { getFinishItRecipes, getForYouRecipes, getRandomRecipes, getSimilarRecipes, SpoonacularRecipe, } from '../app/api/spoonacular';
 import { useAuth } from '../app/context/AuthContext';
 import { usePantry } from './usePantry';
 import { usePreferences } from './usePreferences';
@@ -15,7 +9,7 @@ interface Recipe {
   id: number;
   title: string;
   image: string;
-  cookTime: number; // minutes
+  cookTime: number;
   usedIngredientCount?: number;
   missedIngredientCount?: number;
 }
@@ -26,6 +20,7 @@ export interface PersonalizedRecipes {
   similar: Recipe[];
   recentlyViewed: Recipe[];
   random: Recipe[];
+  cookbook: Recipe[];
 }
 
 const EMPTY_RECIPES: PersonalizedRecipes = {
@@ -34,6 +29,7 @@ const EMPTY_RECIPES: PersonalizedRecipes = {
   similar: [],
   recentlyViewed: [],
   random: [],
+  cookbook: [],
 };
 
 function mapFromSpoonacular(raw: SpoonacularRecipe[]): Recipe[] {
@@ -56,6 +52,16 @@ export function useCookbook() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const pantryLength = pantry.length;
+  const pantryItems = JSON.stringify(pantry.map(item => item.name).sort());
+  const preferencesList = JSON.stringify({
+    dietary: preferences.dietary.sort(),
+    cuisines: preferences.cuisines.sort(),
+    dislikes: preferences.dislikes?.sort() || [],
+    allergies: preferences.allergies?.sort() || [],
+    cookingpref: preferences.cookingpref?.sort() || [],
+  });
+
   useEffect(() => {
     if (!user) {
       setRecipes(EMPTY_RECIPES);
@@ -70,6 +76,22 @@ export function useCookbook() {
       setError(null);
 
       try {
+
+        const cookbookData = await firestore()
+          .collection('Users')
+          .doc(user.uid)
+          .collection('recipes')
+          .get();
+        const cookbook: Recipe[] = cookbookData.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: data.id,
+            title: data.title,
+            image: data.image,
+            cookTime: data.readyInMinutes || data.cookingMinutes || 0,
+          };
+        });
+        
         const forYouData = await getForYouRecipes({
           preferences,
           pantry,
@@ -86,6 +108,7 @@ export function useCookbook() {
         const randomData = await getRandomRecipes(12);
         const random = mapFromSpoonacular(randomData);
 
+        console.log('fetching recentlyViewed from firestore')
         const recentSnap = await firestore()
           .collection('Users')
           .doc(user.uid)
@@ -94,6 +117,8 @@ export function useCookbook() {
           .limit(20)
           .get();
 
+        console.log('number of recently viewed recipes:', recentSnap.docs.length);
+        
         const recentlyViewed: Recipe[] = recentSnap.docs.map((doc) => {
           const data: any = doc.data();
           return {
@@ -120,6 +145,7 @@ export function useCookbook() {
           similar,
           recentlyViewed,
           random,
+          cookbook
         });
       } 
       catch (e: any) {
@@ -132,7 +158,7 @@ export function useCookbook() {
     };
 
     fetchCookbook();
-  }, [user, pantryLoading, preferencesLoading, pantry, preferences]);
+  }, [user, pantryLoading, preferencesLoading, pantryLength, pantryItems, preferencesList]);
 
   return { recipes, loading, error };
 }

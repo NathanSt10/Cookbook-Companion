@@ -53,6 +53,9 @@
         "projectId": "ef456893-463b-4b48-936a-4098d57be1d7"
       },
       "spoonacularApiKey": "YOUR_KEY_HERE"
+    },
+    "ios": {
+      "bundleIdentifier": "com.capstone.mycookbookcompanion"
     }
   }
 }

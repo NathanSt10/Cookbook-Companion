@@ -93,7 +93,7 @@ export default function PreferenceSection({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "whitesmoke",
+    backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "whitesmoke",
     borderWidth: 1,
     borderColor: "gainsboro",
     borderRadius: 8,
@@ -142,8 +142,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     flexDirection: "row",
-    backgroundColor: "whitesmoke",
-    borderRadius: 20,
+    backgroundColor: "gainsboro",
+    borderRadius: 18,
     paddingVertical: 8,
     paddingHorizontal: 12,
     alignItems: "center",

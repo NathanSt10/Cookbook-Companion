@@ -87,7 +87,7 @@ export default function CookbookPage() {
           />
         </View>
         <TouchableOpacity
-          style={styles.filterButton}
+          style={styles.browseButton}
           onPress={() => setBrowseModalVisible(true)}
         >
           <Ionicons name="archive-outline" size={24} color="royalblue" />
@@ -110,6 +110,7 @@ export default function CookbookPage() {
             onLike={handleLikedRecipe}
             onSave={handleSavedRecipe}
             testID="browse-results-section"
+            hideWhenEmpty={true}
           />
         )}
 
@@ -125,8 +126,17 @@ export default function CookbookPage() {
             onLike={handleLikedRecipe}
             onSave={handleSavedRecipe}
             testID="search-results-section"
+            hideWhenEmpty={true}
           />
         )}
+
+        <RecipeSection  
+          title="Your Cookbook"
+          subtitle="Recipes in your cookbook"
+          recipes={recipes.cookbook}
+          testID="cookbook-section"
+          emptyMessage="Save recipes to your cookbook to access them anytime"
+        />
 
         <RecipeSection
           title="For You"
@@ -135,15 +145,17 @@ export default function CookbookPage() {
           onLike={handleLikedRecipe}
           onSave={handleSavedRecipe}
           testID="for-you-section"
+          emptyMessage="Populate your pantry and customize your preferences to get personalized recipe suggestions"
         />
 
         <RecipeSection
           title="Finish It"
-          subtitle="Gab a few more ingredients to make these"
+          subtitle="Grab a few more ingredients to make these"
           recipes={recipes.finishIt}
           onLike={handleLikedRecipe}
           onSave={handleSavedRecipe}
           testID="finish-it-section"
+          emptyMessage="Add ingredients to your pantry to see recipes you're close to completing"
         />
 
         <RecipeSection
@@ -153,24 +165,7 @@ export default function CookbookPage() {
           onLike={handleLikedRecipe}
           onSave={handleSavedRecipe}
           testID="similar-section"
-        />
-
-        <RecipeSection
-          title="Recently Viewed"
-          subtitle="Pick up where you left off"
-          recipes={recipes.recentlyViewed}
-          onLike={handleLikedRecipe}
-          onSave={handleSavedRecipe}
-          testID="recently-viewed-section"
-        />
-
-        <RecipeSection
-          title="Random Picks"
-          subtitle="A little surprise"
-          recipes={recipes.random}
-          onLike={handleLikedRecipe}
-          onSave={handleSavedRecipe}
-          testID="random-section"
+          emptyMessage="View a recipe to get similar suggestions based on what you like"
         />
       </ScrollView>
 
@@ -197,7 +192,7 @@ const styles = StyleSheet.create({
   searchBarContainer: {
     flex: 1,
   },
-  filterButton: {
+  browseButton: {
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 12,

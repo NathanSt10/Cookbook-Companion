@@ -1,5 +1,5 @@
 import auth from '@react-native-firebase/auth';
-import { getFirestore } from "@react-native-firebase/firestore";
+import firestore from '@react-native-firebase/firestore';
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -49,9 +49,10 @@ export default function RecipesScreen() {
   useEffect(() => {
     (async () => {
       try {
+        let loadedRecipe: Recipe | null = null;
         
         // First, check if recipe exists in Firestore
-        const firestoreSnapshot = await getFirestore()
+        const firestoreSnapshot = await firestore()
           .collection('Users')
           .doc(user?.uid)
           .collection('recipes')
@@ -61,7 +62,7 @@ export default function RecipesScreen() {
         if (!firestoreSnapshot.empty) {
           // Recipe found in Firestore
           const firestoreData = firestoreSnapshot.docs[0].data();
-          setRecipes({
+          loadedRecipe = {
             id: firestoreData.id,
             title: firestoreData.title,
             image: firestoreData.image,
@@ -71,7 +72,8 @@ export default function RecipesScreen() {
             preparationMinutes: firestoreData.preparationMinutes,
             instructions: firestoreData.instructions,
             extendedIngredients: firestoreData.extendedIngredients
-          } as Recipe);
+          } as Recipe;
+          setRecipes(loadedRecipe);
           setIsInFirestore(true);
           console.log('Recipe loaded from Firestore');
         } else {
@@ -84,6 +86,21 @@ export default function RecipesScreen() {
           } else {
             console.log('No recipe data returned');
           }
+        }
+
+        if (user?.uid && loadedRecipe) {
+          await firestore()
+            .collection('Users')
+            .doc(user.uid)
+            .collection('recentlyViewed')
+            .doc(id.toString())
+            .set({
+              id: Number(id),
+              title: recipes?.title || '',
+              image: recipes?.image || '',
+              cookTime: recipes?.readyInMinutes || recipes?.cookingMinutes || 0,
+              viewedAt: firestore.FieldValue.serverTimestamp(),
+            }, {merge: true});
         }
       } catch (error) {
         console.error('Error fetching recipe:', error);
@@ -125,7 +142,7 @@ export default function RecipesScreen() {
         }
       }
 
-      await getFirestore()
+      await firestore()
       .collection('Users')
       .doc(user?.uid)
       .collection('recipes')
@@ -150,7 +167,7 @@ export default function RecipesScreen() {
   const removeRecipe = async () => {
   try {
     // Find the document to delete
-    const firestoreSnapshot = await getFirestore()
+    const firestoreSnapshot = await firestore()
       .collection('Users')
       .doc(user?.uid)
       .collection('recipes')

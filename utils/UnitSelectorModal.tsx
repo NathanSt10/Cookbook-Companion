@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PANTRY_UNITS, UNIT_CATEGORIES, UnitCategory } from '../constants/pantryUnits';
 
 interface UnitSelectorProps {
@@ -118,36 +118,6 @@ export default function UnitSelector({ selectedUnit, onSelectUnit, disabled, tes
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
-
-                        <View style={styles.customUnitSelection}>
-                            <Text style={styles.sectionTitle}>Custom Unit</Text>
-                            <View style={styles.customUnitInput}>
-                                <TextInput
-                                    style={styles.customInput}
-                                    placeholder='e.g., pinch, dash, handful'
-                                    value={customUnit}
-                                    onChangeText={setCustomUnit}
-                                    onSubmitEditing={handleAddCustomUnit}
-                                    returnKeyType='done'
-                                />
-                                <TouchableOpacity
-                                    style={[
-                                        styles.addCustomButton,
-                                        !customUnit.trim() && styles.addCustomButtonDisabled
-                                    ]}
-                                    onPress={handleAddCustomUnit}   
-                                    disabled={!customUnit.trim()}
-                                    accessibilityState={{ disabled: !customUnit.trim() }}
-                                >
-                                    <Text style={[
-                                        styles.addCustomButtonText,
-                                        !customUnit.trim() && styles.addCustomButtonTextDisabled
-                                    ]}>
-                                        Add
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
 
                         <ScrollView style={styles.unitsScroll}>
                             <Text style={styles.sectionTitle}>Common Units</Text>
